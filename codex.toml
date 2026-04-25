@@ -1,0 +1,9 @@
+[mcp_servers.awslabs-aws-iac-mcp-server]
+command = "uvx"
+args = ["awslabs.aws-iac-mcp-server@latest"]
+startup_timeout_sec = 300
+
+[mcp_servers.awslabs-aws-iac-mcp-server.env]
+FASTMCP_LOG_LEVEL = "ERROR"
+AWS_PROFILE = "default"
+AWS_REGION = "ap-northeast-1"

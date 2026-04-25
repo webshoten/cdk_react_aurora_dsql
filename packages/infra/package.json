@@ -1,0 +1,24 @@
+{
+  "name": "@pf/infra",
+  "version": "0.1.0",
+  "private": true,
+  "bin": {
+    "cdk": "bin/cdk.js"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "esbuild": "^0.28.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "~6.0.3"
+  },
+  "dependencies": {
+    "@pf/functions": "workspace:*",
+    "aws-cdk-lib": "^2.251.0",
+    "constructs": "^10.6.0"
+  }
+}

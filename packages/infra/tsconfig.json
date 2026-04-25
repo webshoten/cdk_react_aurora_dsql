@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "paths": {
+      "@infra/*": ["./*"]
+    },
+    "noImplicitReturns": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "exclude": ["node_modules", "cdk.out"]
+}

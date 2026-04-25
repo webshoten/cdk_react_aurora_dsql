@@ -1,0 +1,22 @@
+{
+  "name": "@pf/core",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/dsql-signer": "^3.940.0",
+    "pg": "^8.16.3"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./db": "./src/db/index.ts",
+    "./hello": "./src/hello/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.6",
+    "@types/node": "^25.6.0",
+    "typescript": "~6.0.3"
+  }
+}
