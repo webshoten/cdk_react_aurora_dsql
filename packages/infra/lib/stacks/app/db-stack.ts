@@ -10,14 +10,18 @@ export interface DbStackProps extends cdk.StackProps {
   resourcePrefix: string;
 }
 
+// Aurora DSQL を stage ごとに作る Stack です。
+// shared contract を最初に読み、その環境に属する app リソースとして DB を組み立てます。
 export class DbStack extends cdk.Stack {
   public readonly clusterArn: string;
   public readonly endpoint: string;
   public readonly identifier: string;
 
+  // shared との境界をこの Stack の先頭で固定してから、DB 本体を作ります。
   constructor(scope: Construct, id: string, props: DbStackProps) {
     super(scope, id, props);
 
+    // SSM の値取得は Stack scope が必要なので、shared lookup はここで行います。
     const sharedConfig: SharedLookupValues = new SharedLookupConstruct(this, "SharedLookup", {
       sharedEnv: props.sharedEnv,
     });
@@ -25,6 +29,7 @@ export class DbStack extends cdk.Stack {
     cdk.Tags.of(this).add("SharedContractVersion", sharedConfig.contractVersion);
     cdk.Tags.of(this).add("SharedEnv", sharedConfig.sharedEnv);
 
+    // 作って壊す運用を前提にしているので、stage stack の DB は削除保護を有効にしません。
     const cluster = new dsql.CfnCluster(this, "Cluster", {
       deletionProtectionEnabled: false,
       tags: [
