@@ -2,6 +2,7 @@
 import * as os from "node:os";
 import { ApiStack } from "@infra/lib/stacks/app/api-stack";
 import { DbStack } from "@infra/lib/stacks/app/db-stack";
+import { OpsStack } from "@infra/lib/stacks/app/ops-stack";
 import { WebStack } from "@infra/lib/stacks/app/web-stack";
 import { SharedStack } from "@infra/lib/stacks/shared/shared-stack";
 import * as cdk from "aws-cdk-lib/core";
@@ -44,6 +45,16 @@ if (!sharedOnly) {
     sharedEnv,
   });
   apiStack.addDependency(dbStack);
+
+  const opsStack = new OpsStack(app, `${resourcePrefix}-ops`, {
+    dbClusterArn: dbStack.clusterArn,
+    dbEndpoint: dbStack.endpoint,
+    env,
+    stage,
+    resourcePrefix,
+    sharedEnv,
+  });
+  opsStack.addDependency(dbStack);
 
   new WebStack(app, `${resourcePrefix}-web`, {
     env,

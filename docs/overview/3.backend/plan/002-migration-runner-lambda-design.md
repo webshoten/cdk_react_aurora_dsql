@@ -96,10 +96,19 @@
 
 1. 環境変数検証（DSQL endpoint/region/user/clusterArn など）
 2. DSQL auth token 生成（既存 `DsqlSigner`）
-3. `drizzle` 接続初期化
-4. migration 実行（drizzle migrator）
-5. seed SQL 実行（順序固定）
-6. 結果サマリを返却
+3. DSQL 接続初期化
+4. migration 履歴テーブル（`pf_migration_files`）を確認/作成
+5. `packages/core/src/db/migrations` の生成済みSQLをファイル順に直接適用（未適用のみ）
+6. seed SQL 実行（順序固定）
+7. 結果サマリを返却
+
+## migration 管理テーブルの配置（確定）
+
+- migration 履歴テーブルは `pf_migration_files` を使用する
+- 履歴テーブルの schema は `MIGRATIONS_SCHEMA` で設定可能にする
+- 現時点は `MIGRATIONS_SCHEMA=public` を採用する
+- 将来 schema 分離する際は `MIGRATIONS_SCHEMA` の変更で対応可能とする
+- DSQL 制約（同一 transaction 内で DDL + DML 不可）に合わせ、migration SQL 実行と履歴INSERTは分離実行とする
 
 ## seed SQL のルール（確定 + 案）
 
@@ -136,11 +145,17 @@
 - deploy 後に migration 未適用を検知する運用チェックを追加する
 - deploy 後 migration に伴う一時的スキーマ不整合の低減策（expand/contract, feature flag など）を将来検討する
 
-## 要確認（この文書で未確定）
+## 配置（確定）
 
-1. seed SQL の配置場所（`packages/core/src/db/seeds` で確定してよいか）
+- migration SQL: `packages/core/src/db/migrations`
+- seed SQL: `packages/core/src/db/seeds`
 
 ## 決定ログ
 
 - 2026-04-26: `MigrationRunnerFunction` の配置は `OpsStack` を採用
 - 2026-04-26: invoke は deploy 後。失敗はログ把握のみ（deploy 判定には連動しない）
+- 2026-04-26: migration は `schema.ts` から `drizzle-kit generate` で生成した SQL を `packages/core/src/db/migrations` に管理する
+- 2026-04-26: seed SQL は `packages/core/src/db/seeds` に管理する
+- 2026-04-26: migration 管理 schema は `MIGRATIONS_SCHEMA` で設定可能にし、現時点は `public` を採用
+- 2026-04-26: DSQL の `serial` 非対応により、`drizzle-orm` migrator は使わず自前 Runner + `pf_migration_files` で管理する
+- 2026-04-26: DSQL の transaction 制約（DDL + DML 不可）に合わせ、migration SQL と履歴INSERTは同一 transaction にしない

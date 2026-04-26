@@ -51,12 +51,19 @@
 
 ## 2) migration 反映方式（DSQL）
 
-- 方式は `drizzle-kit generate` で SQL を生成し、`drizzle-orm` migrator で適用する
+- 方式は `schema.ts` をソースに `drizzle-kit generate` で SQL を生成し、生成SQLを Git 管理する
+- `MigrationRunner Lambda` は生成済み SQL をファイル順に直接適用する
 - 自動反映は `MigrationRunner Lambda` の invoke で行う
-- 冪等性は Drizzle の migration 管理テーブル（実行済み判定）を利用する
+- 冪等性は自前の migration 履歴テーブル（`pf_migration_files`）で実行済み判定する
+- migration 履歴テーブルの schema は環境変数で設定可能にし、現時点では `public` を使用する
 - seed も `MigrationRunner Lambda` で実行する
 - seed は SQL として管理し、再実行しても破綻しない冪等設計にする
 - ローカル検証用には別途手動実行コマンドを用意する
+
+配置（確定）:
+
+- migration SQL: `packages/core/src/db/migrations`
+- seed SQL: `packages/core/src/db/seeds`
 
 採用理由（Lambda invoke）:
 
@@ -67,12 +74,13 @@
 初期運用イメージ:
 
 1. `schema.ts` 更新
-2. migration SQL 生成
-3. seed SQL を更新（必要時）
-4. アプリ deploy
-5. CI などから `MigrationRunner Lambda` を invoke して migration + seed を適用（deploy 後）
-6. seed データ取得用 query を実装
-7. フロントエンドで seed データを表示して確認
+2. `drizzle-kit generate` で migration SQL を生成
+3. 生成された migration SQL を Git 管理
+4. seed SQL を更新（必要時）
+5. アプリ deploy
+6. CI などから `MigrationRunner Lambda` を invoke して migration + seed を適用（deploy 後）
+7. seed データ取得用 query を実装
+8. フロントエンドで seed データを表示して確認
 
 ## 採用しない方針（現時点）
 
@@ -106,7 +114,7 @@
 ## `overview` へ反映する確定候補
 
 - バックエンドの DB 層は Drizzle を標準採用（段階移行）
-- migration は SQL ファイル管理 + `Lambda invoke` 自動適用を採用
+- migration は `schema.ts` から SQL 生成し、生成SQLを Git 管理 + `Lambda invoke` 自動適用を採用
 - seed は SQL で管理し、`MigrationRunner Lambda` で migration と同時適用する
 - ローカル検証用の手動実行フローは別で持つ
 
@@ -114,6 +122,10 @@
 
 - 2026-04-26: migration 自動化方式は `Lambda invoke` を採用。`Custom Resource` は削除時失敗リスクのため不採用。
 - 2026-04-26: `MigrationRunnerFunction` は `OpsStack` に配置し、invoke は deploy 後に実行する。
+- 2026-04-26: migration は `schema.ts` から `drizzle-kit generate` で生成した SQL を Git 管理する方式を採用。
+- 2026-04-26: migration/seed の配置は `packages/core/src/db/migrations` / `packages/core/src/db/seeds` に確定。
+- 2026-04-26: migration 管理スキーマは `MIGRATIONS_SCHEMA` で設定可能にし、現時点は `public` を採用（将来の schema 分離に備える）。
+- 2026-04-26: DSQL で `serial` 非対応エラーが発生するため、`drizzle-orm` migrator は使用せず、自前 Runner + `pf_migration_files` で実行管理する。
 
 ## 関連 plan
 

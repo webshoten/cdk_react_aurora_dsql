@@ -1,4 +1,4 @@
-import { select1 } from "@pf/core";
+import { listSeedItems } from "@pf/core";
 import SchemaBuilder from "@pothos/core";
 import type { GraphqlContext } from "./context.ts";
 
@@ -6,11 +6,23 @@ const builder = new SchemaBuilder<{
   Context: GraphqlContext;
 }>({});
 
+const SeedItemRef = builder.objectRef<{
+  code: string;
+  label: string;
+}>("SeedItem");
+
+SeedItemRef.implement({
+  fields: (t) => ({
+    code: t.exposeString("code"),
+    label: t.exposeString("label"),
+  }),
+});
+
 builder.queryType({
   fields: (t) => ({
-    hello: t.int({
-      nullable: true,
-      resolve: async (_root, _args, context) => select1(context.dbClient),
+    seedItems: t.field({
+      type: [SeedItemRef],
+      resolve: async (_root, _args, context) => listSeedItems(context.dbClient),
     }),
   }),
 });

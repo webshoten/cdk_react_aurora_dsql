@@ -12,6 +12,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
     "format": "biome format --write .",
+    "migrate": "tsx scripts/migrate.ts",
     "dev:web": "pnpm --filter @pf/web dev",
     "dev:functions": "pnpm --filter @pf/functions dev"
   },

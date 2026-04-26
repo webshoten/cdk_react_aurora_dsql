@@ -103,6 +103,7 @@
 - [5. CI/CD](./overview/5.ci-cd/overview.md)
 - [6. デプロイ運用](./overview/6.deployment-operations/overview.md)
 - [7. 未決事項](./overview/7.open-issues/overview.md)
+- [8. コーディングルール](./overview/8.coding-rules/overview.md)
 
 ## 更新フロー
 

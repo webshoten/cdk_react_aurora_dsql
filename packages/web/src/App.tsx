@@ -12,7 +12,10 @@ const API_URL = window.__CONFIG__?.apiUrl ?? "";
 
 type GraphqlResponse = {
   data?: {
-    hello?: number | null;
+    seedItems?: Array<{
+      code: string;
+      label: string;
+    }>;
   };
   errors?: Array<{
     message: string;
@@ -20,12 +23,14 @@ type GraphqlResponse = {
 };
 
 export function App() {
-  const [data, setData] = useState<number | null>(null);
+  const [seedItems, setSeedItems] = useState<Array<{ code: string; label: string }>>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!API_URL) {
       setError("config.js の apiUrl が未設定");
+      setLoading(false);
       return;
     }
 
@@ -35,7 +40,7 @@ export function App() {
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        query: "query { hello }",
+        query: "query { seedItems { code label } }",
       }),
     })
       .then(async (r) => {
@@ -43,17 +48,19 @@ export function App() {
         if (json.errors?.length) {
           throw new Error(json.errors.map((x) => x.message).join(", "));
         }
-        setData(json.data?.hello ?? null);
+        setSeedItems(json.data?.seedItems ?? []);
       })
-      .catch((e: unknown) => setError(String(e)));
+      .catch((e: unknown) => setError(String(e)))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <main style={{ fontFamily: "system-ui", padding: 24 }}>
       <h1>cdk-pf</h1>
-      <p>API URL: {API_URL || "(unset)"}</p>
       {error && <pre style={{ color: "crimson" }}>{error}</pre>}
-      {data !== null && <pre>{JSON.stringify({ hello: data }, null, 2)}</pre>}
+      {!error && loading && <p>loading...</p>}
+      {!error && !loading && seedItems.length === 0 && <p>seedItems: 0</p>}
+      {!error && !loading && seedItems.length > 0 && <pre>{JSON.stringify({ seedItems }, null, 2)}</pre>}
     </main>
   );
 }
