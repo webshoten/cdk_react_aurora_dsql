@@ -14,13 +14,15 @@
     "format": "biome format --write .",
     "migrate": "tsx scripts/migrate.ts",
     "dev:web": "pnpm --filter @pf/web dev",
-    "dev:functions": "pnpm --filter @pf/functions dev"
+    "dev:functions": "pnpm --filter @pf/functions dev",
+    "graphql:gen": "pnpm --filter @pf/web graphql:gen"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
     "@types/node": "^25.6.0",
     "aws-cdk": "^2.1119.0",
     "commander": "^14.0.3",
+    "fflate": "^0.8.2",
     "tsx": "^4.21.0",
     "typescript": "~6.0.3"
   },

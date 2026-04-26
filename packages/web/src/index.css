@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --background: oklch(0.985 0.002 240);
+  --foreground: oklch(0.24 0.01 245);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.01 245);
+  --primary: oklch(0.49 0.17 254);
+  --primary-foreground: oklch(0.98 0.01 250);
+  --muted: oklch(0.95 0.01 247);
+  --muted-foreground: oklch(0.45 0.02 248);
+  --border: oklch(0.89 0.01 247);
+  --input: oklch(0.89 0.01 247);
+  --accent: oklch(0.93 0.03 246);
+  --accent-foreground: oklch(0.29 0.03 248);
+  --ring: oklch(0.6 0.15 254);
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    margin: 0;
+  }
+}

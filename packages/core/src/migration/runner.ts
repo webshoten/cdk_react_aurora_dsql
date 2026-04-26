@@ -17,6 +17,15 @@ export interface MigrationRunnerResult {
   seedAppliedIds: string[];
 }
 
+/*
+ * # マイグレーション + シード一括実行
+ *
+ * ## 目的
+ * CDK custom resource 経由でデプロイ時に走るマイグレーション実行系の入口。接続生成→migration→seed→close を一括で完結する。
+ *
+ * ## 説明
+ * options.runMigration / runSeed で個別スキップ可。pg.Client の close は finally で保証。
+ */
 export async function runDsqlMigrationAndSeed(
   config: DsqlClientConfig,
   options: MigrationRunnerOptions = {},
@@ -44,14 +53,24 @@ export async function runDsqlMigrationAndSeed(
   }
 }
 
+/*
+ * # マイグレーション SQL 実行
+ *
+ * ## 目的
+ * runDsqlMigrationAndSeed 内部で利用される migration 実行本体。
+ *
+ * ## 説明
+ * 履歴テーブルを ensure → ファイル名昇順で未適用のみ実行 → 履歴 INSERT。
+ * DSQL は DDL と DML を同一トランザクションに混在させられないため、SQL 実行と履歴 INSERT を分離した個別クエリで発行する。
+ *
+ * ## NOTE
+ * - 外部からは利用されていない。エクスポートを取るかテスト都合で残すか要判断。
+ */
 export async function runMigrations(
   client: Client,
   migrationsFolder: string,
   options: { migrationsSchema: string; migrationsTable?: string },
 ): Promise<boolean> {
-  // DSQL 制約:
-  // - DDL と DML を同一トランザクションで実行できない
-  // そのため migration SQL（DDL想定）と履歴INSERT（DML）は明示的に分離して実行する。
   const files = listSqlFiles(migrationsFolder);
   const migrationsSchema = validateIdentifier(options.migrationsSchema, "migrationsSchema");
   const migrationsTable = validateIdentifier(
@@ -70,8 +89,6 @@ export async function runMigrations(
       );
 
       if (exists.rowCount === 0) {
-        // DSQL では DDL と DML を同一トランザクションで実行できないため、
-        // migration SQL（DDL想定）と履歴INSERTは分離して実行する。
         await client.query(sqlText);
         await client.query(
           `INSERT INTO ${qualifyTableName(migrationsSchema, migrationsTable)} (id) VALUES ($1)`,
@@ -86,6 +103,20 @@ export async function runMigrations(
   return true;
 }
 
+/*
+ * # シード SQL 実行
+ *
+ * ## 目的
+ * runDsqlMigrationAndSeed 内部で利用される seed 実行本体。
+ *
+ * ## 説明
+ * 各ファイルを BEGIN/COMMIT で個別トランザクション。失敗時 ROLLBACK して即 throw（後続停止）。
+ * 履歴管理なし（毎回再適用前提のシード）。
+ *
+ * ## NOTE
+ * - 外部からは利用されていない。
+ * - 履歴を持たないため冪等性はシード SQL 自身（ON CONFLICT 等）に依存。
+ */
 export async function runSeeds(client: Client, seedsFolder: string): Promise<string[]> {
   const files = listSqlFiles(seedsFolder);
   const applied: string[] = [];

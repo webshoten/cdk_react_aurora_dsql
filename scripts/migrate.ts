@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { Command } from "commander";
+import { zipSync } from "fflate";
 import { logResolved, type RawOptions, resolveOptions } from "./lib/options.ts";
 import { run } from "./lib/run.ts";
 
@@ -29,7 +30,7 @@ const opts = resolveOptions(raw);
 logResolved(opts);
 
 const stackName = `pf-${opts.sharedEnv}-${opts.stage}-ops`;
-const functionName = resolveFunctionName(stackName);
+const resource = resolveMigrationResource(stackName);
 
 const payload = {
   migration: { enabled: !raw.seedOnly },
@@ -39,7 +40,18 @@ const payload = {
   stage: opts.stage,
 };
 
+const archiveFile = path.resolve(process.cwd(), ".migration-artifact.zip");
 const outputFile = path.resolve(process.cwd(), ".migration-runner-output.json");
+
+buildMigrationArtifactArchive(archiveFile);
+run("aws", [
+  "s3",
+  "cp",
+  "--profile",
+  opts.profile,
+  archiveFile,
+  `s3://${resource.artifactBucketName}/${resource.artifactObjectKey}`,
+]);
 
 run("aws", [
   "lambda",
@@ -47,7 +59,7 @@ run("aws", [
   "--profile",
   opts.profile,
   "--function-name",
-  functionName,
+  resource.functionName,
   "--cli-binary-format",
   "raw-in-base64-out",
   "--payload",
@@ -58,7 +70,11 @@ run("aws", [
 const output = fs.readFileSync(outputFile, "utf8");
 console.log(`[migration-runner] output: ${output}`);
 
-function resolveFunctionName(stackName: string): string {
+function resolveMigrationResource(stackName: string): {
+  artifactBucketName: string;
+  artifactObjectKey: string;
+  functionName: string;
+} {
   const outputsPath = path.resolve(process.cwd(), "cdk-outputs.json");
   if (!fs.existsSync(outputsPath)) {
     throw new Error(
@@ -70,13 +86,46 @@ function resolveFunctionName(stackName: string): string {
     string,
     Record<string, string>
   >;
-  const functionName = outputs[stackName]?.MigrationRunnerFunctionName;
+  const stackOutputs = outputs[stackName];
+  const functionName = stackOutputs?.MigrationRunnerFunctionName;
+  const artifactBucketName = stackOutputs?.MigrationArtifactBucketName;
+  const artifactObjectKey = stackOutputs?.MigrationArtifactObjectKey;
 
-  if (!functionName) {
+  if (!functionName || !artifactBucketName || !artifactObjectKey) {
     throw new Error(
-      `${outputsPath} から ${stackName}.MigrationRunnerFunctionName を解決できませんでした。`,
+      `${outputsPath} から ${stackName}.MigrationRunnerFunctionName/MigrationArtifactBucketName/MigrationArtifactObjectKey を解決できませんでした。`,
     );
   }
 
-  return functionName;
+  return {
+    artifactBucketName,
+    artifactObjectKey,
+    functionName,
+  };
+}
+
+function buildMigrationArtifactArchive(outputPath: string): void {
+  const files: Record<string, Uint8Array> = {};
+  const migrationsDir = path.resolve(process.cwd(), "packages/core/src/db/migrations");
+  const seedsDir = path.resolve(process.cwd(), "packages/core/src/db/seeds");
+
+  for (const sqlFileName of listTopLevelSqlFiles(migrationsDir)) {
+    const absolutePath = path.join(migrationsDir, sqlFileName);
+    files[`migrations/${sqlFileName}`] = fs.readFileSync(absolutePath);
+  }
+
+  for (const sqlFileName of listTopLevelSqlFiles(seedsDir)) {
+    const absolutePath = path.join(seedsDir, sqlFileName);
+    files[`seeds/${sqlFileName}`] = fs.readFileSync(absolutePath);
+  }
+
+  fs.writeFileSync(outputPath, Buffer.from(zipSync(files)));
+}
+
+function listTopLevelSqlFiles(dir: string): string[] {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".sql"))
+    .map((entry) => entry.name)
+    .sort((a, b) => a.localeCompare(b));
 }

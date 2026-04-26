@@ -1,1 +1,1 @@
-{"durationMs":606,"migration":{"executed":true},"ok":true,"requestId":"manual-1777176242296","seed":{"appliedIds":["0001_demo_seed_items_baseline"]},"sharedEnv":"dev","stage":"user"}
+{"durationMs":1995,"migration":{"executed":true},"ok":true,"requestId":"manual-1777197820934","seed":{"appliedIds":["0001_demo_seed_items_baseline","0002_demo_medical_staffs_baseline"]},"sharedEnv":"dev","stage":"user"}

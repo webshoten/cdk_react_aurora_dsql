@@ -31,3 +31,9 @@
 - 2026-04-26: Drizzle + DSQL 移行の初期スコープとして、migration/seed/表示確認（`seedItems`）までを採用
 - 2026-04-26: migration 自動化方式は `MigrationRunner Lambda` の invoke（deploy 後）を採用
 - 2026-04-26: DSQL 互換性制約（`serial` 非対応、DDL + DML 同一 transaction 不可）に合わせ、自前 migration Runner 方式を採用
+
+## 関連 plan
+
+- `./plan/001-drizzle-dsql-migration.md`
+- `./plan/002-migration-runner-lambda-design.md`
+- `./plan/003-migration-runner-s3-artifact-design.md`

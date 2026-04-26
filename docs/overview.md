@@ -89,6 +89,15 @@
   - `app`
   - `shared`
 
+## AI
+
+- 利用前提
+  - `Codex` / `Claude`
+- MCP
+  - 現状は `awslabs-aws-iac-mcp-server` を利用
+- Skill
+  - 現状は `react-best-practices` を導入済み
+
 ## 未決事項
 
 - migration 方式
@@ -106,6 +115,7 @@
 - [6. デプロイ運用](./overview/6.deployment-operations/overview.md)
 - [7. 未決事項](./overview/7.open-issues/overview.md)
 - [8. コーディングルール](./overview/8.coding-rules/overview.md)
+- [9. AI](./overview/9.ai/overview.md)
 
 ## 更新フロー
 

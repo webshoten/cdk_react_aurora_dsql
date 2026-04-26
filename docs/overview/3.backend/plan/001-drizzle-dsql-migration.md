@@ -130,3 +130,4 @@
 ## 関連 plan
 
 - 詳細設計（要議論）: `./002-migration-runner-lambda-design.md`
+- S3 artifact 設計（要議論）: `./003-migration-runner-s3-artifact-design.md`

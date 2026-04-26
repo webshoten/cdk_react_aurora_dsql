@@ -1,6 +1,6 @@
+import { DbConstruct } from "@infra/lib/constructs/app/db";
 import type { SharedLookupValues } from "@infra/lib/constructs/shared/lookup";
 import { SharedLookupConstruct } from "@infra/lib/constructs/shared/lookup";
-import * as dsql from "aws-cdk-lib/aws-dsql";
 import * as cdk from "aws-cdk-lib/core";
 import type { Construct } from "constructs";
 
@@ -29,18 +29,14 @@ export class DbStack extends cdk.Stack {
     cdk.Tags.of(this).add("SharedContractVersion", sharedConfig.contractVersion);
     cdk.Tags.of(this).add("SharedEnv", sharedConfig.sharedEnv);
 
-    // 作って壊す運用を前提にしているので、stage stack の DB は削除保護を有効にしません。
-    const cluster = new dsql.CfnCluster(this, "Cluster", {
-      deletionProtectionEnabled: false,
-      tags: [
-        { key: "Name", value: `${props.resourcePrefix}-db` },
-        { key: "Stage", value: props.stage },
-      ],
+    const db = new DbConstruct(this, "Db", {
+      resourcePrefix: props.resourcePrefix,
+      stage: props.stage,
     });
 
-    this.clusterArn = cluster.attrResourceArn;
-    this.endpoint = cluster.attrEndpoint;
-    this.identifier = cluster.attrIdentifier;
+    this.clusterArn = db.clusterArn;
+    this.endpoint = db.endpoint;
+    this.identifier = db.identifier;
 
     new cdk.CfnOutput(this, "DsqlClusterArn", {
       value: this.clusterArn,
