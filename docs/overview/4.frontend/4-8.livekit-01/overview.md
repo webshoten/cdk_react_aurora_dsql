@@ -1,0 +1,9 @@
+# 4-8. livekit-01
+
+## 検証対象
+
+- LiveKit webhook 連携検証（受信→処理→保存）
+
+## メモ
+
+- TODO
