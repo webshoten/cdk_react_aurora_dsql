@@ -53,12 +53,12 @@ export class OpsStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "MigrationArtifactBucketName", {
       value: this.migrationArtifactBucketName,
-      description: "Migration artifact S3 bucket name",
+      description: "Migration SQL zip S3 bucket name",
     });
 
     new cdk.CfnOutput(this, "MigrationArtifactObjectKey", {
       value: this.migrationArtifactObjectKey,
-      description: "Migration artifact S3 object key",
+      description: "Migration SQL zip S3 object key",
     });
 
     new cdk.CfnOutput(this, "MigrationRunnerFunctionName", {

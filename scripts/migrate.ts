@@ -5,7 +5,7 @@
  * デプロイ済み環境に対し migration / seed を適用する運用 CLI。手動運用での DB スキーマ更新・デモデータ投入に使う。
  *
  * ## 説明
- * 1. packages/core/src/db/migrations と seeds を zip 化（.migration-artifact.zip）
+ * 1. packages/core/src/db/migrations と seeds を zip 化（.migration-sql.zip）
  * 2. cdk-outputs.json から S3 バケット名・オブジェクトキー・関数名を解決
  * 3. aws s3 cp で zip をアップロード
  * 4. aws lambda invoke で MigrationRunner を実行し、結果を .migration-runner-output.json に取得
@@ -60,7 +60,7 @@ const payload = {
   stage: opts.stage,
 };
 
-const archiveFile = path.resolve(process.cwd(), ".migration-artifact.zip");
+const archiveFile = path.resolve(process.cwd(), ".migration-sql.zip");
 const outputFile = path.resolve(process.cwd(), ".migration-runner-output.json");
 
 buildMigrationArtifactArchive(archiveFile);
@@ -134,13 +134,13 @@ function resolveMigrationResource(stackName: string): {
 }
 
 /*
- * # Migration / Seed SQL アーカイブ生成
+ * # Migration / Seed SQL zip 生成
  *
  * ## 目的
  * 実行に先立ち migrations/ と seeds/ の .sql ファイルを 1 zip にまとめてローカル出力する。
  *
  * ## 説明
- * 各ディレクトリ直下の .sql のみ採取（再帰なし）。zip 内パスは `migrations/<file>` `seeds/<file>` に正規化。Lambda 側 normalizeArtifactPath が想定する形式と整合。
+ * 各ディレクトリ直下の .sql のみ採取（再帰なし）。zip 内パスは `migrations/<file>` `seeds/<file>` に正規化。Lambda 側 `normalizeArtifactPath`（識別子名）が想定する形式と整合。
  */
 function buildMigrationArtifactArchive(outputPath: string): void {
   const files: Record<string, Uint8Array> = {};

@@ -102,7 +102,7 @@ function sanitizeForPath(input: string): string {
  * # Migration / Seed SQL 配置パス検証
  *
  * ## 目的
- * S3 から取得した migration / seed SQL アーカイブの各エントリパスを /tmp 配下へ展開する前に検証する。
+ * S3 から取得した migration / seed SQL zip の各エントリパスを /tmp 配下へ展開する前に検証する。
  *
  * ## 説明
  * 絶対パス・親参照（`../`）を含むエントリは zip-slip として弾く。POSIX 正規化後に判定。
@@ -110,7 +110,7 @@ function sanitizeForPath(input: string): string {
 function normalizeArtifactPath(entryPath: string): string {
   const normalized = path.posix.normalize(entryPath);
   if (normalized.startsWith("/") || normalized.startsWith("../") || normalized.includes("/../")) {
-    throw new Error(`Invalid artifact path: ${entryPath}`);
+    throw new Error(`Invalid SQL zip path: ${entryPath}`);
   }
   return normalized;
 }
@@ -203,7 +203,7 @@ async function prepareArtifactDirs(requestId?: string): Promise<PreparedArtifact
  * scripts/migrate.ts（運用 CLI）から AWS Lambda invoke で起動される実行入口。S3 上の SQL アーカイブを展開し migration / seed を順に適用する。
  *
  * ## 説明
- * S3 アーティファクトを /tmp 展開 → DSQL 接続生成 → migration → seed → cleanup の一連を実行。
+ * S3 上の SQL zip を /tmp 展開 → DSQL 接続生成 → migration → seed → cleanup の一連を実行。
  * 例外は pg エラー詳細含めて構造化ログに出した上で ok:false を返す（throw せず）。
  *
  * ## NOTE

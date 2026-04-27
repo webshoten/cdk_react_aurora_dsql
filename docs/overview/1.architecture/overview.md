@@ -4,18 +4,52 @@
 
 - AWS CDK 構成全体
 - stack 間の責務分離
-- shared contract の取り扱い
 
 ## 現状
 
 - IaC: AWS CDK + TypeScript
-- stack 構成:
+- stack は `shared` 層と `app` 層で分ける
+- `shared` 層:
   - `SharedStack`
+  - 責務: システム全体で共有する基盤情報・共通前提を管理する（土台レイヤー）
+  - 管理リソース:
+    - `AWS::SSM::Parameter`（shared contract / shared env）
+- `app` 層:
   - `DbStack`
+    - 管理リソース:
+      - `AWS::DSQL::Cluster`（Aurora DSQL）
   - `ApiStack`
+    - 管理リソース:
+      - `AWS::ApiGatewayV2::Api`（HTTP API）
+      - `AWS::Lambda::Function`（GraphQL）
+      - `AWS::Logs::LogGroup`（GraphQL ログ）
+  - `OpsStack`
+    - 管理リソース:
+      - `AWS::S3::Bucket`（migration SQL zip 保管）
+      - `AWS::Lambda::Function`（MigrationRunner）
+      - `AWS::Logs::LogGroup`（MigrationRunner ログ）
+  - `StorageStack`
+    - 管理リソース:
+      - `AWS::S3::Bucket`（image 保存）
   - `WebStack`
+    - 管理リソース:
+      - `AWS::S3::Bucket`（静的配信）
+      - `AWS::CloudFront::Distribution`
+      - `Custom::CDKBucketDeployment`（Web 配備）
+  - 責務: stage 単位でアプリケーション機能を構成し、変更・検証・破棄を独立して回せるようにする（実行レイヤー）
 - `SharedStack` が SSM Parameter Store に最小 contract を出力し、app stack が参照する
+
+## stack 間の責務分離（簡潔版）
+
+- `SharedStack` は共通前提を提供し、`app` 層の stack から参照される
+- `DbStack` はデータ基盤を担当し、`ApiStack` / `OpsStack` が参照する
+- `ApiStack` は API 提供を担当し、`WebStack` が endpoint を参照する
+- `StorageStack` は画像ストレージを担当し、`ApiStack` が参照する
+- `OpsStack` は migration 実行基盤を担当し、運用 CLI が参照する
+- `WebStack` は配信レイヤーを担当し、他 stack へ依存を持たない終端とする
 
 ## 決定ログ
 
+- 2026-04-27: app stack 構成に `StorageStack` を追加（画像ストレージ用途）
+- 2026-04-27: app stack 構成に `OpsStack` を明記（migration 運用用途）
 - YYYY-MM-DD: (ここに決定事項を追記)
