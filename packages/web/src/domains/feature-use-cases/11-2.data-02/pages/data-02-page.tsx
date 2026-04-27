@@ -1,33 +1,115 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
+import { resolveConfigError } from "@/app/config/runtime-config.ts";
+import { Card, CardContent, CardHeader } from "@/shared/ui/card.tsx";
+import { useCallback, useEffect, useState } from "react";
+import { Data02Specification } from "../components/data-02-specification.tsx";
+import { ImageStatusMessages } from "../components/image-status-messages.tsx";
+import { ImageUploadControls } from "../components/image-upload-controls.tsx";
+import { ImagesTable } from "../components/images-table.tsx";
+import type { ImageRow } from "../components/types.ts";
+import { useCreateImageUploadUrlMutation } from "../hooks/use-create-image-upload-url-mutation.ts";
+import { useImagesQuery } from "../hooks/use-images-query.ts";
+import { useRegisterImageMutation } from "../hooks/use-register-image-mutation.ts";
 
 /*
- * # 11-2.data-02 ページ（プレースホルダ）
+ * # 11-2.data-02 ページ（画像アップロード検証）
  *
  * ## 目的
- * データフロー検証の 2 例目を載せる予定の枠だけ確保する未実装ページ。
- *
- * ## NOTE
- * - 実装着手時に実コンテンツへ差し替える。
+ * 画像アップロード（Presigned URL）と画像メタデータ登録（GraphQL）を end-to-end で確認する。
  */
 export function Data02Page() {
+  const configError = resolveConfigError();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [inputKey, setInputKey] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [{ data, fetching, error }, reexecuteImagesQuery] = useImagesQuery(Boolean(configError));
+  const [{ data: createUrlData, error: createUrlError }, createImageUploadUrl] =
+    useCreateImageUploadUrlMutation();
+  const [{ data: registerData, error: registerError }, registerImage] = useRegisterImageMutation();
+  const [viewImages, setViewImages] = useState<ImageRow[]>([]);
+
+  useEffect(() => {
+    if (!data?.images) return;
+    setViewImages(data.images);
+  }, [data]);
+
+  const selectedFileType = selectedFile?.type || "application/octet-stream";
+  const handleUpload = useCallback(async () => {
+    if (!selectedFile || configError) return;
+
+    setIsUploading(true);
+    try {
+      const createResult = await createImageUploadUrl({
+        fileName: selectedFile.name,
+        contentType: selectedFileType,
+      });
+      const uploadUrl = createResult.data?.createImageUploadUrl?.uploadUrl;
+      const imagePath = createResult.data?.createImageUploadUrl?.imagePath;
+
+      if (!uploadUrl || !imagePath) {
+        return;
+      }
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "content-type": selectedFileType,
+        },
+        body: selectedFile,
+      });
+      if (!uploadResponse.ok) {
+        throw new Error(`S3 upload failed: ${uploadResponse.status}`);
+      }
+
+      const registerResult = await registerImage({
+        imagePath,
+        fileName: selectedFile.name,
+        contentType: selectedFileType,
+        sizeBytes: selectedFile.size,
+      });
+      if (!registerResult.error) {
+        setSelectedFile(null);
+        setInputKey((current) => current + 1);
+        reexecuteImagesQuery({ requestPolicy: "network-only" });
+      }
+    } finally {
+      setIsUploading(false);
+    }
+  }, [
+    configError,
+    createImageUploadUrl,
+    reexecuteImagesQuery,
+    registerImage,
+    selectedFile,
+    selectedFileType,
+  ]);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>11-2.data-02</CardTitle>
-        <CardDescription>
-          医療者Web表示（React + GraphQL Lambda + S3 Presigned URL）
-        </CardDescription>
-        <div className="rounded-md border border-border bg-muted/40 p-3 text-sm">
-          <p className="font-medium">このページで確認する仕様</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-            <li>S3 Presigned URL を介したデータ取得フローを確認できること</li>
-            <li>GraphQL とオブジェクトストレージ連携の責務分離を確認できること</li>
-            <li>詳細仕様は後続フェーズで追加し、このページに追記すること</li>
-          </ul>
-        </div>
+        <Data02Specification />
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">このページは次フェーズで実装します。</p>
+      <CardContent className="space-y-4">
+        <ImageUploadControls
+          configError={configError}
+          inputKey={inputKey}
+          isUploading={isUploading}
+          onSelectFile={setSelectedFile}
+          onUpload={handleUpload}
+          selectedFile={selectedFile}
+        />
+
+        <ImageStatusMessages
+          configError={configError}
+          createUrlError={createUrlError}
+          fetching={fetching}
+          hasImages={viewImages.length > 0}
+          imagePath={createUrlData?.createImageUploadUrl?.imagePath ?? null}
+          queryError={error}
+          registerAppliedCount={registerData?.registerImage?.appliedCount ?? null}
+          registerError={registerError}
+        />
+
+        <ImagesTable images={viewImages} />
       </CardContent>
     </Card>
   );

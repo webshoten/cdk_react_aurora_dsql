@@ -15,6 +15,13 @@
       "when": 1777191858928,
       "tag": "0001_gray_green_goblin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777295636545,
+      "tag": "0002_tough_hairball",
+      "breakpoints": true
     }
   ]
 }

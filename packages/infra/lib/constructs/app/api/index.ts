@@ -5,6 +5,8 @@ import { GraphqlApiConstruct } from "./graphql";
 export interface ApiConstructProps {
   dbClusterArn: string;
   dbEndpoint: string;
+  imageBucketName: string;
+  imagePrefix: string;
   resourcePrefix: string;
   sharedEnv: string;
   stage: string;
@@ -44,6 +46,8 @@ export class ApiConstruct extends Construct {
       dbClusterArn: props.dbClusterArn,
       dbEndpoint: props.dbEndpoint,
       httpApi: this.httpApi,
+      imageBucketName: props.imageBucketName,
+      imagePrefix: props.imagePrefix,
       sharedEnv: props.sharedEnv,
       stage: props.stage,
     });

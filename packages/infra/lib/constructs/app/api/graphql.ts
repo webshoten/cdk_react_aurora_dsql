@@ -12,6 +12,8 @@ export interface GraphqlApiConstructProps {
   dbClusterArn: string;
   dbEndpoint: string;
   httpApi: apigwv2.HttpApi;
+  imageBucketName: string;
+  imagePrefix: string;
   sharedEnv: string;
   stage: string;
 }
@@ -48,7 +50,7 @@ export class GraphqlApiConstruct extends Construct {
       }),
       bundling: {
         minify: true,
-        nodeModules: ["@aws-sdk/dsql-signer", "pg"],
+        nodeModules: ["@aws-sdk/client-s3", "@aws-sdk/dsql-signer", "@aws-sdk/s3-request-presigner", "pg"],
         sourceMap: true,
         esbuildArgs: {
           "--sources-content": "false",
@@ -61,7 +63,10 @@ export class GraphqlApiConstruct extends Construct {
         DSQL_ENDPOINT: props.dbEndpoint,
         DSQL_PORT: "5432",
         DSQL_REGION: cdk.Stack.of(this).region,
+        IMAGE_BUCKET: props.imageBucketName,
+        IMAGE_PREFIX: props.imagePrefix,
         NODE_OPTIONS: "--enable-source-maps",
+        PRESIGNED_URL_EXPIRES_SECONDS: "300",
         SHARED_ENV: props.sharedEnv,
         STAGE: props.stage,
       },
@@ -71,6 +76,13 @@ export class GraphqlApiConstruct extends Construct {
       new iam.PolicyStatement({
         actions: ["dsql:DbConnectAdmin"],
         resources: [props.dbClusterArn],
+      }),
+    );
+
+    graphqlFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["s3:GetObject", "s3:PutObject"],
+        resources: [`arn:aws:s3:::${props.imageBucketName}/${props.imagePrefix}*`],
       }),
     );
 

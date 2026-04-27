@@ -35,6 +35,31 @@
 - 本ルールは絶対ではないが、可読性・検索性のため backend 仕様として優先適用する
 - 例外を採用する場合は、命名意図を該当ドキュメントまたは PR 説明に残す
 
+## GraphQL Context 方針
+
+- 環境変数は resolver で直接参照しない
+- 環境変数の読み取りは `createGraphqlContext` に集約し、resolver は `context` からのみ参照する
+- 設定値の取得責務（env 解決）と業務処理責務（resolver 実装）を分離する
+- テスト時は `context` を差し替えて挙動確認できる形を維持する
+
+### 現在の Context 値
+
+- `dbClient`
+  - 目的: DSQL へのクエリ実行入口
+  - 用途: repository/use case 呼び出し時の DB アクセス
+- `s3Client`
+  - 目的: S3 署名 URL 生成・オブジェクト操作の SDK クライアント
+  - 用途: `GetObject` / `PutObject` の presign 生成
+- `imageBucket`
+  - 目的: 画像保管先 S3 バケット名
+  - 用途: presigned URL の対象 bucket 指定
+- `imagePrefix`
+  - 目的: 画像オブジェクトキーのプレフィックス（現行は `image/`）
+  - 用途: 画像キー生成時の保存先制約
+- `presignedUrlExpiresSeconds`
+  - 目的: 署名 URL 有効期限の統一管理
+  - 用途: PUT/GET 署名 URL の `expiresIn` 設定
+
 ## 決定ログ
 
 - 2026-04-26: Drizzle + DSQL 移行の初期スコープとして、migration/seed/表示確認（`seedItems`）までを採用
@@ -43,6 +68,7 @@
 - 2026-04-26: migration SQL 配布は Lambda 同梱ではなく、`migrate` 実行時の `S3 upload -> invoke` 方式へ移行
 - 2026-04-26: 任意実行防止のため、artifact の取得先は payload 指定ではなく Lambda 環境変数で固定
 - 2026-04-27: GraphQL Mutation 命名は `動詞 + 対象 + 条件` を推奨ルールとして明記（絶対ルールではない）
+- 2026-04-27: GraphQL の環境変数参照は `createGraphqlContext` に集約し、resolver では `context` 経由のみで扱う方針を追加
 
 ## 関連 plan
 

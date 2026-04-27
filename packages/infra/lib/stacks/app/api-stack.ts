@@ -7,6 +7,8 @@ import type { Construct } from "constructs";
 export interface ApiStackProps extends cdk.StackProps {
   dbClusterArn: string;
   dbEndpoint: string;
+  imageBucketName: string;
+  imagePrefix: string;
   stage: string;
   resourcePrefix: string;
   sharedEnv: string;
@@ -39,6 +41,8 @@ export class ApiStack extends cdk.Stack {
     const api = new ApiConstruct(this, "Api", {
       dbClusterArn: props.dbClusterArn,
       dbEndpoint: props.dbEndpoint,
+      imageBucketName: props.imageBucketName,
+      imagePrefix: props.imagePrefix,
       resourcePrefix: props.resourcePrefix,
       sharedEnv: props.sharedEnv,
       stage: props.stage,

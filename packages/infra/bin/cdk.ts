@@ -3,6 +3,7 @@ import * as os from "node:os";
 import { ApiStack } from "@infra/lib/stacks/app/api-stack";
 import { DbStack } from "@infra/lib/stacks/app/db-stack";
 import { OpsStack } from "@infra/lib/stacks/app/ops-stack";
+import { StorageStack } from "@infra/lib/stacks/app/storage-stack";
 import { WebStack } from "@infra/lib/stacks/app/web-stack";
 import { SharedStack } from "@infra/lib/stacks/shared/shared-stack";
 import * as cdk from "aws-cdk-lib/core";
@@ -51,15 +52,25 @@ if (!sharedOnly) {
     resourcePrefix,
   });
 
+  const storageStack = new StorageStack(app, `${resourcePrefix}-storage`, {
+    env,
+    sharedEnv,
+    stage,
+    resourcePrefix,
+  });
+
   const apiStack = new ApiStack(app, `${resourcePrefix}-api`, {
     dbClusterArn: dbStack.clusterArn,
     dbEndpoint: dbStack.endpoint,
+    imageBucketName: storageStack.imageBucketName,
+    imagePrefix: storageStack.imagePrefix,
     env,
     stage,
     resourcePrefix,
     sharedEnv,
   });
   apiStack.addDependency(dbStack);
+  apiStack.addDependency(storageStack);
 
   const opsStack = new OpsStack(app, `${resourcePrefix}-ops`, {
     dbClusterArn: dbStack.clusterArn,

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 /*
  * # medical_staffs テーブル
@@ -30,4 +30,22 @@ export const demoSeedItems = pgTable("demo_seed_items", {
   code: text("code").primaryKey(),
   label: text("label").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+/*
+ * # images テーブル
+ *
+ * ## 目的
+ * 11-2.data-02 で扱う画像メタデータを保持する。
+ *
+ * ## 説明
+ * image_path は S3 key を想定。重複登録を防ぐため unique 制約を付与する。
+ */
+export const images = pgTable("images", {
+  imageId: text("image_id").primaryKey(),
+  imagePath: text("image_path").notNull().unique(),
+  fileName: text("file_name").notNull(),
+  contentType: text("content_type").notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

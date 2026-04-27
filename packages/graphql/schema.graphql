@@ -1,3 +1,12 @@
+type Image {
+  contentType: String
+  downloadUrl: String
+  fileName: String
+  imageId: String
+  imagePath: String
+  sizeBytes: Int
+}
+
 type MedicalStaff {
   institutionCode: String
   name: String
@@ -8,12 +17,24 @@ type MedicalStaff {
 type Mutation {
   addRandomMedicalStaff(institutionCode: String!): UpsertMedicalStaffsPayload
   clearMedicalStaffsByInstitution(institutionCode: String!): UpsertMedicalStaffsPayload
+  createImageUploadUrl(contentType: String!, fileName: String!): PresignedUploadPayload
+  registerImage(contentType: String!, fileName: String!, imagePath: String!, sizeBytes: Int!): RegisterImagePayload
   seedMedicalStaffs: UpsertMedicalStaffsPayload
 }
 
+type PresignedUploadPayload {
+  imagePath: String
+  uploadUrl: String
+}
+
 type Query {
+  images: [Image!]
   medicalStaffsByInstitution(institutionCode: String!): [MedicalStaff!]
   seedItems: [SeedItem!]
+}
+
+type RegisterImagePayload {
+  appliedCount: Int
 }
 
 type SeedItem {

@@ -15,6 +15,7 @@
 - API Gateway は `/graphql` を公開
 - Web 配信は S3 + CloudFront
 - shared contract は SSM で受け渡し
+- S3 は `StorageStack` で用途別に管理する方針（11-2 初期は `image/` プレフィックスのみ）
 
 ## ノウハウ（Custom Resource）
 
@@ -29,5 +30,7 @@
 
 ## 決定ログ
 
+- 2026-04-27: S3 管理を `StorageStack` へ分離する方針を追加
+- 2026-04-27: 11-2.data-02 は `image/` プレフィックスのみ利用する方針を追加
 - 2026-04-27: Custom Resource ベストプラクティスをインフラのノウハウとして追加
 - YYYY-MM-DD: (ここに決定事項を追記)
