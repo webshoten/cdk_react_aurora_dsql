@@ -1,3 +1,23 @@
+/*
+ * # マイグレーション CLI（運用ツール）
+ *
+ * ## 目的
+ * デプロイ済み環境に対し migration / seed を適用する運用 CLI。手動運用での DB スキーマ更新・デモデータ投入に使う。
+ *
+ * ## 説明
+ * 1. packages/core/src/db/migrations と seeds を zip 化（.migration-artifact.zip）
+ * 2. cdk-outputs.json から S3 バケット名・オブジェクトキー・関数名を解決
+ * 3. aws s3 cp で zip をアップロード
+ * 4. aws lambda invoke で MigrationRunner を実行し、結果を .migration-runner-output.json に取得
+ *
+ * 呼び出し例:
+ *   pnpm migrate --shared dev
+ *   pnpm migrate --shared dev --stage alice --migration-only
+ *   pnpm migrate --shared dev --seed-only
+ *
+ * ## NOTE
+ * - 実行には事前に対象 stage のデプロイ完了（cdk-outputs.json 更新済み）が必要。
+ */
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { Command } from "commander";
@@ -70,6 +90,15 @@ run("aws", [
 const output = fs.readFileSync(outputFile, "utf8");
 console.log(`[migration-runner] output: ${output}`);
 
+/*
+ * # CFN outputs から MigrationRunner リソース解決
+ *
+ * ## 目的
+ * cdk-outputs.json を読み、対象 stage の Ops Stack 出力（バケット名・オブジェクトキー・関数名）を取り出す。
+ *
+ * ## 説明
+ * outputs ファイル不存在・必須キー欠落は早期に throw（実行不能のため）。
+ */
 function resolveMigrationResource(stackName: string): {
   artifactBucketName: string;
   artifactObjectKey: string;
@@ -104,6 +133,15 @@ function resolveMigrationResource(stackName: string): {
   };
 }
 
+/*
+ * # Migration / Seed SQL アーカイブ生成
+ *
+ * ## 目的
+ * 実行に先立ち migrations/ と seeds/ の .sql ファイルを 1 zip にまとめてローカル出力する。
+ *
+ * ## 説明
+ * 各ディレクトリ直下の .sql のみ採取（再帰なし）。zip 内パスは `migrations/<file>` `seeds/<file>` に正規化。Lambda 側 normalizeArtifactPath が想定する形式と整合。
+ */
 function buildMigrationArtifactArchive(outputPath: string): void {
   const files: Record<string, Uint8Array> = {};
   const migrationsDir = path.resolve(process.cwd(), "packages/core/src/db/migrations");

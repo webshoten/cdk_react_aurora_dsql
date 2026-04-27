@@ -14,9 +14,16 @@ export type CdkRunArgs = {
   outputsFile?: string;
 };
 
-/**
- * @pf/infra の cdk CLI を pnpm 経由で起動する。
- * スタック名フィルタ・context・profile を組み立てる単一の入口。
+/*
+ * # @pf/infra cdk CLI 起動ラッパー
+ *
+ * ## 目的
+ * scripts/commands/* （deploy / diff / destroy 等）共通の CDK 起動入口。スタック名フィルタ・context・profile・outputs ファイル出力を組み立てる単一経路。
+ *
+ * ## 説明
+ * scope によりスタックフィルタを切替: shared → "pf-<sharedEnv>-shared"、app → "pf-<sharedEnv>-<stage>-*"。
+ * deploy 時は --require-approval never、destroy 時は --force を自動付与。
+ * extra で `--` 以降のオプション（CDK CLI 直接フラグ）をそのままバイパス。
  *
  * 実行されるコマンド例:
  *   App deploy:
@@ -30,20 +37,11 @@ export type CdkRunArgs = {
  *
  *   Shared deploy:
  *     pnpm --filter @pf/infra cdk deploy "pf-dev-shared-*" \
- *       --profile my-aws \
- *       --context shared-env=dev \
- *       --context shared-only=true \
- *       --context stage=alice \
- *       --require-approval never \
- *       --outputs-file /<cwd>/cdk-outputs.json
+ *       --profile my-aws --context shared-only=true ...
  *
- *   App diff:
- *     pnpm --filter @pf/infra cdk diff "pf-dev-alice-*" \
+ *   App diff / destroy:
+ *     pnpm --filter @pf/infra cdk diff|destroy "pf-dev-alice-*" \
  *       --profile my-aws --context ...
- *
- *   App destroy:
- *     pnpm --filter @pf/infra cdk destroy "pf-dev-alice-*" \
- *       --profile my-aws --context ... --force
  */
 export function runCdk(args: CdkRunArgs): void {
   const { scope, command, opts, extra = [], outputsFile } = args;

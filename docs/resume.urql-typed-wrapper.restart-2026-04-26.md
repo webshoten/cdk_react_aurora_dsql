@@ -1,70 +1,68 @@
 # Resume (Restart用) - 2026-04-26 / urql typed wrapper
 
-## 目的（次にやること）
+## 今回完了したこと
 
-- `@pf/web` の GraphQL 呼び出しを、`../rehacul` と同系統の
-  - `urql client` ラップ
-  - codegen 生成型（`TypedDocumentNode`）利用
- へ寄せる
+1. `packages/graphql` 新設
+- `packages/graphql/schema.graphql`
+- `packages/graphql/genql/*`（生成物）
+- `packages/graphql/urql.ts`（typed wrapper）
+- `packages/graphql/index.ts`
 
-## 現在の到達点（実装済み）
+2. 生成パイプライン追加
+- `packages/functions/src/graphql/extract.ts`
+  - Pothos schema から `packages/graphql/schema.graphql` を出力
+- root scripts
+  - `pnpm graphql:extract`
+  - `pnpm graphql:genql`
+  - `pnpm graphql:build`（extract + genql）
 
-1. フロント構成の再編
-- `packages/web/src` を `app / domains / shared` に再編
-- ルーティングを `app/router.tsx` に集約
-- 各ページを `domains/*/route.tsx` で分離
+3. `@pf/web` 側の移行（4-1）
+- `@pf/web` に `@pf/graphql` を導入
+- 4-1の hooks を `@pf/graphql/urql` ベースへ移行
+  - `useMedicalStaffsByInstitutionQuery`
+  - `useSeedMedicalStaffsMutation`
+- 生文字列 query / mutation を廃止
 
-2. Provider 構成
-- `urql` + `WebConfigProvider` を `app/providers.tsx` に集約
-- runtime config 解決は `app/providers/runtime-config.ts`
+4. urql client ラップ
+- `packages/web/src/app/providers/graphql-client.ts` を追加
+- `providers.tsx` から `createClient` 直書きを排除
 
-3. import ルール
-- `@/` エイリアスを導入（`src` 基準）
-  - `packages/web/tsconfig.json`
-  - `packages/web/vite.config.ts`
+5. 不要物の整理
+- `packages/web/codegen.ts` を削除
+- `packages/web/src/domains/frontend-data-01/graphql/*.graphql` を削除
+- `@pf/web` の `graphql-codegen` 依存/スクリプトを削除
 
-4. サイドバー
-- `4.frontend` の全項目（`4-1` 〜 `4-13`）を表示
-- 未実装ページは非リンク表示
+## 現在の実行コマンド
 
-5. ドキュメント反映
-- `docs/overview/4.frontend/4-1.data-01/overview.md`
-  - 現構成の実装メモを追記
-  - 「urql client + codegen生成型ラップ」は次段設計（未実装）として追記
-- `docs/overview/8.coding-rules/overview.md`
-  - React実装時は `react-best-practices` Skill 参照を明記
-- `docs/overview/9.ai/overview.md`
-  - MCP: `awslabs-aws-iac-mcp-server`
-  - AI前提: `Codex` / `Claude`
+- 型生成一式
+  - `pnpm graphql:build`
+- schema 抽出のみ
+  - `pnpm graphql:extract`
+- genql 生成のみ
+  - `pnpm graphql:genql`
+- web ビルド
+  - `pnpm --filter @pf/web build`
 
-## 未実装（これから）
+## 検証結果
 
-1. GraphQL codegen の対象整理
-- 現在 `codegen.ts` は `src/graphql/**/*.graphql` を参照している
-- 実ファイルは `src/domains/**/graphql/*.graphql` 配下
-- `documents` 設定を現構成に合わせる
+- `pnpm graphql:build` : pass
+- `pnpm --filter @pf/web build` : pass
 
-2. 生成物ベース呼び出しへ移行
-- 生文字列クエリを廃止
-- 生成済みドキュメント（`src/gql/*`）を hooks で利用
+## 次に議論/実装する候補
 
-3. client ラッパー化
-- `createClient` 初期化を専用モジュールへ分離（`app/providers` 配下想定）
-- ページ/ドメイン側はラッパー経由のみ利用
+1. watch 運用
+- `functions` の schema 変更をトリガーに `graphql:build` を自動実行する watch を追加する
 
-4. 検証
-- `pnpm --filter @pf/web graphql:gen`
-- `pnpm --filter @pf/web build`
+2. CI ドリフト検知
+- 生成後差分がある場合に fail させるジョブを追加する
 
-## 着手時の注意
-
-- 今回は「設計のみ」で、上記 typed wrapper は未実装
-- `lazy + Suspense` は現時点では導入しない（必要時に個別適用）
+3. 残ページ展開
+- 4-2 以降の GraphQL hooks 追加時も `@pf/graphql/urql` を利用する
 
 ## 参照ファイル
 
-- `packages/web/codegen.ts`
-- `packages/web/src/app/providers.tsx`
+- `packages/functions/src/graphql/extract.ts`
+- `packages/graphql/urql.ts`
+- `packages/web/src/app/providers/graphql-client.ts`
 - `packages/web/src/domains/frontend-data-01/hooks/use-medical-staffs-by-institution-query.ts`
 - `packages/web/src/domains/frontend-data-01/hooks/use-seed-medical-staffs-mutation.ts`
-- `docs/overview/4.frontend/4-1.data-01/overview.md`

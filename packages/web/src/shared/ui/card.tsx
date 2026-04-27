@@ -1,6 +1,15 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/shared/lib/utils.ts";
 
+/*
+ * # Card コンポーネント群
+ *
+ * ## 目的
+ * shadcn/ui ベースの Card 一式（Card / Header / Title / Description / Content）。アプリ全体で枠付き情報ブロックの表現を揃える。
+ *
+ * ## 説明
+ * 各サブ要素は単純な div / h3 / p のスタイル付きラッパー。Card 直下に Header（Title + Description）と Content を並べる構成を想定。
+ */
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div

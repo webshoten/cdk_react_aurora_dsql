@@ -1,8 +1,11 @@
 import { runCdk } from "../lib/cdk-cli.ts";
 import { logResolved, type RawOptions, resolveOptions } from "../lib/options.ts";
 
-/**
- * AppStack 群の差分表示。
+/*
+ * # AppStack 差分表示 CLI コマンド
+ *
+ * ## 目的
+ * scripts/cdk.ts の `diff` サブコマンド実体。AppStack 群（db / api / ops / web）の `cdk diff` を実行する。
  *
  * 呼び出し例:
  *   pnpm cdk:diff --shared dev --stage alice --profile my-aws

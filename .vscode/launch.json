@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "local-dev: web+functions",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "command": "set -a; source .vscode/.local-dev.env; set +a; DSQL_DATABASE=postgres DSQL_DB_USER=admin DSQL_PORT=5432 DSQL_REGION=ap-northeast-1 PORT=4000 pnpm -r --parallel --filter @pf/functions --filter @pf/web dev",
+      "preLaunchTask": "local-dev:resolve-env"
+    }
+  ]
+}

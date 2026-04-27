@@ -21,7 +21,7 @@ export interface MigrationRunnerResult {
  * # マイグレーション + シード一括実行
  *
  * ## 目的
- * CDK custom resource 経由でデプロイ時に走るマイグレーション実行系の入口。接続生成→migration→seed→close を一括で完結する。
+ * マイグレーション Lambda が呼び出すコア処理。接続生成 → migration → seed → close を一括で完結する。
  *
  * ## 説明
  * options.runMigration / runSeed で個別スキップ可。pg.Client の close は finally で保証。

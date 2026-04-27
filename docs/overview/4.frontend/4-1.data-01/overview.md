@@ -16,30 +16,23 @@
 - 画面は左サイドナビ + 右コンテンツの2カラム構成にする（4-1 は `4-1.data-01` を選択状態で表示）
 - ルーティングは `react-router-dom` を利用し、`layout + nested routes` で構成する
 - `medical-staff` 系データの一覧表示ページを作る（`medicalStaffsByInstitution`）
-- ページに「データ投入（冪等）」ボタンを用意し、`seedMedicalStaffs` mutation（upsert）を呼び出す
+- ページに「データ投入」ボタンを用意し、`seedMedicalStaffs` mutation（upsert）を呼び出す
 - UI は `shadcn/ui` コンポーネントを利用する
-- 型生成コマンドを `scripts` / `pnpm` コマンドとして追加する（例: `pnpm graphql:gen`）
+- 型生成コマンドを `scripts` / `pnpm` コマンドとして追加する（`pnpm graphql:build`）
 
 ## 実装メモ（2026-04-26 追記）
 
 - フロントのディレクトリは `app / domains / shared` 構成とする
 - ルーティングは `app/router.tsx` に集約し、各検証ページは `domains/*/route.tsx` から `RouteObject` を提供する
-- `Provider` 初期化（`urql` / `WebConfigProvider`）は `app/providers.tsx` に集約する
+- `urql Provider` は `app/providers/urql-provider.tsx` を利用する
+- runtime 設定解決は `app/config/runtime-config.ts` に配置する
 - import は `@/` エイリアス（`src` 基準）を利用する
-- サイドバーは `4.frontend` の全項目（`4-1`〜`4-13`）を表示し、未実装ページは非リンク表示にする
-
-## 次段設計メモ（未実装）
-
-- `urql Provider` は `client` 初期化を専用モジュールでラップし、画面側からは直接 `createClient` を触らない構成にする
-- GraphQL は `.graphql` ファイルをソースにして codegen を実行し、生成型（`TypedDocumentNode`）を利用する
-- query / mutation hooks は生文字列ではなく、生成済みドキュメントを受け取るラッパー経由で呼び出す
-- 配置方針
-  - GraphQL定義: `domains/*/graphql/*.graphql`
-  - 生成物: `src/gql/*`
-  - clientラッパー: `app/providers` 配下
-- 目的
-  - 型安全性の担保（変数/レスポンスの型ズレ防止）
-  - API呼び出し方式の統一（`../rehacul` と同系統の運用）
+- サイドバーは `1` 〜 `10` の章を表示し、`4.frontend` のみ開閉可能なアコーディオンとして子項目（`4-1`〜`4-13`）を表示する
+- `urql client` 初期化は `app/providers/graphql-client.ts` に分離し、`createClient` の直接利用を集約する
+- GraphQL 型は `Pothos schema` から `packages/graphql` へ生成する
+  - `pnpm graphql:extract` で `packages/graphql/schema.graphql` を更新
+  - `pnpm graphql:genql` で `packages/graphql/genql/*` を更新
+- hooks は `@pf/graphql/urql` の `useTypedQuery` / `useTypedMutation` を利用し、生文字列クエリ/ミューテーションは使用しない
 
 ## 対象クエリと表示項目（4-1確定）
 

@@ -1,12 +1,23 @@
-import { useWebConfig } from "@/app/providers/use-web-config.ts";
+import { resolveConfigError } from "@/app/config/runtime-config.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
 import { useMedicalStaffsByInstitutionQuery } from "../hooks/use-medical-staffs-by-institution-query.ts";
 import { useSeedMedicalStaffsMutation } from "../hooks/use-seed-medical-staffs-mutation.ts";
 
+/*
+ * # 4-1.data-01 ページ（GraphQL 動作確認）
+ *
+ * ## 目的
+ * GraphQL 経路（Query + Mutation）が end-to-end で動くことを画面から確認する検証ページ。デモ医療機関のスタッフ一覧表示と、デモシード投入ボタンを提供する。
+ *
+ * ## 説明
+ * - institutionCode は demo-hospital-1 固定（デモデータ前提）。
+ * - 設定エラー（apiUrl 未設定）検出時は Query を pause し、エラーメッセージのみ表示。
+ * - データ投入成功後は requestPolicy "network-only" で Query を再実行し、最新値を再取得。
+ */
 export function Data01Page() {
   const institutionCode = "demo-hospital-1";
-  const { configError } = useWebConfig();
+  const configError = resolveConfigError();
 
   const [{ data, fetching, error }, reexecuteMedicalStaffsQuery] =
     useMedicalStaffsByInstitutionQuery(institutionCode, Boolean(configError));
@@ -35,7 +46,7 @@ export function Data01Page() {
             }
           }}
         >
-          {isSeeding ? "投入中..." : "データ投入（冪等）"}
+          {isSeeding ? "投入中..." : "データ投入"}
         </Button>
 
         {configError && <pre className="text-sm text-red-600">{configError}</pre>}
@@ -45,7 +56,7 @@ export function Data01Page() {
         )}
         {!configError && seedData && (
           <p className="text-sm text-muted-foreground">
-            last seed appliedCount: <code>{seedData.seedMedicalStaffs.appliedCount}</code>
+            last seed appliedCount: <code>{seedData.seedMedicalStaffs?.appliedCount ?? 0}</code>
           </p>
         )}
 

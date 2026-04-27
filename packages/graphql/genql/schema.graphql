@@ -1,0 +1,24 @@
+type MedicalStaff {
+  institutionCode: String
+  name: String
+  profession: String
+  staffCode: String
+}
+
+type Mutation {
+  seedMedicalStaffs: UpsertMedicalStaffsPayload
+}
+
+type Query {
+  medicalStaffsByInstitution(institutionCode: String!): [MedicalStaff!]
+  seedItems: [SeedItem!]
+}
+
+type SeedItem {
+  code: String
+  label: String
+}
+
+type UpsertMedicalStaffsPayload {
+  appliedCount: Int
+}

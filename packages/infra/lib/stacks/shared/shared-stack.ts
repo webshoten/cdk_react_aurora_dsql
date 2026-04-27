@@ -6,6 +6,20 @@ export interface SharedStackProps extends cdk.StackProps {
   sharedEnv: string;
 }
 
+/*
+ * # 共有層 Stack 構築（環境ごと長命リソース）
+ *
+ * ## 目的
+ * sharedEnv 単位で 1 つだけ立つ共有層 Stack。App 系 Stack（Db / Api / Ops / Web）が SSM 経由で参照する共通契約値を保持する。
+ *
+ * ## 説明
+ * - 今は sharedEnv と contractVersion を SSM パラメータとして配置するのみ。将来共通リソースが増えたらここに足す。
+ * - CONTRACT_VERSION は class 静的定数。App 側コードと共有契約のバージョンを揃えるための pin。
+ * - パラメータ自体は applyRemovalPolicy(DESTROY) を明示。Stack 削除で SSM パラメータも消える。
+ *
+ * ## NOTE
+ * - SharedEnv Output の description が "Placeholder shared stack for future shared resources" のまま。共有リソースが増えたら更新候補。
+ */
 export class SharedStack extends cdk.Stack {
   public static readonly CONTRACT_VERSION = "1";
 

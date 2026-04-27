@@ -16,6 +16,22 @@ export interface GraphqlApiConstructProps {
   stage: string;
 }
 
+/*
+ * # GraphQL 用エンドポイント作成
+ *
+ * ## 目的
+ * /graphql ルートを HttpApi に紐付け、Lambda 実体（NodejsFunction）と DSQL 接続権限を 1 ヶ所で組み立てる。
+ *
+ * ## 説明
+ * - DSQL は admin ロール固定で接続。dsql:DbConnectAdmin を Lambda 実行ロールに付与。
+ * - pg / dsql-signer は nodeModules 指定で esbuild バンドル対象から除外し node_modules 同梱で配布。
+ * - source map ありビルド + NODE_OPTIONS=--enable-source-maps。CloudWatch Logs スタックトレースで TS 行表示する用途。
+ * - ログ保持 1 ヶ月、stack destroy 時にロググループも削除。
+ *
+ * ## NOTE
+ * - DSQL_DATABASE / DSQL_DB_USER をハードコード（postgres / admin）。stage ごと切替不能。
+ * - timeout 10 秒。重いクエリが入ると不足する可能性。
+ */
 export class GraphqlApiConstruct extends Construct {
   constructor(scope: Construct, id: string, props: GraphqlApiConstructProps) {
     super(scope, id);

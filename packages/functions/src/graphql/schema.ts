@@ -72,4 +72,14 @@ builder.mutationType({
   }),
 });
 
+/*
+ * # GraphQL スキーマ定義
+ *
+ * ## 目的
+ * Yoga サーバーに渡される GraphQL スキーマ本体。Pothos で型・Query・Mutation を組み立て最終的に GraphQLSchema を吐く。
+ *
+ * ## 説明
+ * resolver は core の repository / use case 関数を直接呼び出す薄い層。
+ * SeedItem / MedicalStaff / UpsertMedicalStaffsPayload の 3 型と、Query 2 件・Mutation 1 件で構成。
+ */
 export const schema = builder.toSchema();

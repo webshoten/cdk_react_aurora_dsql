@@ -2,8 +2,14 @@ import * as path from "node:path";
 import { runCdk } from "../lib/cdk-cli.ts";
 import { logResolved, type RawOptions, resolveOptions } from "../lib/options.ts";
 
-/**
- * SharedStack 群（将来の共有基盤受け口）をデプロイ。
+/*
+ * # SharedStack デプロイ CLI コマンド
+ *
+ * ## 目的
+ * scripts/cdk.ts の `deploy-shared` サブコマンド実体。共有層（SharedStack）のみを単独デプロイする。
+ *
+ * ## 説明
+ * AppStack より先に SharedStack を立てておく必要があるユースケース（環境立ち上げ初回・共有契約バージョン更新）で利用。
  *
  * 呼び出し例:
  *   pnpm cdk:deploy:shared --shared dev --profile my-aws
@@ -12,8 +18,6 @@ import { logResolved, type RawOptions, resolveOptions } from "../lib/options.ts"
  *          --profile my-aws --context shared-env=dev --context shared-only=true \
  *          --context stage=<whoami> --require-approval never \
  *          --outputs-file <cwd>/cdk-outputs.json
- *
- *   対象スタック例: pf-dev-shared
  */
 export function deployShared(raw: RawOptions, extra: string[]): void {
   const opts = resolveOptions(raw);

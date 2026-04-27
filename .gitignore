@@ -8,3 +8,6 @@ cdk.out
 .env.local
 .DS_Store
 cdk-outputs.json
+.vscode/.local-dev.env
+.migration-artifact.zip
+.migration-runner-output.json

@@ -18,7 +18,9 @@
 
 - DB クエリ層は `@pf/core` で Drizzle を利用する
 - migration は `schema.ts` から `drizzle-kit generate` で SQL 生成し、生成SQLを Git 管理する
-- migration 実行は `MigrationRunner Lambda`（`OpsStack`）を deploy 後に invoke する
+- migration 実行は `MigrationRunner Lambda`（`OpsStack`）を invoke して実行する
+- migration/seed SQL は `migrate` 実行時に zip 化して S3 artifact へ upload し、Lambda は固定の bucket/key（環境変数）から取得する
+- `OpsStack` の `MigrationArtifactBucket` は `RemovalPolicy.DESTROY` + `autoDeleteObjects=true` で destroy 時に残さない
 - migration 適用は `drizzle-orm` 標準 migrator ではなく、自前 Runner で SQL をファイル順に適用する
 - migration 履歴は `public.pf_migration_files`（`MIGRATIONS_SCHEMA` / `MIGRATIONS_TABLE` で変更可）で管理する
 - seed は SQL ファイルをファイル順で実行し、1ファイル単位トランザクションで適用する
@@ -31,6 +33,8 @@
 - 2026-04-26: Drizzle + DSQL 移行の初期スコープとして、migration/seed/表示確認（`seedItems`）までを採用
 - 2026-04-26: migration 自動化方式は `MigrationRunner Lambda` の invoke（deploy 後）を採用
 - 2026-04-26: DSQL 互換性制約（`serial` 非対応、DDL + DML 同一 transaction 不可）に合わせ、自前 migration Runner 方式を採用
+- 2026-04-26: migration SQL 配布は Lambda 同梱ではなく、`migrate` 実行時の `S3 upload -> invoke` 方式へ移行
+- 2026-04-26: 任意実行防止のため、artifact の取得先は payload 指定ではなく Lambda 環境変数で固定
 
 ## 関連 plan
 

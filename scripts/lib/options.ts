@@ -18,7 +18,13 @@ export type ResolvedOptions = {
   profile: string;
 };
 
-/**
+/*
+ * # cdk CLI 共通オプション解決
+ *
+ * ## 目的
+ * scripts/commands/* 全コマンドが先頭で呼ぶ入口。生オプション（commander 出力）に既定値を埋めて確定オプションへ正規化する。
+ *
+ * ## 説明
  * 解決ルール:
  *   sharedEnv: --shared 必須
  *   stage    : --stage > whoami

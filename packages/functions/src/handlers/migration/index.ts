@@ -98,6 +98,15 @@ function sanitizeForPath(input: string): string {
   return value.length > 0 ? value : "default";
 }
 
+/*
+ * # Migration / Seed SQL 配置パス検証
+ *
+ * ## 目的
+ * S3 から取得した migration / seed SQL アーカイブの各エントリパスを /tmp 配下へ展開する前に検証する。
+ *
+ * ## 説明
+ * 絶対パス・親参照（`../`）を含むエントリは zip-slip として弾く。POSIX 正規化後に判定。
+ */
 function normalizeArtifactPath(entryPath: string): string {
   const normalized = path.posix.normalize(entryPath);
   if (normalized.startsWith("/") || normalized.startsWith("../") || normalized.includes("/../")) {
@@ -127,6 +136,20 @@ async function bodyToUint8Array(body: unknown): Promise<Uint8Array> {
   throw new Error("Unsupported S3 response body type");
 }
 
+/*
+ * # マイグレーション資材の S3 → /tmp 展開
+ *
+ * ## 目的
+ * マイグレーション Lambda 起動時に S3 上の zip（migrations/**.sql, seeds/**.sql）を /tmp 下に展開し、runner が読むディレクトリを供給する。
+ *
+ * ## 説明
+ * - リクエストごとに一意な /tmp サブディレクトリを切る（並行実行衝突回避）
+ * - .sql ファイル以外、許可プレフィックス外はスキップ
+ * - cleanup でディレクトリ削除（呼び出し側 finally で実行）
+ *
+ * ## NOTE
+ * - リージョンは AWS_REGION → DSQL_REGION fallback。Lambda 環境では AWS_REGION 必ず存在のはずだが冗長化。
+ */
 async function prepareArtifactDirs(requestId?: string): Promise<PreparedArtifactDirs> {
   const bucket = requireEnv("ARTIFACT_S3_BUCKET");
   const key = requireEnv("ARTIFACT_S3_KEY");
@@ -173,6 +196,19 @@ async function prepareArtifactDirs(requestId?: string): Promise<PreparedArtifact
   };
 }
 
+/*
+ * # マイグレーション Lambda ハンドラ
+ *
+ * ## 目的
+ * scripts/migrate.ts（運用 CLI）から AWS Lambda invoke で起動される実行入口。S3 上の SQL アーカイブを展開し migration / seed を順に適用する。
+ *
+ * ## 説明
+ * S3 アーティファクトを /tmp 展開 → DSQL 接続生成 → migration → seed → cleanup の一連を実行。
+ * 例外は pg エラー詳細含めて構造化ログに出した上で ok:false を返す（throw せず）。
+ *
+ * ## NOTE
+ * - 失敗時も Lambda としては success レスポンス。呼び出し側（migrate.ts）が ok フィールドで判定する前提。
+ */
 export const handler: Handler<MigrationInvokeEvent, MigrationInvokeResult> = async (event) => {
   const startedAt = Date.now();
   const requestId = event.requestId;

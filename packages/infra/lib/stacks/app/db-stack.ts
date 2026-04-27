@@ -10,18 +10,25 @@ export interface DbStackProps extends cdk.StackProps {
   resourcePrefix: string;
 }
 
-// Aurora DSQL を stage ごとに作る Stack です。
-// shared contract を最初に読み、その環境に属する app リソースとして DB を組み立てます。
+/*
+ * # Aurora DSQL Stack 構築
+ *
+ * ## 目的
+ * stage 単位で Aurora DSQL クラスタを 1 つ立てる Stack。SharedLookup → タグ → DB 本体の順で組み立て、上位（Api・Ops Stack）が参照する ARN / endpoint / identifier を公開する。
+ *
+ * ## 説明
+ * - SSM 参照は Stack scope が必要なため SharedLookup はこの Stack 先頭で生やす。共有契約バージョンを SharedContractVersion タグで全リソースに刻む。
+ * - Db 本体は DbConstruct に委譲。Stack 側は Output 公開とタグ付けに専念。
+ * - ARN / endpoint / identifier の 3 値を CfnOutput でも公開し、cdk-outputs.json から運用 CLI が参照できるようにする。
+ */
 export class DbStack extends cdk.Stack {
   public readonly clusterArn: string;
   public readonly endpoint: string;
   public readonly identifier: string;
 
-  // shared との境界をこの Stack の先頭で固定してから、DB 本体を作ります。
   constructor(scope: Construct, id: string, props: DbStackProps) {
     super(scope, id, props);
 
-    // SSM の値取得は Stack scope が必要なので、shared lookup はここで行います。
     const sharedConfig: SharedLookupValues = new SharedLookupConstruct(this, "SharedLookup", {
       sharedEnv: props.sharedEnv,
     });

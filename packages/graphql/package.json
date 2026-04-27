@@ -1,0 +1,24 @@
+{
+  "name": "@pf/graphql",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./urql": "./urql.ts",
+    "./genql": "./genql/index.ts"
+  },
+  "scripts": {
+    "graphql:genql": "genql --output ./genql --schema ./schema.graphql --esm"
+  },
+  "dependencies": {
+    "@types/react": "^19.2.14",
+    "graphql": "^16.11.0",
+    "react": "^19.2.5",
+    "urql": "^5.0.1",
+    "wonka": "^6.3.5"
+  },
+  "devDependencies": {
+    "@genql/cli": "^6.3.3"
+  }
+}

@@ -11,6 +11,22 @@ export interface WebConstructProps {
   apiUrl: string;
 }
 
+/*
+ * # Web 配信基盤作成（S3 + CloudFront + 静的アセット配置）
+ *
+ * ## 目的
+ * Web ビルド成果物（packages/web/dist）の配信基盤を立てる。stage ごとの CloudFront ディストリビューション + 専用 S3 バケット。
+ *
+ * ## 説明
+ * - S3 はパブリックブロック。CloudFront からは Origin Access Control 経由で取得。
+ * - SPA ルーティング対応: 403/404 を /index.html に書き換えて 200 で返す。
+ * - 配信物に config.js を Source.data で注入し、apiUrl を実行時に window.__CONFIG__ で供給。
+ *   API URL 変更時に Web バンドルを再ビルドしなくて済むのが狙い。
+ * - distributionPaths ["/*"] 指定で BucketDeployment ごとに CloudFront 全体 invalidate。
+ *
+ * ## NOTE
+ * - autoDeleteObjects + RemovalPolicy.DESTROY。stage 破棄前提。本番運用 stage では要見直し。
+ */
 export class WebConstruct extends Construct {
   public readonly distributionDomain: string;
 

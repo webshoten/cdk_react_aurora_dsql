@@ -25,6 +25,17 @@ export const buttonVariants = cva(
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>;
 
+/*
+ * # 共通 Button コンポーネント
+ *
+ * ## 目的
+ * shadcn/ui ベースの汎用ボタン。アプリ全体で variant / size 揃った操作 UI を提供する。
+ *
+ * ## 説明
+ * - cva で variant（default / ghost / outline）と size（default / sm）を定義。
+ * - type の既定値を "button" に明示し、フォーム内誤 submit を防ぐ。
+ * - buttonVariants も export しているため、span 等を「ボタン外観だけ」着せたい用途で再利用できる（AppLayout のナビ項目等）。
+ */
 export function Button({ className, size, type = "button", variant, ...props }: ButtonProps) {
   return (
     <button className={cn(buttonVariants({ className, size, variant }))} type={type} {...props} />

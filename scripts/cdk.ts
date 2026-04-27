@@ -1,8 +1,10 @@
-/**
- * cdk-pf 全 CDK 操作のエントリポイント。
+/*
+ * # CDK 操作 CLI エントリ
  *
- *   tsx scripts/cdk.ts <subcommand> [options]
+ * ## 目的
+ * cdk-pf 全 CDK 操作のエントリポイント。`pnpm cdk:*` などから `tsx scripts/cdk.ts <subcommand>` として呼ばれる。
  *
+ * ## 説明
  * サブコマンド:
  *   deploy           AppStack 群（db + api + web）をデプロイ
  *   deploy-shared    SharedStack 群（将来の共有基盤受け口）をデプロイ

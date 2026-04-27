@@ -7,6 +7,21 @@ import { WebStack } from "@infra/lib/stacks/app/web-stack";
 import { SharedStack } from "@infra/lib/stacks/shared/shared-stack";
 import * as cdk from "aws-cdk-lib/core";
 
+/*
+ * # CDK アプリケーションエントリ
+ *
+ * ## 目的
+ * 全 Stack のインスタンス化と依存解決を行う synth 入口。`cdk` CLI から実行される。
+ *
+ * ## 説明
+ * 環境構成は 2 層: SharedStack（環境ごと 1 つ・長命）と App 系 Stack（stage ごと・破棄前提）。
+ * shared-env は context または CDK_SHARED_ENV から、stage は context または OS ユーザー名から解決。
+ * shared-only=true 指定時は SharedStack のみ synth する（共有層だけ事前構築する用途）。
+ * App 層は Db → Api / Ops の順に依存。Web は API URL を受けるが addDependency なし（CFN 側で参照解決のみ）。
+ *
+ * ## NOTE
+ * - リージョン既定値を ap-northeast-1 でハードコード。CDK_DEFAULT_REGION 未設定時のフォールバック。
+ */
 const app = new cdk.App();
 const stage = app.node.tryGetContext("stage") || os.userInfo().username;
 const sharedEnv = app.node.tryGetContext("shared-env") || process.env.CDK_SHARED_ENV;

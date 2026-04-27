@@ -1,35 +1,25 @@
-import { useQuery } from "urql";
+import { useTypedQuery } from "@pf/graphql/urql";
 
-type MedicalStaff = {
-  institutionCode: string;
-  name: string;
-  profession: string;
-  staffCode: string;
-};
-
-type MedicalStaffsByInstitutionData = {
-  medicalStaffsByInstitution: MedicalStaff[];
-};
-
-type MedicalStaffsByInstitutionVariables = {
-  institutionCode: string;
-};
-
-const MEDICAL_STAFFS_BY_INSTITUTION_QUERY = `
-  query MedicalStaffsByInstitution($institutionCode: String!) {
-    medicalStaffsByInstitution(institutionCode: $institutionCode) {
-      staffCode
-      institutionCode
-      name
-      profession
-    }
-  }
-`;
-
+/*
+ * # 医療機関別スタッフ一覧 Query フック
+ *
+ * ## 目的
+ * Data01Page から利用される、institutionCode 指定の medicalStaffsByInstitution Query を発行する画面用ラッパー。
+ *
+ * ## 説明
+ * useTypedQuery（@pf/graphql/urql）の薄いラッパー。pause を受け、設定エラー時に発行を抑止できるようにする。
+ */
 export function useMedicalStaffsByInstitutionQuery(institutionCode: string, pause: boolean) {
-  return useQuery<MedicalStaffsByInstitutionData, MedicalStaffsByInstitutionVariables>({
-    query: MEDICAL_STAFFS_BY_INSTITUTION_QUERY,
-    variables: { institutionCode },
+  return useTypedQuery({
+    query: {
+      medicalStaffsByInstitution: {
+        __args: { institutionCode },
+        staffCode: true,
+        institutionCode: true,
+        name: true,
+        profession: true,
+      },
+    },
     pause,
   });
 }

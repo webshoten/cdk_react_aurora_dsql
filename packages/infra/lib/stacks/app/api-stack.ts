@@ -12,6 +12,17 @@ export interface ApiStackProps extends cdk.StackProps {
   sharedEnv: string;
 }
 
+/*
+ * # API Stack（GraphQL API Gateway + Lambda）
+ *
+ * ## 目的
+ * stage ごとの API 層 Stack。SSM lookup・タグ付与・API リソース構築を 1 ヶ所で完結させる入口。
+ *
+ * ## 説明
+ * - SSM 参照は Stack scope が必要なため SharedLookup をここで作る。
+ * - Stack に SharedContractVersion / SharedEnv タグを付与し、共有契約のバージョンと環境名を CFN リソースに横串で残す。
+ * - API URL は WebStack に渡すため CfnOutput で公開し、apiUrl プロパティでも参照可能にする。
+ */
 export class ApiStack extends cdk.Stack {
   public readonly apiUrl: string;
 

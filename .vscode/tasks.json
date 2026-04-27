@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "local-dev:resolve-env",
+      "type": "shell",
+      "command": "node --import tsx scripts/local-dev/resolve-env.ts --shared ${input:sharedEnv} --stage ${input:stage} --profile ${input:awsProfile}",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sharedEnv",
+      "type": "promptString",
+      "description": "shared env (example: dev)",
+      "default": "dev"
+    },
+    {
+      "id": "stage",
+      "type": "promptString",
+      "description": "stage (example: user)",
+      "default": "user"
+    },
+    {
+      "id": "awsProfile",
+      "type": "promptString",
+      "description": "AWS profile",
+      "default": "default"
+    }
+  ]
+}

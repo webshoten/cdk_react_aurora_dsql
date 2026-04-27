@@ -1,8 +1,0 @@
-query MedicalStaffsByInstitution($institutionCode: String!) {
-  medicalStaffsByInstitution(institutionCode: $institutionCode) {
-    staffCode
-    institutionCode
-    name
-    profession
-  }
-}

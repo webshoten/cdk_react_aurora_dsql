@@ -1,5 +1,0 @@
-mutation SeedMedicalStaffs {
-  seedMedicalStaffs {
-    appliedCount
-  }
-}

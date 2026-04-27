@@ -13,9 +13,12 @@
     "lint:fix": "biome check --fix .",
     "format": "biome format --write .",
     "migrate": "tsx scripts/migrate.ts",
+    "local-dev:resolve-env": "tsx scripts/local-dev/resolve-env.ts",
     "dev:web": "pnpm --filter @pf/web dev",
     "dev:functions": "pnpm --filter @pf/functions dev",
-    "graphql:gen": "pnpm --filter @pf/web graphql:gen"
+    "graphql:extract": "pnpm --filter @pf/functions graphql:extract",
+    "graphql:genql": "pnpm --filter @pf/graphql graphql:genql",
+    "graphql:build": "pnpm graphql:extract && pnpm graphql:genql"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",

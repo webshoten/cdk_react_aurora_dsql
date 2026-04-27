@@ -12,6 +12,17 @@ export interface OpsStackProps extends cdk.StackProps {
   stage: string;
 }
 
+/*
+ * # マイグレーション実行基盤 Stack 構築
+ *
+ * ## 目的
+ * stage ごとの Ops 層 Stack。マイグレーション資材保管 S3 と migration Lambda を OpsConstruct に委譲し、運用 CLI が参照する Output を公開する。
+ *
+ * ## 説明
+ * - SSM 参照は Stack scope が必要なため SharedLookup をここで作る。
+ * - Stack に SharedContractVersion / SharedEnv タグを付与し、共有契約のバージョンと環境名を CFN リソースに横串で残す。
+ * - 公開する 4 値（バケット名・オブジェクトキー・関数 ARN・関数名）は cdk-outputs.json 経由で scripts/migrate.ts から参照される。
+ */
 export class OpsStack extends cdk.Stack {
   public readonly migrationArtifactBucketName: string;
   public readonly migrationArtifactObjectKey: string;
