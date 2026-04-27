@@ -1,6 +1,7 @@
 import { resolveConfigError } from "@/app/config/runtime-config.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
+import { useEffect, useState } from "react";
 import { useAddRandomMedicalStaffMutation } from "../hooks/use-add-random-medical-staff-mutation.ts";
 import { useClearMedicalStaffsByInstitutionMutation } from "../hooks/use-clear-medical-staffs-by-institution-mutation.ts";
 import { useMedicalStaffsByInstitutionQuery } from "../hooks/use-medical-staffs-by-institution-query.ts";
@@ -29,7 +30,19 @@ export function Data01Page() {
   const [{ data: clearData, fetching: isClearing, error: clearError }, clearMedicalStaffs] =
     useClearMedicalStaffsByInstitutionMutation();
 
-  const medicalStaffs = data?.medicalStaffsByInstitution ?? [];
+  const [viewMedicalStaffs, setViewMedicalStaffs] = useState<
+    Array<{
+      staffCode: string | null;
+      name: string | null;
+      profession: string | null;
+      institutionCode: string | null;
+    }>
+  >([]);
+
+  useEffect(() => {
+    if (!data?.medicalStaffsByInstitution) return;
+    setViewMedicalStaffs(data.medicalStaffsByInstitution);
+  }, [data]);
 
   return (
     <Card>
@@ -72,6 +85,7 @@ export function Data01Page() {
 
               const result = await clearMedicalStaffs({ institutionCode });
               if (!result.error) {
+                setViewMedicalStaffs([]);
                 reexecuteMedicalStaffsQuery({ requestPolicy: "network-only" });
               }
             }}
@@ -100,11 +114,11 @@ export function Data01Page() {
         )}
 
         {!configError && fetching && <p className="text-sm">loading...</p>}
-        {!configError && !fetching && medicalStaffs.length === 0 && (
+        {!configError && !fetching && viewMedicalStaffs.length === 0 && (
           <p className="text-sm">medicalStaffs: 0</p>
         )}
 
-        {!configError && !fetching && medicalStaffs.length > 0 && (
+        {!configError && viewMedicalStaffs.length > 0 && (
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="bg-muted/60">
@@ -116,12 +130,12 @@ export function Data01Page() {
                 </tr>
               </thead>
               <tbody>
-                {medicalStaffs.map((staff) => (
-                  <tr className="border-t border-border" key={staff.staffCode}>
-                    <td className="px-4 py-2">{staff.staffCode}</td>
-                    <td className="px-4 py-2">{staff.name}</td>
-                    <td className="px-4 py-2">{staff.profession}</td>
-                    <td className="px-4 py-2">{staff.institutionCode}</td>
+                {viewMedicalStaffs.map((staff, index) => (
+                  <tr className="border-t border-border" key={staff.staffCode ?? `unknown-${index}`}>
+                    <td className="px-4 py-2">{staff.staffCode ?? "-"}</td>
+                    <td className="px-4 py-2">{staff.name ?? "-"}</td>
+                    <td className="px-4 py-2">{staff.profession ?? "-"}</td>
+                    <td className="px-4 py-2">{staff.institutionCode ?? "-"}</td>
                   </tr>
                 ))}
               </tbody>
