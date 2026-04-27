@@ -59,7 +59,7 @@ const initialState = {
  * urql の mutation state 形式を維持しつつ、selection から query/variables を組み立てる。
  */
 export function useTypedMutation<
-  Variables extends Record<string, unknown>,
+  Variables extends object,
   Mutation extends MutationGenqlSelection,
   Data extends MutationResult<Mutation>,
 >(

@@ -69,3 +69,65 @@ export async function upsertDemoMedicalStaffs(dbClient: DbClient): Promise<numbe
     return DEMO_MEDICAL_STAFFS.length;
   });
 }
+
+const SAMPLE_FAMILY_NAMES = ["Sato", "Suzuki", "Takahashi", "Tanaka", "Ito"] as const;
+const SAMPLE_GIVEN_NAMES = ["Taro", "Hanako", "Ken", "Yui", "Haru"] as const;
+const SAMPLE_PROFESSIONS = ["doctor", "nurse", "pharmacist", "therapist"] as const;
+
+function randomPick<T>(values: readonly T[]): T {
+  const index = Math.floor(Math.random() * values.length);
+  return values[index] as T;
+}
+
+/*
+ * # ランダム医療スタッフ 1 件追加
+ *
+ * ## 目的
+ * 一覧変化を目視確認するため、毎回異なる staff_code / name の 1 レコードを追加する。
+ *
+ * ## 説明
+ * 複雑なルールは持たず、固定候補からランダム選択して INSERT する最小実装。
+ */
+export async function addRandomMedicalStaff(
+  dbClient: DbClient,
+  institutionCode: string,
+): Promise<number> {
+  return dbClient(async (db) => {
+    const drizzleDb = drizzle(db);
+    const suffix = `${Date.now().toString(36)}-${Math.floor(Math.random() * 1000)}`;
+    const name = `${randomPick(SAMPLE_GIVEN_NAMES)} ${randomPick(SAMPLE_FAMILY_NAMES)}`;
+
+    await drizzleDb.insert(medicalStaffs).values({
+      staffCode: `auto-${suffix}`,
+      institutionCode,
+      name,
+      profession: randomPick(SAMPLE_PROFESSIONS),
+    });
+
+    return 1;
+  });
+}
+
+/*
+ * # 医療スタッフ全削除（医療機関単位）
+ *
+ * ## 目的
+ * 再投入・再取得の動作確認を繰り返しやすくするため、対象 institution のデータを一括削除する。
+ *
+ * ## 説明
+ * DELETE の returning 件数を削除件数として返す。
+ */
+export async function clearMedicalStaffsByInstitution(
+  dbClient: DbClient,
+  institutionCode: string,
+): Promise<number> {
+  return dbClient(async (db) => {
+    const drizzleDb = drizzle(db);
+    const deletedRows = await drizzleDb
+      .delete(medicalStaffs)
+      .where(eq(medicalStaffs.institutionCode, institutionCode))
+      .returning({ staffCode: medicalStaffs.staffCode });
+
+    return deletedRows.length;
+  });
+}

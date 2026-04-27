@@ -24,6 +24,24 @@ export default {
         },
         "String": {},
         "Mutation": {
+            "addRandomMedicalStaff": [
+                5,
+                {
+                    "institutionCode": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
+            "clearMedicalStaffsByInstitution": [
+                5,
+                {
+                    "institutionCode": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
             "seedMedicalStaffs": [
                 5
             ],

@@ -18,6 +18,8 @@ export interface MedicalStaff {
 }
 
 export interface Mutation {
+    addRandomMedicalStaff: (UpsertMedicalStaffsPayload | null)
+    clearMedicalStaffsByInstitution: (UpsertMedicalStaffsPayload | null)
     seedMedicalStaffs: (UpsertMedicalStaffsPayload | null)
     __typename: 'Mutation'
 }
@@ -49,6 +51,8 @@ export interface MedicalStaffGenqlSelection{
 }
 
 export interface MutationGenqlSelection{
+    addRandomMedicalStaff?: (UpsertMedicalStaffsPayloadGenqlSelection & { __args: {institutionCode: Scalars['String']} })
+    clearMedicalStaffsByInstitution?: (UpsertMedicalStaffsPayloadGenqlSelection & { __args: {institutionCode: Scalars['String']} })
     seedMedicalStaffs?: UpsertMedicalStaffsPayloadGenqlSelection
     __typename?: boolean | number
     __scalar?: boolean | number

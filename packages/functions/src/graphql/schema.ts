@@ -1,4 +1,10 @@
-import { listMedicalStaffsByInstitution, listSeedItems, upsertDemoMedicalStaffs } from "@pf/core";
+import {
+  addRandomMedicalStaff,
+  clearMedicalStaffsByInstitution,
+  listMedicalStaffsByInstitution,
+  listSeedItems,
+  upsertDemoMedicalStaffs,
+} from "@pf/core";
 import SchemaBuilder from "@pothos/core";
 import type { GraphqlContext } from "./context.ts";
 
@@ -67,6 +73,24 @@ builder.mutationType({
       type: UpsertMedicalStaffsPayloadRef,
       resolve: async (_root, _args, context) => ({
         appliedCount: await upsertDemoMedicalStaffs(context.dbClient),
+      }),
+    }),
+    addRandomMedicalStaff: t.field({
+      type: UpsertMedicalStaffsPayloadRef,
+      args: {
+        institutionCode: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, context) => ({
+        appliedCount: await addRandomMedicalStaff(context.dbClient, args.institutionCode),
+      }),
+    }),
+    clearMedicalStaffsByInstitution: t.field({
+      type: UpsertMedicalStaffsPayloadRef,
+      args: {
+        institutionCode: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, context) => ({
+        appliedCount: await clearMedicalStaffsByInstitution(context.dbClient, args.institutionCode),
       }),
     }),
   }),

@@ -6,6 +6,8 @@ type MedicalStaff {
 }
 
 type Mutation {
+  addRandomMedicalStaff(institutionCode: String!): UpsertMedicalStaffsPayload
+  clearMedicalStaffsByInstitution(institutionCode: String!): UpsertMedicalStaffsPayload
   seedMedicalStaffs: UpsertMedicalStaffsPayload
 }
 

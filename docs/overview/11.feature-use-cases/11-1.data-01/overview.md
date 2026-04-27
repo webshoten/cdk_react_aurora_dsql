@@ -16,7 +16,8 @@
 - 画面は左サイドナビ + 右コンテンツの2カラム構成にする（11-1 は `11-1.data-01` を選択状態で表示）
 - ルーティングは `react-router-dom` を利用し、`layout + nested routes` で構成する
 - `medical-staff` 系データの一覧表示ページを作る（`medicalStaffsByInstitution`）
-- ページに「データ投入」ボタンを用意し、`seedMedicalStaffs` mutation（upsert）を呼び出す
+- ページに「ランダム追加」ボタンを用意し、`addRandomMedicalStaff` mutation を呼び出す
+- ページに「全削除」ボタンを用意し、`clearMedicalStaffsByInstitution` mutation を呼び出す
 - UI は `shadcn/ui` コンポーネントを利用する
 - 型生成コマンドを `scripts` / `pnpm` コマンドとして追加する（`pnpm graphql:build`）
 
@@ -37,7 +38,8 @@
 ## 対象クエリと表示項目（11-1確定）
 
 - query: `medicalStaffsByInstitution(institutionCode: String!)`
-- mutation: `seedMedicalStaffs`（デモデータ投入、`ON CONFLICT` で冪等）
+- mutation: `addRandomMedicalStaff(institutionCode: String!)`（ランダムな1件を追加）
+- mutation: `clearMedicalStaffsByInstitution(institutionCode: String!)`（対象 institution の全件削除）
 - 一覧表示項目: `staffCode`, `name`, `profession`, `institutionCode`
 
 ## スコープ外（11-1ではやらない）
