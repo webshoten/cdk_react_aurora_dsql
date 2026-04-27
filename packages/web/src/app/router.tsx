@@ -1,8 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppLayout } from "@/app/layout/app-layout.tsx";
-import { frontendAuth01Route } from "@/domains/frontend-auth-01/route.tsx";
-import { frontendData01Route } from "@/domains/frontend-data-01/route.tsx";
-import { frontendData02Route } from "@/domains/frontend-data-02/route.tsx";
+import { data01Route } from "@/domains/feature-use-cases/11-1.data-01/route.tsx";
+import { data02Route } from "@/domains/feature-use-cases/11-2.data-02/route.tsx";
+import { auth01Route } from "@/domains/feature-use-cases/11-3.auth-01/route.tsx";
 import { MainPage } from "@/domains/main/pages/main-page.tsx";
 
 /*
@@ -26,8 +26,8 @@ export const appRouter = createBrowserRouter([
         element: <MainPage />,
       },
       {
-        path: "frontend",
-        children: [frontendData01Route, frontendData02Route, frontendAuth01Route],
+        path: "feature-use-cases",
+        children: [data01Route, data02Route, auth01Route],
       },
     ],
   },

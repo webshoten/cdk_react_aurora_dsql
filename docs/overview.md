@@ -1,7 +1,5 @@
 # Overview
 
-- 進行状況: [Resume](./resume.md)
-
 ## IaC
 
 - AWS CDK
@@ -117,6 +115,7 @@
 - [8. コーディングルール](./overview/8.coding-rules/overview.md)
 - [9. AI](./overview/9.ai/overview.md)
 - [10. ローカル開発](./overview/10.local-dev/overview.md)
+- [11. 機能ユースケース (feature-use-cases)](./overview/11.feature-use-cases/overview.md)
 
 ## 更新フロー
 

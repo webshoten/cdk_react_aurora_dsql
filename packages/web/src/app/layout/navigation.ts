@@ -1,4 +1,4 @@
-export interface FrontendNavItem {
+export interface FeatureUseCasesNavItem {
   label: string;
   to?: string;
 }
@@ -29,29 +29,30 @@ export const OVERVIEW_NAV_ITEMS: OverviewNavItem[] = [
   { label: "8.coding-rules" },
   { label: "9.ai" },
   { label: "10.local-dev" },
+  { label: "11.feature-use-cases" },
 ];
 
 /*
- * # frontend ドメインナビ項目
+ * # feature-use-cases ナビ項目
  *
  * ## 目的
- * AppLayout のサイドバー下段。frontend ドメイン配下の各機能ページへの導線。
+ * AppLayout のサイドバー下段。機能ユースケース配下の各検証ページへの導線。
  *
  * ## 説明
  * `to` 未指定の項目は未実装 placeholder（OVERVIEW_NAV_ITEMS と同様）。
  */
-export const FRONTEND_NAV_ITEMS: FrontendNavItem[] = [
-  { label: "4-1.data-01", to: "/frontend/4-1.data-01" },
-  { label: "4-2.data-02", to: "/frontend/4-2.data-02" },
-  { label: "4-3.auth-01", to: "/frontend/4-3.auth-01" },
-  { label: "4-4.auth-02" },
-  { label: "4-5.ops-01" },
-  { label: "4-6.oplog-01" },
-  { label: "4-7.oplog-02" },
-  { label: "4-8.livekit-01" },
-  { label: "4-9.video-01" },
-  { label: "4-10.video-auth-01" },
-  { label: "4-11.iot-01" },
-  { label: "4-12.iot-02" },
-  { label: "4-13.maintenance-01" },
+export const FEATURE_USE_CASES_NAV_ITEMS: FeatureUseCasesNavItem[] = [
+  { label: "11-1.data-01", to: "/feature-use-cases/11-1.data-01" },
+  { label: "11-2.data-02", to: "/feature-use-cases/11-2.data-02" },
+  { label: "11-3.auth-01", to: "/feature-use-cases/11-3.auth-01" },
+  { label: "11-4.auth-02" },
+  { label: "11-5.ops-01" },
+  { label: "11-6.oplog-01" },
+  { label: "11-7.oplog-02" },
+  { label: "11-8.livekit-01" },
+  { label: "11-9.video-01" },
+  { label: "11-10.video-auth-01" },
+  { label: "11-11.iot-01" },
+  { label: "11-12.iot-02" },
+  { label: "11-13.maintenance-01" },
 ];
