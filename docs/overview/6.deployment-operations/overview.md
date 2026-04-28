@@ -17,6 +17,12 @@
 - `stage` 未指定時は `whoami`
 - `profile` 未指定時は `AWS_PROFILE`、なければ `default`
 
+## 運用ルール
+
+- deploy / destroy 実行中は CDK 構成変更を止める
+- 実行前後で対象 stage と stack を明示して確認する
+- 問題発生時は CloudWatch Logs の事実ログを先に記録する
+
 ## 決定ログ
 
-- YYYY-MM-DD: (ここに決定事項を追記)
+- 2026-04-28: 決定ログのプレースホルダを廃止し、運用ルールを明文化

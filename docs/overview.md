@@ -1,109 +1,18 @@
 # Overview
 
-## IaC
+## 目的
 
-- AWS CDK
-- TypeScript
-- stack 構成
-  - `SharedStack`
-  - `DbStack`
-  - `ApiStack`
-  - `WebStack`
+- 本ファイルは `docs/overview` 全体の索引と読み順を定義する
+- 詳細仕様は各章の `overview.md` に集約し、ここには要点のみを置く
 
-## インフラリソース
+## 読み方
 
-- Aurora DSQL
-  - stage ごとに作成
-  - deletion protection は無効
-  - app stack 配下で管理
-- AWS Lambda
-  - Node.js 24
-  - VPC には参加しない
-  - GraphQL handler を実行
-- API Gateway
-  - HTTP API
-  - `/graphql` を公開
-- Amazon S3
-  - フロントエンドの静的配信元
-  - destroy 時は自動削除
-- Amazon CloudFront
-  - S3 を origin にした静的配信
-  - `config.js` を含めて配布
-- AWS Systems Manager Parameter Store
-  - shared contract の受け渡しに利用
-  - app stack は shared の値を読む
+1. 全体像は `1 -> 4 -> 11` の順で把握する
+2. 実装ルールは `8` を正本とする
+3. AI 利用方針は `9` を正本とする
+4. 未確定事項は `7` で管理する
 
-## バックエンド
-
-- 言語
-  - TypeScript
-- フレームワーク
-  - GraphQL Yoga
-  - Pothos
-- パッケージ構成
-  - `packages/functions`
-    - Lambda entry point
-    - GraphQL schema / context
-  - `packages/core`
-    - アプリケーションロジック
-    - DB クライアント共通処理
-
-## フロントエンド
-
-- 言語
-  - TypeScript
-- フレームワーク
-  - React
-  - Vite
-- 設定
-  - API URL は build 時に埋め込まず `config.js` で渡す
-  - CloudFront / S3 配信を前提にする
-
-## CI/CD
-
-- 現状
-  - 未整備
-- 想定
-  - 将来的に追加する
-
-## 開発環境
-
-- パッケージマネージャ
-  - `pnpm`
-- stage
-  - 未指定時は `whoami`
-- sharedEnv
-  - 必須
-- ローカル確認
-  - GraphQL endpoint
-  - web build
-
-## デプロイ方針
-
-- deploy 順序
-  - `shared`
-  - `app`
-- destroy 順序
-  - `app`
-  - `shared`
-
-## AI
-
-- 利用前提
-  - `Codex` / `Claude`
-- MCP
-  - 現状は `awslabs-aws-iac-mcp-server` を利用
-- Skill
-  - 現状は `react-best-practices` を導入済み
-
-## 未決事項
-
-- migration 方式
-- ORM 採用有無
-- CI/CD
-- DSQL 運用詳細
-
-## 詳細設計フォルダ
+## 章一覧
 
 - [1. 全体アーキテクチャ](./overview/1.architecture/overview.md)
 - [2. インフラリソース](./overview/2.infra-resources/overview.md)
@@ -117,8 +26,21 @@
 - [10. ローカル開発](./overview/10.local-dev/overview.md)
 - [11. 機能ユースケース (feature-use-cases)](./overview/11.feature-use-cases/overview.md)
 
-## 更新フロー
+## 現在の前提（サマリ）
 
-- まず各章フォルダの `plan/` に設計メモを作成する
-- 設計が確定した内容のみ各章の `overview.md` に反映する
-- `overview.md` は確定情報、`plan/` は検討中メモとして扱う
+- IaC は AWS CDK + TypeScript
+- stack は `shared` 層と `app` 層で分離
+- API は GraphQL（`/graphql`）
+- Web は React + Vite、runtime 設定は `config.js` で注入
+- AI 利用は `Codex` / `Claude` 前提
+- MCP は `awslabs-aws-iac-mcp-server`、Skill は `react-best-practices` を利用
+
+## ドキュメント運用ルール
+
+- `overview.md`: 確定仕様のみを記載
+- `plan/`: 検討中メモを記載
+- 日付付きの決定ログを残し、`TODO` / `YYYY-MM-DD` のプレースホルダは残さない
+
+## 更新ログ
+
+- 2026-04-28: `docs/overview` 全体の索引形式に再整理し、章別参照導線を統一
