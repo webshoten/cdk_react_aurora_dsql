@@ -49,16 +49,6 @@ pnpm install
 
 別バージョンへ変更時 `.tool-versions` 編集 → `asdf install`。
 
-## ローカル開発
-
-```bash
-pnpm dev:functions    # http://localhost:4000/graphql
-pnpm dev:web          # http://localhost:5173
-```
-
-フロントエンドは `/config.js` から API URL を読む。ローカルでは未設定なので、
-必要なら `packages/web/public/config.js` 相当を用意するか、app 側の deploy 後に確認する。
-
 ## デプロイ
 
 CLI: `tsx scripts/cdk.ts <subcommand>`（`pnpm cdk:*` 経由 推奨）
@@ -84,6 +74,14 @@ pnpm exec tsx scripts/cdk.ts --help
 pnpm exec tsx scripts/cdk.ts deploy --help
 ```
 
+### デプロイ後に実行すること
+
+- DB 変更を反映するため、デプロイ後に migration を実行する
+
+```bash
+pnpm migrate --shared dev --stage alice --profile my-aws
+```
+
 ## 差分確認
 
 ```bash
@@ -98,8 +96,35 @@ pnpm cdk:destroy --shared dev --stage alice
 pnpm cdk:destroy:shared --shared dev
 ```
 
-## API URL を Web に注入
+## GraphQL 型生成（genql）
 
-`packages/infra/lib/constructs/app/web/index.ts` で `BucketDeployment` 時に
-`config.js` を一緒に配り、`window.__CONFIG__.apiUrl` としてブラウザへ渡す。
-`packages/web/src/App.tsx` はこの値を使って `${apiUrl}/graphql` を呼ぶ。
+- Pothos schema の変更後は `genql` 型生成を更新する
+- 通常は以下の一括コマンドを使う
+
+```bash
+pnpm graphql:build
+```
+
+- 個別実行する場合
+
+```bash
+pnpm graphql:extract
+pnpm graphql:genql
+```
+
+## ローカル開発
+
+```bash
+pnpm dev:functions    # http://localhost:4000/graphql
+pnpm dev:web          # http://localhost:5173
+```
+
+フロントエンドは `/config.js` から API URL を読む。ローカルでは未設定なので、
+必要なら `packages/web/public/config.js` 相当を用意するか、app 側の deploy 後に確認する。
+
+### VSCode launch.json でローカルデバッグ
+
+- `.vscode/launch.json` の `local-dev: web+functions` を使う
+- 起動前に `local-dev:resolve-env` が走り、AWS 環境値を `.vscode/.local-dev.env` に解決する
+- 1つの起動構成で `@pf/functions` と `@pf/web` を並列起動できる
+- 固定値（`DSQL_DATABASE` / `DSQL_DB_USER` / `DSQL_PORT` / `DSQL_REGION` / `PORT`）は launch 側で渡す
