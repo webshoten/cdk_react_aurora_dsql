@@ -23,6 +23,12 @@
       - `AWS::ApiGatewayV2::Api`（HTTP API）
       - `AWS::Lambda::Function`（GraphQL）
       - `AWS::Logs::LogGroup`（GraphQL ログ）
+  - `AuthStack`
+    - 管理リソース:
+      - `AWS::Cognito::UserPool`
+      - `AWS::Cognito::UserPoolClient`
+      - `AWS::Cognito::IdentityPool`
+      - `AWS::Lambda::Function`（UserPool Trigger）
   - `OpsStack`
     - 管理リソース:
       - `AWS::S3::Bucket`（migration SQL zip 保管）
@@ -44,6 +50,7 @@
 - `SharedStack` は共通前提を提供し、`app` 層の stack から参照される
 - `DbStack` はデータ基盤を担当し、`ApiStack` / `OpsStack` が参照する
 - `ApiStack` は API 提供を担当し、`WebStack` が endpoint を参照する
+- `AuthStack` は認証基盤を担当し、`ApiStack` / `WebStack` が認証設定値を参照する
 - `StorageStack` は画像ストレージを担当し、`ApiStack` が参照する
 - `OpsStack` は migration 実行基盤を担当し、運用 CLI が参照する
 - `WebStack` は配信レイヤーを担当し、他 stack へ依存を持たない終端とする
@@ -52,4 +59,5 @@
 
 - 2026-04-27: app stack 構成に `StorageStack` を追加（画像ストレージ用途）
 - 2026-04-27: app stack 構成に `OpsStack` を明記（migration 運用用途）
+- 2026-04-28: app stack 構成に `AuthStack` を追加（認証基盤分離）
 - YYYY-MM-DD: (ここに決定事項を追記)

@@ -8,25 +8,25 @@
 
 - `11-1` 段階では認証は扱わない（`auth-01` で別途検証する）
 - フロントは `urql` で GraphQL を呼び出す
-- 型生成は自動watchしないが、スクリプトで一発実行できる状態にする
+- 型生成は自動watchせず、`pnpm graphql:build` で一発実行する
 
 ## 実装スコープ（11-1）
 
-- `urql Provider` の最小構成を用意する
-- 画面は左サイドナビ + 右コンテンツの2カラム構成にする（11-1 は `11-1.data-01` を選択状態で表示）
-- ルーティングは `react-router-dom` を利用し、`layout + nested routes` で構成する
-- `medical-staff` 系データの一覧表示ページを作る（`medicalStaffsByInstitution`）
-- ページに「ランダム追加」ボタンを用意し、`addRandomMedicalStaff` mutation を呼び出す
-- ページに「全削除」ボタンを用意し、`clearMedicalStaffsByInstitution` mutation を呼び出す
+- `urql Provider` の最小構成を利用する
+- 画面は左サイドナビ + 右コンテンツの2カラム構成（`11-1.data-01` を選択状態）を利用する
+- ルーティングは `react-router-dom` の `layout + nested routes` 構成を利用する
+- `medical-staff` 系データの一覧表示ページ（`medicalStaffsByInstitution`）を利用する
+- ページの「ランダム追加」ボタンから `addRandomMedicalStaff` mutation を呼び出す
+- ページの「全削除」ボタンから `clearMedicalStaffsByInstitution` mutation を呼び出す
 - UI は `shadcn/ui` コンポーネントを利用する
-- 型生成コマンドを `scripts` / `pnpm` コマンドとして追加する（`pnpm graphql:build`）
+- 型生成コマンドは `pnpm graphql:build` を利用する
 
 ## 実装メモ（2026-04-26 追記）
 
 - フロントのディレクトリは `app / domains / shared` 構成とする
 - ルーティングは `app/router.tsx` に集約し、各検証ページは `domains/*/route.tsx` から `RouteObject` を提供する
 - `urql Provider` は `app/providers/urql-provider.tsx` を利用する
-- runtime 設定解決は `app/config/runtime-config.ts` に配置する
+- runtime 設定解決は `packages/web/src/app/config/runtime-config.ts` を利用する
 - import は `@/` エイリアス（`src` 基準）を利用する
 - サイドバーは `1` 〜 `11` の章を表示し、`11.feature-use-cases` のみ開閉可能なアコーディオンとして子項目（`11-1`〜`11-13`）を表示する
 - `urql client` 初期化は `app/providers/graphql-client.ts` に分離し、`createClient` の直接利用を集約する
