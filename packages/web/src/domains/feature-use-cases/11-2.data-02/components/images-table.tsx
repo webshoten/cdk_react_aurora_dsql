@@ -1,5 +1,14 @@
 import type { ImageRow } from "./types.ts";
 
+/*
+ * # 画像一覧テーブル
+ *
+ * ## 目的
+ * 登録済み画像をサムネイル付きで一覧表示する。
+ *
+ * ## 説明
+ * データが 0 件の場合は描画せず、存在時のみテーブルを表示する。
+ */
 interface ImagesTableProps {
   images: ImageRow[];
 }

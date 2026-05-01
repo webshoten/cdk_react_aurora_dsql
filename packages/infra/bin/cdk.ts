@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as os from "node:os";
 import { ApiStack } from "@infra/lib/stacks/app/api-stack";
+import { AuthStack } from "@infra/lib/stacks/app/auth-stack";
 import { DbStack } from "@infra/lib/stacks/app/db-stack";
 import { OpsStack } from "@infra/lib/stacks/app/ops-stack";
 import { StorageStack } from "@infra/lib/stacks/app/storage-stack";
@@ -59,6 +60,13 @@ if (!sharedOnly) {
     resourcePrefix,
   });
 
+  const authStack = new AuthStack(app, `${resourcePrefix}-auth`, {
+    env,
+    sharedEnv,
+    stage,
+    resourcePrefix,
+  });
+
   const apiStack = new ApiStack(app, `${resourcePrefix}-api`, {
     dbClusterArn: dbStack.clusterArn,
     dbEndpoint: dbStack.endpoint,
@@ -68,9 +76,12 @@ if (!sharedOnly) {
     stage,
     resourcePrefix,
     sharedEnv,
+    userPoolClientId: authStack.userPoolClientId,
+    userPoolId: authStack.userPoolId,
   });
   apiStack.addDependency(dbStack);
   apiStack.addDependency(storageStack);
+  apiStack.addDependency(authStack);
 
   const opsStack = new OpsStack(app, `${resourcePrefix}-ops`, {
     dbClusterArn: dbStack.clusterArn,
@@ -88,5 +99,7 @@ if (!sharedOnly) {
     stage,
     resourcePrefix,
     apiUrl: apiStack.apiUrl,
+    userPoolClientId: authStack.userPoolClientId,
+    userPoolId: authStack.userPoolId,
   });
 }

@@ -2,8 +2,17 @@ declare global {
   interface Window {
     __CONFIG__?: {
       apiUrl?: string;
+      cognitoRegion?: string;
+      userPoolId?: string;
+      userPoolClientId?: string;
     };
   }
+}
+
+export interface AuthRuntimeConfig {
+  cognitoRegion: string;
+  userPoolClientId: string;
+  userPoolId: string;
 }
 
 /*
@@ -51,5 +60,20 @@ export function resolveGraphqlUrl(): string | null {
  * GraphQL URL が解決できない場合のみ固定メッセージを返す。正常時は null。
  */
 export function resolveConfigError(): string | null {
-  return resolveGraphqlUrl() ? null : "config.js の apiUrl が未設定";
+  if (!resolveGraphqlUrl()) return "config.js の apiUrl が未設定";
+  if (!resolveAuthConfig()) return "config.js の Cognito 設定が未設定";
+  return null;
+}
+
+export function resolveAuthConfig(): AuthRuntimeConfig | null {
+  const cognitoRegion = window.__CONFIG__?.cognitoRegion?.trim();
+  const userPoolId = window.__CONFIG__?.userPoolId?.trim();
+  const userPoolClientId = window.__CONFIG__?.userPoolClientId?.trim();
+  if (!cognitoRegion || !userPoolId || !userPoolClientId) return null;
+
+  return {
+    cognitoRegion,
+    userPoolId,
+    userPoolClientId,
+  };
 }

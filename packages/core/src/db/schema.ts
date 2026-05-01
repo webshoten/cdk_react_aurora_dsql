@@ -49,3 +49,20 @@ export const images = pgTable("images", {
   sizeBytes: integer("size_bytes").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+/*
+ * # users テーブル
+ *
+ * ## 目的
+ * アプリで利用するユーザー情報を保持する。
+ *
+ * ## 説明
+ * uid は Cognito sub を保存する。username は一意制約で重複登録を防ぐ。
+ */
+export const users = pgTable("users", {
+  uid: text("uid").primaryKey(),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull(),
+  userType: text("user_type").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});

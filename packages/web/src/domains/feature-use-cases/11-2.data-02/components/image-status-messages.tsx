@@ -1,5 +1,14 @@
 import type { CombinedError } from "urql";
 
+/*
+ * # 画像登録状態メッセージ
+ *
+ * ## 目的
+ * 画像登録フローの状態と結果をユーザーへ表示する。
+ *
+ * ## 説明
+ * エラー、実行中、最終登録情報、空状態を条件に応じて表示する。
+ */
 interface ImageStatusMessagesProps {
   configError: string | null;
   createUrlError: CombinedError | undefined;

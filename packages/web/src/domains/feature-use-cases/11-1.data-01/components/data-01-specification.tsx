@@ -1,5 +1,14 @@
 import { CardDescription, CardTitle } from "@/shared/ui/card.tsx";
 
+/*
+ * # 11-1 仕様説明ヘッダ
+ *
+ * ## 目的
+ * 11-1.data-01 で確認する要件を画面上に明示する。
+ *
+ * ## 説明
+ * ページタイトル、対象 institutionCode、検証観点のチェックリストを表示する。
+ */
 interface Data01SpecificationProps {
   institutionCode: string;
 }

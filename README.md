@@ -82,6 +82,12 @@ pnpm exec tsx scripts/cdk.ts deploy --help
 pnpm migrate --shared dev --stage alice --profile my-aws
 ```
 
+- 認証検証ユーザーを作成する場合は user 作成 script を実行する
+
+```bash
+pnpm user:create --shared <sharedEnv> --stage <stage> --username <username> --password <password> --email <email> --profile <awsProfile>
+```
+
 ## 差分確認
 
 ```bash

@@ -18,7 +18,8 @@
     "dev:functions": "pnpm --filter @pf/functions dev",
     "graphql:extract": "pnpm --filter @pf/functions graphql:extract",
     "graphql:genql": "pnpm --filter @pf/graphql graphql:genql",
-    "graphql:build": "pnpm graphql:extract && pnpm graphql:genql"
+    "graphql:build": "pnpm graphql:extract && pnpm graphql:genql",
+    "user:create": "tsx scripts/create-user.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",

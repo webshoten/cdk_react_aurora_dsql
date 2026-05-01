@@ -31,7 +31,10 @@
   - `ApiConstruct`: `packages/infra/lib/constructs/app/api/index.ts`
   - `GraphqlApiConstruct`: `packages/infra/lib/constructs/app/api/graphql.ts`
 - `AuthStack`: `packages/infra/lib/stacks/app/auth-stack.ts`
-  - `AuthConstruct`: `packages/infra/lib/constructs/app/api/auth.ts`
+  - `AuthConstruct`: `packages/infra/lib/constructs/app/auth/index.ts`
+  - `AuthTriggerConstruct`: `packages/infra/lib/constructs/app/auth/triggers.ts`
+  - `GraphqlAuthorizerConstruct`: `packages/infra/lib/constructs/app/auth/authorizer.ts`
+  - `ClientIdNameMapConstruct`: `packages/infra/lib/constructs/app/auth/client-id-name-map.ts`
 - `OpsStack`: `packages/infra/lib/stacks/app/ops-stack.ts`
   - `OpsConstruct`: `packages/infra/lib/constructs/app/ops/index.ts`
 - `StorageStack`: `packages/infra/lib/stacks/app/storage-stack.ts`
@@ -57,4 +60,4 @@
 - 2026-04-27: 11-2.data-02 は `image/` プレフィックスのみ利用する方針を追加
 - 2026-04-27: Custom Resource ベストプラクティスをインフラのノウハウとして追加
 - 2026-04-28: 決定ログのプレースホルダを廃止し、日付付き追記方式へ統一
-- 2026-04-28: 認証基盤を `AuthStack` として分離し、`AuthConstruct` を `constructs/app/api/auth.ts` に配置する方針を追加
+- 2026-04-28: 認証基盤を `AuthStack` として分離し、`AuthConstruct` を `constructs/app/auth/index.ts` に配置する方針を追加

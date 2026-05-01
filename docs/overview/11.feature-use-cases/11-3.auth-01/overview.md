@@ -18,24 +18,30 @@
 
 - Auth は `AuthStack` 配下の Construct として配置している
 - Cognito は `UserPool` / `Web Client` / `IdentityPool` 構成としている
+- Web Client の `ExplicitAuthFlows` は `ALLOW_USER_SRP_AUTH` / `ALLOW_USER_PASSWORD_AUTH` / `ALLOW_REFRESH_TOKEN_AUTH` を有効化する
 - UserPool は自己サインアップを有効のままとし、11-3 では設定変更しない構成としている
 - IdentityPool は `authenticated only`（未認証ゲストロールなし）構成としている
 - IdentityPool の UserPool client 紐付けは Web 用のみとしている（function/test は対象外）
 - `/graphql` は Lambda Authorizer 経由としている（未認証は API Gateway で拒否）
 - UserPool trigger は `preAuthentication` / `preTokenGeneration` / `customMessage` を接続前提としている
 - `clientId -> clientName` マップは SSM Parameter Store で管理する前提としている
-- UserPool custom attributes は Custom Resource（Lambda バック）で拡張する前提としている
+- UserPool custom attributes は `UserPool.customAttributes` で定義する前提としている
+- 対象 ID は `custom:institution_id` / `custom:mfa_preference` とする
 
 ### Backend
 
 - Authorizer context は最小で `userId`, `username`, `groups`, `institutionCode?` を扱う
-- GraphQL は `me` Query で認証済みコンテキストを確認する構成としている
+- GraphQL は `currentUser` Query で認証済みコンテキストを確認する構成としている
+- `me` Query は採用せず、認証済みユーザー確認の Query 名は `currentUser` に統一する
+- Authorizer context は API Gateway の `requestContext.authorizer` を server context 経由で resolver に渡す
 
 ### Frontend
 
 - `auth-provider` と `urql-provider` を分離する構成としている
 - `Authorization` ヘッダーは自動付与する構成としている
 - アプリ全体を認証ガード配下に置き、未認証時はログイン導線へ遷移させる構成としている
+- 認証導線の実装手段は `rehacul` 継承を優先し、Amplify Auth（`signIn` / `confirmSignIn` / `nextStep`）と Amplify UI ベースで統一する
+- Amplify の token storage は `CookieStorage` を利用する
 - サインアップ UI は提供しない構成としている
 - ログイン画面は `/login` に分離する構成としている
 - `11-3.auth-01` ではログインとユーザー作成の仕様をまとめて扱う構成としている
@@ -50,6 +56,9 @@
 - `/debug` は認証済みユーザー向けの検証・運用補助ページとして扱う
 - `/debug` は認証済みユーザーであれば全員アクセス可能とする
 - `/debug` ではトークン表示/コピー、claim 確認、認証付き GraphQL 疎通確認、ユーザー作成実行、ユーザー一覧表示を扱う
+  - 補足: ユーザー一覧はテーブル表示とし、各行に「パスワード再設定」ボタンを配置する
+  - 補足: ボタン押下時は新しい一時パスワードを発行し、その発行値のみ画面表示する（既存パスワード参照は行わない）
+  - 補足: パスワード値は運用ログ（CloudWatch / アプリログ）に出力しない
 
 ## ユーザー作成方針
 
@@ -60,6 +69,7 @@
 - script の入力は `username` / `password` / `email` を必須とする
 - script では `email_verified=true` を設定し、検証済みメールとして作成する
 - script は既存運用に合わせて SEA 実行前提とする
+- パスワード運用は、作成時は `Permanent=true`（初回変更必須なし）、再設定時は `Permanent=false`（次回ログイン時に変更必須）とする
 - 既存ユーザー判定は `username` 重複のみを対象とし、重複時はエラー終了する
 - DB 登録は Cognito 作成直後に実行する
 - CloudWatch ログには `password` を出力しない
@@ -68,7 +78,7 @@
 ## rehacul 同等化の方針
 
 - 11-3 は「業務ロジックの完成」より「インフラ構造の同等化」を優先している
-- trigger / SSM / custom attributes は、拡張ポイントとして先に箱を揃える方針としている
+- trigger / SSM / custom attributes は、拡張ポイントとして先に箱を揃える方針としている（custom attributes は `customAttributes` で先に定義）
 - trigger Lambda の中身は最小実装（no-op / event passthrough）を許容している
 - 詳細な業務判定（client ごとの厳密制御など）は段階導入する整理としている
 
@@ -90,8 +100,9 @@
 
 - `signIn` 後の `nextStep` に応じて確認コード入力 UI を出す導線としている
 - `CONFIRM_SIGN_IN_WITH_SMS_CODE` / `CONFIRM_SIGN_IN_WITH_EMAIL_CODE` の導線を対象としている
-- `confirmSignIn` 成功後に `me` Query が通ることを確認対象としている
+- `confirmSignIn` 成功後に `currentUser` Query が通ることを確認対象としている
 - SMS/Email の運用最適化（配信品質、テンプレート詳細）は 11-3 対象外としている
+- MFA 導線の API / UI 実装は Amplify ベースを前提とし、同等挙動を AWS SDK 低レベル API へ置換しない
 
 ## スコープ外
 
@@ -105,7 +116,8 @@
 - 2026-04-28: IdentityPool 連携対象は Web client のみに限定する方針を採用
 - 2026-04-28: 11-3 で MFA の最小導線（signIn -> confirm code）まで実装する方針を採用
 - 2026-04-28: maintenance 連携は 11-3 対象外とする方針を採用
-- 2026-04-28: `../rehacul` 同等化のため、UserPool triggers / SSM client map / custom attributes Custom Resource を 11-3 設計範囲に含める方針を採用
+- 2026-04-28: `../rehacul` 同等化のため、UserPool triggers / SSM client map / custom attributes を 11-3 設計範囲に含める方針を採用
+- 2026-04-29: custom attributes の実装方式は `UserPool.customAttributes` を採用。対象 ID は `custom:institution_id` / `custom:mfa_preference`。11-3 は UserPool 新規作成前提であり、Custom Resource を使わなくても要件を満たせるため、構成と運用を簡素化する。
 - 2026-04-28: Web 全体を認証必須とし、匿名アクセスを許可しない方針を採用
 - 2026-04-28: サインアップ UI は採用せず、11-3 の検証ユーザーは運用 script で作成する方針を採用
 - 2026-04-28: UserPool の自己サインアップ設定は ON のまま維持し、11-3 では変更しない方針を採用
@@ -118,6 +130,7 @@
 - 2026-04-28: `/debug` は認証済みユーザー全員に開放し、ユーザー作成は画面から直接 mutation 実行で行う方針を採用
 - 2026-04-28: ユーザー作成は script 経由と `/debug` 画面経由の2経路を併用する方針を採用
 - 2026-04-28: `/debug` にユーザー一覧表示を追加する方針を採用
+- 2026-04-29: 現在実装は Amplify Auth（`signIn` / `confirmSignIn` / `nextStep`）までを先行し、ログイン UI は独自フォームのまま。設計要件である Amplify UI ベース統一には未達のため、次実装で UI も Amplify UI へ揃える。
 
 ## 改善点
 
@@ -134,3 +147,4 @@
 - 監査ログ（誰がいつ script でユーザー作成したか）の記録方式を決める
 - script の CloudWatch ログ出力形式（開始/成功/失敗、username/sub、失敗理由）を定義する
 - `11-3` と `11-4` の責務境界（11-3 は土台、11-4 で運用詳細）を追記する
+- token storage を `CookieStorage` とする方針の妥当性（HttpOnly 非対応時の XSS リスク、BFF + HttpOnly 化の要否）を再評価する

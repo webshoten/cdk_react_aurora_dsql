@@ -1,5 +1,14 @@
 import { Button } from "@/shared/ui/button.tsx";
 
+/*
+ * # 画像アップロード操作
+ *
+ * ## 目的
+ * ファイル選択と登録実行の UI を提供する。
+ *
+ * ## 説明
+ * 選択ファイル表示と実行中/エラー時のボタン制御を行う。
+ */
 interface ImageUploadControlsProps {
   configError: string | null;
   inputKey: number;

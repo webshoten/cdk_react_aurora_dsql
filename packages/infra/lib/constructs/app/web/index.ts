@@ -9,6 +9,9 @@ import { Construct } from "constructs";
 export interface WebConstructProps {
   resourcePrefix: string;
   apiUrl: string;
+  cognitoRegion: string;
+  userPoolId: string;
+  userPoolClientId: string;
 }
 
 /*
@@ -69,6 +72,9 @@ export class WebConstruct extends Construct {
           "config.js",
           `window.__CONFIG__=${JSON.stringify({
             apiUrl: props.apiUrl,
+            cognitoRegion: props.cognitoRegion,
+            userPoolId: props.userPoolId,
+            userPoolClientId: props.userPoolClientId,
           })};`,
         ),
       ],

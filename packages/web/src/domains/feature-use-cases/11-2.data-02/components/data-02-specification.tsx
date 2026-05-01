@@ -1,5 +1,14 @@
 import { CardDescription, CardTitle } from "@/shared/ui/card.tsx";
 
+/*
+ * # 11-2 仕様説明ヘッダ
+ *
+ * ## 目的
+ * 11-2.data-02 の検証観点を画面上に明示する。
+ *
+ * ## 説明
+ * Presigned URL 発行、S3 PUT、DB 登録、一覧確認の流れを表示する。
+ */
 export function Data02Specification() {
   return (
     <>

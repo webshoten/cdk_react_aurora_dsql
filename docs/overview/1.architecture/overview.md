@@ -55,9 +55,16 @@
 - `OpsStack` は migration 実行基盤を担当し、運用 CLI が参照する
 - `WebStack` は配信レイヤーを担当し、他 stack へ依存を持たない終端とする
 
+## 実装レイヤーの構成方針
+
+- フロントエンド（`packages/web`）は vertical slice（機能軸）で構成する
+- バックエンド（`packages/functions`）は horizontal（レイヤー軸）で構成する
+- バックエンドのレイヤー軸は `handlers / graphql / services / shared` を採用する
+
 ## 決定ログ
 
 - 2026-04-27: app stack 構成に `StorageStack` を追加（画像ストレージ用途）
 - 2026-04-27: app stack 構成に `OpsStack` を明記（migration 運用用途）
 - 2026-04-28: app stack 構成に `AuthStack` を追加（認証基盤分離）
+- 2026-04-30: 実装構成方針として、フロントエンドは vertical slice、バックエンドは horizontal（レイヤー軸）を採用
 - YYYY-MM-DD: (ここに決定事項を追記)

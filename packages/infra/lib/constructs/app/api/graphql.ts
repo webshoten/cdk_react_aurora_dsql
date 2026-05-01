@@ -1,4 +1,5 @@
 import * as path from "node:path";
+import { GraphqlAuthorizerConstruct } from "@infra/lib/constructs/app/auth/authorizer";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -16,6 +17,8 @@ export interface GraphqlApiConstructProps {
   imagePrefix: string;
   sharedEnv: string;
   stage: string;
+  userPoolId: string;
+  userPoolClientId: string;
 }
 
 /*
@@ -38,6 +41,10 @@ export class GraphqlApiConstruct extends Construct {
   constructor(scope: Construct, id: string, props: GraphqlApiConstructProps) {
     super(scope, id);
 
+    const graphqlAuthorizer = new GraphqlAuthorizerConstruct(this, "GraphqlAuthorizer", {
+      userPoolClientId: props.userPoolClientId,
+    });
+
     const graphqlFn = new NodejsFunction(this, "GraphqlFunction", {
       entry: path.join(__dirname, "../../../../../functions/src/handlers/graphql/index.ts"),
       runtime: lambda.Runtime.NODEJS_24_X,
@@ -57,6 +64,7 @@ export class GraphqlApiConstruct extends Construct {
         },
       },
       environment: {
+        COGNITO_REGION: cdk.Stack.of(this).region,
         DSQL_DATABASE: "postgres",
         DSQL_DB_USER: "admin",
         DSQL_CLUSTER_ARN: props.dbClusterArn,
@@ -69,6 +77,7 @@ export class GraphqlApiConstruct extends Construct {
         PRESIGNED_URL_EXPIRES_SECONDS: "300",
         SHARED_ENV: props.sharedEnv,
         STAGE: props.stage,
+        USER_POOL_ID: props.userPoolId,
       },
     });
 
@@ -86,10 +95,28 @@ export class GraphqlApiConstruct extends Construct {
       }),
     );
 
+    graphqlFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "cognito-idp:AdminCreateUser",
+          "cognito-idp:AdminGetUser",
+          "cognito-idp:AdminSetUserPassword",
+        ],
+        resources: [
+          cdk.Stack.of(this).formatArn({
+            service: "cognito-idp",
+            resource: "userpool",
+            resourceName: props.userPoolId,
+          }),
+        ],
+      }),
+    );
+
     props.httpApi.addRoutes({
       path: "/graphql",
       methods: [apigwv2.HttpMethod.GET, apigwv2.HttpMethod.POST],
       integration: new integrations.HttpLambdaIntegration("GraphqlIntegration", graphqlFn),
+      authorizer: graphqlAuthorizer.authorizer,
     });
   }
 }

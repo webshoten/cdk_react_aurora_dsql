@@ -5,6 +5,7 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { resolveMigrationConfigFromEnv, runDsqlMigrationAndSeed } from "@pf/core";
 import type { Handler } from "aws-lambda";
 import { unzipSync } from "fflate";
+import { requireEnv } from "../../shared/env.ts";
 
 interface MigrationInvokeEvent {
   migration?: {
@@ -38,6 +39,13 @@ interface PreparedArtifactDirs {
   seedsDir: string;
 }
 
+/*
+ * ## 目的
+ * unknown エラーを構造化ログ出力向けオブジェクトへ変換する。
+ *
+ * ## 説明
+ * Error 派生の標準項目に加え、PostgreSQL 由来の補助項目を可能な範囲で取り出す。
+ */
 function serializeUnknownError(error: unknown): Record<string, unknown> {
   if (!(error instanceof Error)) {
     return { raw: String(error) };
@@ -85,14 +93,13 @@ function serializeUnknownError(error: unknown): Record<string, unknown> {
   return serialized;
 }
 
-function requireEnv(name: "ARTIFACT_S3_BUCKET" | "ARTIFACT_S3_KEY"): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} is required`);
-  }
-  return value;
-}
-
+/*
+ * ## 目的
+ * リクエストID等をファイルパス安全な文字列へ変換する。
+ *
+ * ## 説明
+ * 英数字・`_`・`-` 以外を `_` へ置換し、空文字の場合は `default` を返す。
+ */
 function sanitizeForPath(input: string): string {
   const value = input.replaceAll(/[^a-zA-Z0-9_-]/g, "_");
   return value.length > 0 ? value : "default";
@@ -115,6 +122,13 @@ function normalizeArtifactPath(entryPath: string): string {
   return normalized;
 }
 
+/*
+ * ## 目的
+ * S3 GetObject の Body を Uint8Array へ正規化する。
+ *
+ * ## 説明
+ * SDK 実装差分（transformToByteArray / Readable）を吸収して zip 展開入力へ統一する。
+ */
 async function bodyToUint8Array(body: unknown): Promise<Uint8Array> {
   if (
     typeof body === "object" &&

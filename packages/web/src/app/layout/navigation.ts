@@ -19,6 +19,7 @@ export interface OverviewNavItem {
  */
 export const OVERVIEW_NAV_ITEMS: OverviewNavItem[] = [
   { label: "main", to: "/" },
+  { label: "debug", to: "/debug" },
   { label: "1.architecture" },
   { label: "2.infra-resources" },
   { label: "3.backend" },

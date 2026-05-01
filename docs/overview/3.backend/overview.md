@@ -38,9 +38,41 @@
 ## GraphQL Context 方針
 
 - 環境変数は resolver で直接参照しない
-- 環境変数の読み取りは `createGraphqlContext` に集約し、resolver は `context` からのみ参照する
+- 必須環境変数取得は `packages/functions/src/shared/env.ts` の `requireEnv` を利用する
+- GraphQL resolver で参照する設定値の読み取りは `createGraphqlContext` に集約し、resolver は `context` からのみ参照する
 - 設定値の取得責務（env 解決）と業務処理責務（resolver 実装）を分離する
 - テスト時は `context` を差し替えて挙動確認できる形を維持する
+
+## GraphQL ディレクトリ責務
+
+- バックエンドのディレクトリ方針は horizontal（レイヤー軸）で統一する
+- `packages/functions/src/graphql/context.ts`
+  - 役割: GraphQL 実行コンテキスト生成（env 解決・SDK/DB クライアント組み立て）
+- `packages/functions/src/graphql/yoga.ts`
+  - 役割: Yoga インスタンス定義（schema と context の接続）
+- `packages/functions/src/services/auth/identity-provider.ts`
+  - 役割: 認証基盤 API 呼び出し（ユーザー作成・削除・パスワード再設定）
+- `packages/functions/src/graphql/schema/index.ts`
+  - 役割: GraphQL 型定義と Query/Mutation resolver の接続
+- `packages/functions/src/graphql/extract.ts`
+  - 役割: schema 抽出（`packages/graphql/schema.graphql` 生成）
+- `packages/functions/src/graphql/resolvers/users.ts`
+  - 役割: `currentUser`, `users`, `createUser`, `resetUserPassword`
+- `packages/functions/src/graphql/resolvers/images.ts`
+  - 役割: `images`, `createImageUploadUrl`, `registerImage`
+- `packages/functions/src/graphql/resolvers/medical-staffs.ts`
+  - 役割: `medicalStaffsByInstitution`, `seedMedicalStaffs`, `addRandomMedicalStaff`, `clearMedicalStaffsByInstitution`
+- `packages/functions/src/graphql/resolvers/seed.ts`
+  - 役割: `seedItems`
+- `packages/functions/src/handlers/*`
+  - 役割: Lambda エントリポイント（薄い入口）
+- `packages/functions/src/services/*`
+  - 役割: ハンドラ/GraphQL から呼ばれる業務ロジック
+- `packages/functions/src/shared/*`
+  - 役割: 複数レイヤーで共通利用するユーティリティ
+- `packages/functions/src/shared/env.ts`
+  - 役割: 必須環境変数取得（`requireEnv`）の共通化
+- 方針: 機能名トップディレクトリは作らず、`handlers / graphql / services / shared` のレイヤー軸で統一する
 
 ### 現在の Context 値
 

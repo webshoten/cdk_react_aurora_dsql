@@ -1,6 +1,10 @@
 import { createYoga } from "graphql-yoga";
-import { createGraphqlContext } from "./context.ts";
-import { schema } from "./schema.ts";
+import { createGraphqlContext, type GraphqlAuthorizerContext } from "./context.ts";
+import { schema } from "./schema/index.ts";
+
+interface GraphqlServerContext {
+  authorizer: GraphqlAuthorizerContext | null;
+}
 
 /*
  * # Yoga GraphQL サーバーインスタンス
@@ -12,8 +16,8 @@ import { schema } from "./schema.ts";
  * リクエストごとに createGraphqlContext で短命 DbClient を生成。
  * GET /graphql の landing page は無効化（API 専用）。
  */
-export const yoga = createYoga({
-  context: async () => createGraphqlContext(),
+export const yoga = createYoga<GraphqlServerContext>({
+  context: async (initialContext) => createGraphqlContext(initialContext.authorizer),
   graphqlEndpoint: "/graphql",
   landingPage: false,
   schema,

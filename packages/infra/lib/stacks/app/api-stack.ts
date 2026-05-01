@@ -12,6 +12,8 @@ export interface ApiStackProps extends cdk.StackProps {
   stage: string;
   resourcePrefix: string;
   sharedEnv: string;
+  userPoolId: string;
+  userPoolClientId: string;
 }
 
 /*
@@ -46,6 +48,8 @@ export class ApiStack extends cdk.Stack {
       resourcePrefix: props.resourcePrefix,
       sharedEnv: props.sharedEnv,
       stage: props.stage,
+      userPoolClientId: props.userPoolClientId,
+      userPoolId: props.userPoolId,
     });
 
     this.apiUrl = api.apiUrl;

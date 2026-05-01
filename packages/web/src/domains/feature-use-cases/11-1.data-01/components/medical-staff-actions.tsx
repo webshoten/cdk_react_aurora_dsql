@@ -1,5 +1,14 @@
 import { Button } from "@/shared/ui/button.tsx";
 
+/*
+ * # 医療スタッフ操作ボタン
+ *
+ * ## 目的
+ * 一覧に対する追加/削除アクションを提供する。
+ *
+ * ## 説明
+ * 実行中状態や設定エラーに応じてボタン活性を制御する。
+ */
 interface MedicalStaffActionsProps {
   configError: string | null;
   isAddingRandom: boolean;

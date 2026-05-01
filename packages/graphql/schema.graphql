@@ -1,3 +1,14 @@
+type CreateUserPayload {
+  username: String
+}
+
+type CurrentUser {
+  groups: [String!]
+  institutionCode: String
+  userId: String
+  username: String
+}
+
 type Image {
   contentType: String
   downloadUrl: String
@@ -18,7 +29,9 @@ type Mutation {
   addRandomMedicalStaff(institutionCode: String!): UpsertMedicalStaffsPayload
   clearMedicalStaffsByInstitution(institutionCode: String!): UpsertMedicalStaffsPayload
   createImageUploadUrl(contentType: String!, fileName: String!): PresignedUploadPayload
+  createUser(email: String!, password: String!, username: String!): CreateUserPayload
   registerImage(contentType: String!, fileName: String!, imagePath: String!, sizeBytes: Int!): RegisterImagePayload
+  resetUserPassword(username: String!): ResetUserPasswordPayload
   seedMedicalStaffs: UpsertMedicalStaffsPayload
 }
 
@@ -28,13 +41,20 @@ type PresignedUploadPayload {
 }
 
 type Query {
+  currentUser: CurrentUser
   images: [Image!]
   medicalStaffsByInstitution(institutionCode: String!): [MedicalStaff!]
   seedItems: [SeedItem!]
+  users: [User!]
 }
 
 type RegisterImagePayload {
   appliedCount: Int
+}
+
+type ResetUserPasswordPayload {
+  temporaryPassword: String
+  username: String
 }
 
 type SeedItem {
@@ -44,4 +64,12 @@ type SeedItem {
 
 type UpsertMedicalStaffsPayload {
   appliedCount: Int
+}
+
+type User {
+  createdAt: String
+  email: String
+  uid: String
+  userType: String
+  username: String
 }

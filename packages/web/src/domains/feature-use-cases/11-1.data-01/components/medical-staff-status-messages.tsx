@@ -1,5 +1,14 @@
 import type { CombinedError } from "urql";
 
+/*
+ * # 医療スタッフ状態メッセージ
+ *
+ * ## 目的
+ * Query/Mutation の状態をユーザーへ明示する。
+ *
+ * ## 説明
+ * エラー、実行中、更新件数、空状態を条件に応じて表示する。
+ */
 interface MedicalStaffStatusMessagesProps {
   addAppliedCount: number | null;
   addError: CombinedError | undefined;

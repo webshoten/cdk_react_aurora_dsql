@@ -9,6 +9,19 @@ export type Scalars = {
     Boolean: boolean,
 }
 
+export interface CreateUserPayload {
+    username: (Scalars['String'] | null)
+    __typename: 'CreateUserPayload'
+}
+
+export interface CurrentUser {
+    groups: (Scalars['String'][] | null)
+    institutionCode: (Scalars['String'] | null)
+    userId: (Scalars['String'] | null)
+    username: (Scalars['String'] | null)
+    __typename: 'CurrentUser'
+}
+
 export interface Image {
     contentType: (Scalars['String'] | null)
     downloadUrl: (Scalars['String'] | null)
@@ -31,7 +44,9 @@ export interface Mutation {
     addRandomMedicalStaff: (UpsertMedicalStaffsPayload | null)
     clearMedicalStaffsByInstitution: (UpsertMedicalStaffsPayload | null)
     createImageUploadUrl: (PresignedUploadPayload | null)
+    createUser: (CreateUserPayload | null)
     registerImage: (RegisterImagePayload | null)
+    resetUserPassword: (ResetUserPasswordPayload | null)
     seedMedicalStaffs: (UpsertMedicalStaffsPayload | null)
     __typename: 'Mutation'
 }
@@ -43,15 +58,23 @@ export interface PresignedUploadPayload {
 }
 
 export interface Query {
+    currentUser: (CurrentUser | null)
     images: (Image[] | null)
     medicalStaffsByInstitution: (MedicalStaff[] | null)
     seedItems: (SeedItem[] | null)
+    users: (User[] | null)
     __typename: 'Query'
 }
 
 export interface RegisterImagePayload {
     appliedCount: (Scalars['Int'] | null)
     __typename: 'RegisterImagePayload'
+}
+
+export interface ResetUserPasswordPayload {
+    temporaryPassword: (Scalars['String'] | null)
+    username: (Scalars['String'] | null)
+    __typename: 'ResetUserPasswordPayload'
 }
 
 export interface SeedItem {
@@ -63,6 +86,30 @@ export interface SeedItem {
 export interface UpsertMedicalStaffsPayload {
     appliedCount: (Scalars['Int'] | null)
     __typename: 'UpsertMedicalStaffsPayload'
+}
+
+export interface User {
+    createdAt: (Scalars['String'] | null)
+    email: (Scalars['String'] | null)
+    uid: (Scalars['String'] | null)
+    userType: (Scalars['String'] | null)
+    username: (Scalars['String'] | null)
+    __typename: 'User'
+}
+
+export interface CreateUserPayloadGenqlSelection{
+    username?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface CurrentUserGenqlSelection{
+    groups?: boolean | number
+    institutionCode?: boolean | number
+    userId?: boolean | number
+    username?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
 }
 
 export interface ImageGenqlSelection{
@@ -89,7 +136,9 @@ export interface MutationGenqlSelection{
     addRandomMedicalStaff?: (UpsertMedicalStaffsPayloadGenqlSelection & { __args: {institutionCode: Scalars['String']} })
     clearMedicalStaffsByInstitution?: (UpsertMedicalStaffsPayloadGenqlSelection & { __args: {institutionCode: Scalars['String']} })
     createImageUploadUrl?: (PresignedUploadPayloadGenqlSelection & { __args: {contentType: Scalars['String'], fileName: Scalars['String']} })
+    createUser?: (CreateUserPayloadGenqlSelection & { __args: {email: Scalars['String'], password: Scalars['String'], username: Scalars['String']} })
     registerImage?: (RegisterImagePayloadGenqlSelection & { __args: {contentType: Scalars['String'], fileName: Scalars['String'], imagePath: Scalars['String'], sizeBytes: Scalars['Int']} })
+    resetUserPassword?: (ResetUserPasswordPayloadGenqlSelection & { __args: {username: Scalars['String']} })
     seedMedicalStaffs?: UpsertMedicalStaffsPayloadGenqlSelection
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -103,15 +152,24 @@ export interface PresignedUploadPayloadGenqlSelection{
 }
 
 export interface QueryGenqlSelection{
+    currentUser?: CurrentUserGenqlSelection
     images?: ImageGenqlSelection
     medicalStaffsByInstitution?: (MedicalStaffGenqlSelection & { __args: {institutionCode: Scalars['String']} })
     seedItems?: SeedItemGenqlSelection
+    users?: UserGenqlSelection
     __typename?: boolean | number
     __scalar?: boolean | number
 }
 
 export interface RegisterImagePayloadGenqlSelection{
     appliedCount?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface ResetUserPasswordPayloadGenqlSelection{
+    temporaryPassword?: boolean | number
+    username?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -128,6 +186,32 @@ export interface UpsertMedicalStaffsPayloadGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+export interface UserGenqlSelection{
+    createdAt?: boolean | number
+    email?: boolean | number
+    uid?: boolean | number
+    userType?: boolean | number
+    username?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+
+    const CreateUserPayload_possibleTypes: string[] = ['CreateUserPayload']
+    export const isCreateUserPayload = (obj?: { __typename?: any } | null): obj is CreateUserPayload => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCreateUserPayload"')
+      return CreateUserPayload_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CurrentUser_possibleTypes: string[] = ['CurrentUser']
+    export const isCurrentUser = (obj?: { __typename?: any } | null): obj is CurrentUser => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCurrentUser"')
+      return CurrentUser_possibleTypes.includes(obj.__typename)
+    }
+    
 
 
     const Image_possibleTypes: string[] = ['Image']
@@ -178,6 +262,14 @@ export interface UpsertMedicalStaffsPayloadGenqlSelection{
     
 
 
+    const ResetUserPasswordPayload_possibleTypes: string[] = ['ResetUserPasswordPayload']
+    export const isResetUserPasswordPayload = (obj?: { __typename?: any } | null): obj is ResetUserPasswordPayload => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isResetUserPasswordPayload"')
+      return ResetUserPasswordPayload_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
     const SeedItem_possibleTypes: string[] = ['SeedItem']
     export const isSeedItem = (obj?: { __typename?: any } | null): obj is SeedItem => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isSeedItem"')
@@ -190,5 +282,13 @@ export interface UpsertMedicalStaffsPayloadGenqlSelection{
     export const isUpsertMedicalStaffsPayload = (obj?: { __typename?: any } | null): obj is UpsertMedicalStaffsPayload => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isUpsertMedicalStaffsPayload"')
       return UpsertMedicalStaffsPayload_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const User_possibleTypes: string[] = ['User']
+    export const isUser = (obj?: { __typename?: any } | null): obj is User => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isUser"')
+      return User_possibleTypes.includes(obj.__typename)
     }
     

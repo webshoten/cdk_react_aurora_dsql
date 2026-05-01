@@ -1,5 +1,14 @@
 import type { MedicalStaffRow } from "./types.ts";
 
+/*
+ * # 医療スタッフ一覧テーブル
+ *
+ * ## 目的
+ * 医療スタッフ一覧を表形式で表示する。
+ *
+ * ## 説明
+ * データが 0 件の場合は何も描画せず、存在時のみテーブルを表示する。
+ */
 interface MedicalStaffTableProps {
   rows: MedicalStaffRow[];
 }

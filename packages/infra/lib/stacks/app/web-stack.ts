@@ -6,6 +6,8 @@ import type { Construct } from "constructs";
 
 export interface WebStackProps extends cdk.StackProps {
   apiUrl: string;
+  userPoolId: string;
+  userPoolClientId: string;
   sharedEnv: string;
   stage: string;
   resourcePrefix: string;
@@ -36,6 +38,9 @@ export class WebStack extends cdk.Stack {
     const web = new WebConstruct(this, "Web", {
       resourcePrefix: props.resourcePrefix,
       apiUrl: props.apiUrl,
+      cognitoRegion: cdk.Stack.of(this).region,
+      userPoolId: props.userPoolId,
+      userPoolClientId: props.userPoolClientId,
     });
 
     new cdk.CfnOutput(this, "WebUrl", {

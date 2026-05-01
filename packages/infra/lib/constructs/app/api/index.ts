@@ -10,6 +10,8 @@ export interface ApiConstructProps {
   resourcePrefix: string;
   sharedEnv: string;
   stage: string;
+  userPoolId: string;
+  userPoolClientId: string;
 }
 
 /*
@@ -50,6 +52,8 @@ export class ApiConstruct extends Construct {
       imagePrefix: props.imagePrefix,
       sharedEnv: props.sharedEnv,
       stage: props.stage,
+      userPoolClientId: props.userPoolClientId,
+      userPoolId: props.userPoolId,
     });
 
     this.apiUrl = this.httpApi.apiEndpoint;

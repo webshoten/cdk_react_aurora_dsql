@@ -1,10 +1,36 @@
 export default {
     "scalars": [
         1,
-        2,
-        10
+        4,
+        14
     ],
     "types": {
+        "CreateUserPayload": {
+            "username": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
+        "String": {},
+        "CurrentUser": {
+            "groups": [
+                1
+            ],
+            "institutionCode": [
+                1
+            ],
+            "userId": [
+                1
+            ],
+            "username": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
         "Image": {
             "contentType": [
                 1
@@ -22,13 +48,12 @@ export default {
                 1
             ],
             "sizeBytes": [
-                2
+                4
             ],
             "__typename": [
                 1
             ]
         },
-        "String": {},
         "Int": {},
         "MedicalStaff": {
             "institutionCode": [
@@ -49,7 +74,7 @@ export default {
         },
         "Mutation": {
             "addRandomMedicalStaff": [
-                9,
+                12,
                 {
                     "institutionCode": [
                         1,
@@ -58,7 +83,7 @@ export default {
                 }
             ],
             "clearMedicalStaffsByInstitution": [
-                9,
+                12,
                 {
                     "institutionCode": [
                         1,
@@ -67,7 +92,7 @@ export default {
                 }
             ],
             "createImageUploadUrl": [
-                5,
+                7,
                 {
                     "contentType": [
                         1,
@@ -79,8 +104,25 @@ export default {
                     ]
                 }
             ],
+            "createUser": [
+                0,
+                {
+                    "email": [
+                        1,
+                        "String!"
+                    ],
+                    "password": [
+                        1,
+                        "String!"
+                    ],
+                    "username": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
             "registerImage": [
-                7,
+                9,
                 {
                     "contentType": [
                         1,
@@ -95,13 +137,22 @@ export default {
                         "String!"
                     ],
                     "sizeBytes": [
-                        2,
+                        4,
                         "Int!"
                     ]
                 }
             ],
+            "resetUserPassword": [
+                10,
+                {
+                    "username": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
             "seedMedicalStaffs": [
-                9
+                12
             ],
             "__typename": [
                 1
@@ -119,11 +170,14 @@ export default {
             ]
         },
         "Query": {
+            "currentUser": [
+                2
+            ],
             "images": [
-                0
+                3
             ],
             "medicalStaffsByInstitution": [
-                3,
+                5,
                 {
                     "institutionCode": [
                         1,
@@ -132,7 +186,10 @@ export default {
                 }
             ],
             "seedItems": [
-                8
+                11
+            ],
+            "users": [
+                13
             ],
             "__typename": [
                 1
@@ -140,7 +197,18 @@ export default {
         },
         "RegisterImagePayload": {
             "appliedCount": [
-                2
+                4
+            ],
+            "__typename": [
+                1
+            ]
+        },
+        "ResetUserPasswordPayload": {
+            "temporaryPassword": [
+                1
+            ],
+            "username": [
+                1
             ],
             "__typename": [
                 1
@@ -159,7 +227,27 @@ export default {
         },
         "UpsertMedicalStaffsPayload": {
             "appliedCount": [
-                2
+                4
+            ],
+            "__typename": [
+                1
+            ]
+        },
+        "User": {
+            "createdAt": [
+                1
+            ],
+            "email": [
+                1
+            ],
+            "uid": [
+                1
+            ],
+            "userType": [
+                1
+            ],
+            "username": [
+                1
             ],
             "__typename": [
                 1

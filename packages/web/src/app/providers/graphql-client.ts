@@ -1,4 +1,5 @@
 import { cacheExchange, createClient, fetchExchange } from "urql";
+import { getCachedAccessToken } from "@/app/auth/amplify-auth.ts";
 
 /*
  * # GraphQL クライアント生成
@@ -12,6 +13,15 @@ import { cacheExchange, createClient, fetchExchange } from "urql";
 export function createGraphqlClient(url: string) {
   return createClient({
     exchanges: [cacheExchange, fetchExchange],
+    fetchOptions: () => {
+      const token = getCachedAccessToken();
+      if (!token) return {};
+      return {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+    },
     url,
   });
 }
