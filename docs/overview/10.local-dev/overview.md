@@ -9,6 +9,8 @@
 
 - migration は `pnpm migrate` で `zip -> S3 upload -> Lambda invoke` 方式で実行する
 - 実行結果の最終確認は CloudWatch Logs（`migration.invoke.success/failed`）で行う
+- `pnpm migrate` は invoke 成功（`StatusCode=200`）だけで成功扱いせず、payload の `ok` を判定して `ok:false` は失敗として扱う
+- `pnpm migrate` 失敗時は payload の `error.message` / `error.cause.message` / 失敗 migration id を標準出力へ表示する
 - ローカルデバッグは `web(Vite)` と `functions(Yoga)` を直接起動し、API Gateway/Lambda 経路をバイパスする
 - DB は Aurora DSQL 実環境を参照し、接続設定はローカル `.env.local` で管理する
 - CDK 変更時は deploy/destroy 実行中確認を必須ルールとして運用する

@@ -44,6 +44,7 @@
       - `Custom::CDKBucketDeployment`（Web 配備）
   - 責務: stage 単位でアプリケーション機能を構成し、変更・検証・破棄を独立して回せるようにする（実行レイヤー）
 - `SharedStack` が SSM Parameter Store に最小 contract を出力し、app stack が参照する
+- SSM Parameter の命名責務は分離し、共有基盤値は `/pf/shared/<sharedEnv>/...`、CI/CD 入力値は `/pf/cd/<sharedEnv>/env/...` を利用する
 
 ## stack 間の責務分離（簡潔版）
 
@@ -67,4 +68,4 @@
 - 2026-04-27: app stack 構成に `OpsStack` を明記（migration 運用用途）
 - 2026-04-28: app stack 構成に `AuthStack` を追加（認証基盤分離）
 - 2026-04-30: 実装構成方針として、フロントエンドは vertical slice、バックエンドは horizontal（レイヤー軸）を採用
-- YYYY-MM-DD: (ここに決定事項を追記)
+- 2026-05-02: SSM Parameter 命名を shared 用 (`/pf/shared/<sharedEnv>/...`) と cd 用 (`/pf/cd/<sharedEnv>/env/...`) に分離

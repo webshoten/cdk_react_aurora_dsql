@@ -27,6 +27,7 @@
 - DSQL 制約として `SERIAL` は非対応のため、連番カラムは `IDENTITY` 前提で設計する
 - DSQL 制約として「同一 transaction 内の DDL + DML は不可」のため、migration SQL 実行と履歴INSERTは分離して実行する
 - 検証導線として、seed 済みデータを GraphQL `seedItems` で取得しフロント表示で確認する
+- `user:create` は DB クエリ失敗時に原因ヒントを表示し、migration 未適用や列不足を追跡できるエラーメッセージを返す
 
 ## GraphQL 命名ルール（推奨）
 
@@ -101,6 +102,8 @@
 - 2026-04-26: 任意実行防止のため、SQL zip の取得先は payload 指定ではなく Lambda 環境変数で固定
 - 2026-04-27: GraphQL Mutation 命名は `動詞 + 対象 + 条件` を推奨ルールとして明記（絶対ルールではない）
 - 2026-04-27: GraphQL の環境変数参照は `createGraphqlContext` に集約し、resolver では `context` 経由のみで扱う方針を追加
+- 2026-05-02: MigrationRunner invoke の成否判定は payload `ok` を正とし、`ok:false` は CLI 失敗扱いにする方針を追加
+- 2026-05-02: `user:create` の DB エラーは原因ヒント付きで表示し、調査起点を明示する方針を追加
 
 ## 関連 plan
 

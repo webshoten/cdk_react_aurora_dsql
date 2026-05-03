@@ -1,6 +1,7 @@
-import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
+import type * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import { Construct } from "constructs";
 import { GraphqlApiConstruct } from "./graphql";
+import { createApiGateway } from "./api-gateway";
 
 export interface ApiConstructProps {
   dbClusterArn: string;
@@ -35,13 +36,8 @@ export class ApiConstruct extends Construct {
   constructor(scope: Construct, id: string, props: ApiConstructProps) {
     super(scope, id);
 
-    this.httpApi = new apigwv2.HttpApi(this, "HttpApi", {
-      apiName: `${props.resourcePrefix}-api`,
-      corsPreflight: {
-        allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.POST],
-        allowHeaders: ["Content-Type", "Authorization"],
-        allowOrigins: ["*"],
-      },
+    this.httpApi = createApiGateway(this, "HttpApi", {
+      resourcePrefix: props.resourcePrefix,
     });
 
     new GraphqlApiConstruct(this, "Graphql", {

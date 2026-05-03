@@ -22,8 +22,9 @@ cdk_pf/
 ### スタック
 
 - **SharedStack** `pf-${sharedEnv}-shared`（環境ごと1つ・長命）
-  - 今は placeholder のみ
-  - 将来の Hosted Zone / ACM / KMS など共有基盤の受け口
+  - shared 契約メタ値（`/pf/shared/<sharedEnv>/meta/*`）を管理
+  - CD入力（`/pf/cd/<sharedEnv>/env/SES_FROM_EMAIL`）を参照して SES Identity を管理
+  - app 参照用 SES 値（`/pf/shared/<sharedEnv>/ses/*`）を提供
 - **DbStack** `pf-${sharedEnv}-${stage}-db`（stage ごと・破棄前提）
   - Aurora DSQL クラスタ
 - **ApiStack** `pf-${sharedEnv}-${stage}-api`（stage ごと・破棄前提）
@@ -59,8 +60,21 @@ CLI: `tsx scripts/cdk.ts <subcommand>`（`pnpm cdk:*` 経由 推奨）
 - `--profile <name>` 既定: `AWS_PROFILE` env → `default`
 - `-- <cdk-args...>` 以降は cdk CLI へそのまま渡す
 
+デプロイ前提（CD 入力値）:
+- SSM Parameter Store の `/pf/cd/<sharedEnv>/env/...` に入力値を設定してから deploy する
+- 設定は `pnpm env:set`、確認は `pnpm env:list` を利用する
+- `--profile` 未指定時は `AWS_PROFILE`、なければ `default` を利用する
+
 ```bash
-# 1. SharedStack（placeholder。最初の1回 + 共有変更時）
+# 例: SES 送信元メールアドレスを設定
+pnpm env:set --shared dev --key SES_FROM_EMAIL --value noreply@example.com
+
+# 例: 現在の CD 入力値を確認
+pnpm env:list --shared dev
+```
+
+```bash
+# 1. SharedStack（共有契約・SES設定。最初の1回 + 共有変更時）
 pnpm cdk:deploy:shared --shared dev
 pnpm cdk:deploy:shared --shared dev --profile my-aws
 

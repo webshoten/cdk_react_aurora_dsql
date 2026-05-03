@@ -8,6 +8,8 @@ export interface SharedLookupConstructProps {
 export interface SharedLookupValues {
   contractVersion: string;
   sharedEnv: string;
+  sesFromEmail: string;
+  sesFromEmailArn: string;
 }
 
 /*
@@ -27,16 +29,24 @@ export interface SharedLookupValues {
 export class SharedLookupConstruct extends Construct implements SharedLookupValues {
   public readonly contractVersion: string;
   public readonly sharedEnv: string;
+  public readonly sesFromEmail: string;
+  public readonly sesFromEmailArn: string;
 
   constructor(scope: Construct, id: string, props: SharedLookupConstructProps) {
     super(scope, id);
 
     const prefix = `/pf/shared/${props.sharedEnv}/meta`;
+    const sesPrefix = `/pf/shared/${props.sharedEnv}/ses`;
 
     this.sharedEnv = ssm.StringParameter.valueForStringParameter(this, `${prefix}/sharedEnv`);
     this.contractVersion = ssm.StringParameter.valueForStringParameter(
       this,
       `${prefix}/contractVersion`,
+    );
+    this.sesFromEmail = ssm.StringParameter.valueForStringParameter(this, `${sesPrefix}/fromEmail`);
+    this.sesFromEmailArn = ssm.StringParameter.valueForStringParameter(
+      this,
+      `${sesPrefix}/fromEmailArn`,
     );
   }
 }

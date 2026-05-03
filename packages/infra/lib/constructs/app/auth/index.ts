@@ -1,12 +1,16 @@
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as cognitoIdentity from "aws-cdk-lib/aws-cognito-identitypool";
 import { ClientIdNameMapConstruct } from "@infra/lib/constructs/app/auth/client-id-name-map";
+import { createIdentityPool } from "@infra/lib/constructs/app/auth/identity-pool";
 import { AuthTriggerConstruct } from "@infra/lib/constructs/app/auth/triggers";
+import { createUserPool } from "@infra/lib/constructs/app/auth/user-pool";
+import { createWebUserPoolClient } from "@infra/lib/constructs/app/auth/web-user-pool-client";
 import { Construct } from "constructs";
 
 export interface AuthConstructProps {
   resourcePrefix: string;
   sharedEnv: string;
+  sesFromEmail: string;
   stage: string;
 }
 
@@ -28,57 +32,24 @@ export class AuthConstruct extends Construct {
   constructor(scope: Construct, id: string, props: AuthConstructProps) {
     super(scope, id);
 
-    this.userPool = new cognito.UserPool(this, "UserPool", {
-      selfSignUpEnabled: true,
-      signInAliases: {
-        username: true,
-        email: true,
-      },
-      userPoolName: `${props.resourcePrefix}-user-pool`,
-      customAttributes: {
-        institution_id: new cognito.StringAttribute({
-          minLen: 1,
-          maxLen: 10,
-          mutable: true,
-        }),
-        mfa_preference: new cognito.StringAttribute({
-          minLen: 1,
-          maxLen: 16,
-          mutable: true,
-        }),
-      },
-      mfa: cognito.Mfa.OPTIONAL,
-      mfaSecondFactor: {
-        otp: true,
-        sms: true,
-      },
+    this.userPool = createUserPool(this, "UserPool", {
+      resourcePrefix: props.resourcePrefix,
+      sesFromEmail: props.sesFromEmail,
     });
 
     new AuthTriggerConstruct(this, "Triggers", {
       userPool: this.userPool,
     });
 
-    this.webUserPoolClient = this.userPool.addClient("WebUserPoolClient", {
-      authFlows: {
-        userSrp: true,
-        userPassword: true,
-      },
-      userPoolClientName: `${props.resourcePrefix}-web-client`,
-      // generateSecret（公開クライアント）はデフォルトでfalse、SPA標準   関連：packages/web/public/config.js
+    this.webUserPoolClient = createWebUserPoolClient(this, "WebUserPoolClient", {
+      resourcePrefix: props.resourcePrefix,
+      userPool: this.userPool,
     });
 
-    this.identityPool = new cognitoIdentity.IdentityPool(this, "IdentityPool", {
-      allowClassicFlow: false,
-      allowUnauthenticatedIdentities: false,
-      authenticationProviders: {
-        userPools: [
-          new cognitoIdentity.UserPoolAuthenticationProvider({
-            userPoolClient: this.webUserPoolClient,
-            userPool: this.userPool,
-          }),
-        ],
-      },
-      identityPoolName: `${props.resourcePrefix}-identity-pool`,
+    this.identityPool = createIdentityPool(this, "IdentityPool", {
+      resourcePrefix: props.resourcePrefix,
+      userPool: this.userPool,
+      webUserPoolClient: this.webUserPoolClient,
     });
 
     const clientIdNameMap = new ClientIdNameMapConstruct(this, "ClientIdNameMap", {

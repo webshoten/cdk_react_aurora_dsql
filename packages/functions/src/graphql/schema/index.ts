@@ -8,7 +8,7 @@ import {
   resolveSeedMedicalStaffs,
 } from "../resolvers/medical-staffs.ts";
 import { resolveSeedItems } from "../resolvers/seed.ts";
-import { resolveCreateUser, resolveCurrentUser, resolveResetUserPassword, resolveUsers } from "../resolvers/users.ts";
+import { resolveCreateUser, resolveCurrentUser, resolveResetUserPassword, resolveSyncCurrentUserMfaPreference, resolveUsers } from "../resolvers/users.ts";
 
 const builder = new SchemaBuilder<{
   Context: GraphqlContext;
@@ -58,6 +58,7 @@ const CurrentUserRef = builder.objectRef<{
 const UserRef = builder.objectRef<{
   createdAt: string;
   email: string;
+  mfaPreference: string;
   uid: string;
   userType: string;
   username: string;
@@ -71,6 +72,10 @@ const ResetUserPasswordPayloadRef = builder.objectRef<{
   temporaryPassword: string;
   username: string;
 }>("ResetUserPasswordPayload");
+
+const SyncCurrentUserMfaPreferencePayloadRef = builder.objectRef<{
+  synced: boolean;
+}>("SyncCurrentUserMfaPreferencePayload");
 
 SeedItemRef.implement({
   fields: (t) => ({
@@ -136,6 +141,7 @@ UserRef.implement({
     email: t.exposeString("email", { description: "メールアドレス。" }),
     uid: t.exposeString("uid", { description: "Cognito sub を保持するユーザーID。" }),
     userType: t.exposeString("userType", { description: "ユーザー種別。" }),
+    mfaPreference: t.exposeString("mfaPreference", { description: "MFA 設定（none/sms/email）。" }),
     createdAt: t.exposeString("createdAt", { description: "レコード作成日時（ISO8601）。" }),
   }),
 });
@@ -150,6 +156,12 @@ ResetUserPasswordPayloadRef.implement({
   fields: (t) => ({
     username: t.exposeString("username", { description: "再設定対象のユーザー名。" }),
     temporaryPassword: t.exposeString("temporaryPassword", { description: "再設定後の一時パスワード。" }),
+  }),
+});
+
+SyncCurrentUserMfaPreferencePayloadRef.implement({
+  fields: (t) => ({
+    synced: t.exposeBoolean("synced", { description: "同期成功フラグ。" }),
   }),
 });
 
@@ -247,6 +259,17 @@ builder.mutationType({
         username: t.arg.string({ required: true }),
       },
       resolve: async (_root, args) => resolveResetUserPassword(args),
+    }),
+    syncCurrentUserMfaPreference: t.field({
+      description: "認証ユーザー自身の MFA 設定を users テーブルへ同期する。",
+      type: SyncCurrentUserMfaPreferencePayloadRef,
+      args: {
+        mfaPreference: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, context) =>
+        resolveSyncCurrentUserMfaPreference(context, {
+          mfaPreference: args.mfaPreference as "none" | "sms" | "email",
+        }),
     }),
   }),
 });

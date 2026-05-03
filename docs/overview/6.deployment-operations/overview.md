@@ -16,6 +16,8 @@
   - `shared`
 - `stage` 未指定時は `whoami`
 - `profile` 未指定時は `AWS_PROFILE`、なければ `default`
+- CD 入力値は `/pf/cd/<sharedEnv>/env/...` を利用し、設定は `pnpm env:set`、確認は `pnpm env:list` を利用する
+- `pnpm env:set` / `pnpm env:list` の `profile` 未指定時は `AWS_PROFILE`、なければ `default` を利用する
 
 ## 運用ルール
 

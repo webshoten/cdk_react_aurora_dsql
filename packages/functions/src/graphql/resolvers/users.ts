@@ -1,4 +1,4 @@
-import { createUserRecord, listUsers } from "@pf/core";
+import { createUserRecord, listUsers, updateUserMfaPreferenceByUsername } from "@pf/core";
 import { createAuthUser, deleteAuthUser, resetAuthUserPassword } from "../../services/auth/identity-provider.ts";
 import type { GraphqlContext } from "../context.ts";
 
@@ -25,6 +25,7 @@ export async function resolveUsers(context: GraphqlContext): Promise<
   {
     createdAt: string;
     email: string;
+    mfaPreference: string;
     uid: string;
     userType: string;
     username: string;
@@ -33,6 +34,7 @@ export async function resolveUsers(context: GraphqlContext): Promise<
   const rows = await listUsers(context.dbClient);
   return rows.map((row) => ({
     ...row,
+    mfaPreference: row.mfaPreference ?? "none",
     createdAt: row.createdAt.toISOString(),
   }));
 }
@@ -88,4 +90,27 @@ export async function resolveResetUserPassword(args: { username: string }): Prom
   return resetAuthUserPassword({
     username: args.username,
   });
+}
+
+/*
+ * ## 目的
+ * 認証ユーザー自身の mfaPreference を users テーブルへ同期する。
+ *
+ * ## 説明
+ * context に認証ユーザーがない場合は拒否する。
+ */
+export async function resolveSyncCurrentUserMfaPreference(
+  context: GraphqlContext,
+  args: { mfaPreference: "none" | "sms" | "email" },
+): Promise<{ synced: boolean }> {
+  if (!context.auth?.username) {
+    throw new Error("unauthorized");
+  }
+
+  await updateUserMfaPreferenceByUsername(context.dbClient, {
+    username: context.auth.username,
+    mfaPreference: args.mfaPreference,
+  });
+
+  return { synced: true };
 }

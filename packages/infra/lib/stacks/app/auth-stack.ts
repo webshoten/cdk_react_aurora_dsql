@@ -37,6 +37,7 @@ export class AuthStack extends cdk.Stack {
     const auth = new AuthConstruct(this, "Auth", {
       resourcePrefix: props.resourcePrefix,
       sharedEnv: props.sharedEnv,
+      sesFromEmail: sharedConfig.sesFromEmail,
       stage: props.stage,
     });
 

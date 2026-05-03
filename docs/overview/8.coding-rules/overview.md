@@ -15,13 +15,20 @@
 - `YAGNI` は機能追加の抑制に使い、設計品質は本番運用前提（可観測性・保守性・安全性）で担保する
 - 設計で確定していない推測実装はしない
 - ユーザーとの合意が未完了の事項は、提案までに留めて実装へ進めない（提案→合意→実装の順を厳守する）
+- 責務分離（Stack/Construct、domain/layer など）は、実装前に境界と配置方針を明示して合意する
+- 実施状況や確度は事実ベースで明示し、不確実な内容を断定しない（未確認は未確認と伝え、先に確認する）
+- DB の DDL は Aurora DSQL で実行可能かを一次情報で確認した上で migration 化する
 - どうしても実現できない場合を除き、SQL 構築は `drizzle-orm` を利用する（`pg` 生SQL直書きは例外扱い）
 - フロントエンド（`packages/web`）は vertical slice（機能軸）で構成する
 - バックエンド（`packages/functions`）は horizontal（レイヤー軸）で構成する
 - バックエンドのレイヤー軸は `handlers / graphql / services / shared` で統一する
 - フロントエンドの `components` 配下はドメイン単位（vertical slice）で分割し、ドメインごとに専用 `hooks` / `context` を配置する
+- exported 関数・クラスには責務が分かる短いコメントを付与し、処理意図が読み取れる状態を維持する
 - React コードを実装・レビューする場合は、`react-best-practices` Skill の指針を参照して判断する
 - CDK は「その場しのぎ」の回避コードを禁止し、恒久的な設計で解決する
+- AWS CLI 等でリソース状態を直接更新して問題解決しない。恒久対応は CDK 定義へ反映して deploy で揃える
+- CDK は Stack 本体や `constructs/*/index.ts` にロジックを集中させず、初期実装段階から責務ごとに Construct / module を分離して記述する
+- CDK の `constructs/*/index.ts` は「各 Construct / resource 定義を呼び出して接続する役割だけ」を持たせ、設定組み立て・権限付与・補助ロジックは別モジュールへ分離する
 - CDK の stateful リソース（DB/Bucket など）をリファクタする場合は、`cdk diff` で置換有無を確認し、置換が出る変更は事前合意なしで実施しない
 - CDK 変更に着手する前に、必ず「今、deploy/destroy は実行中ですか？」を確認する
 - ユーザーが deploy/destroy 実行中と回答した場合、CDK 変更は停止して待機する
@@ -36,6 +43,15 @@
 - CDK で一時回避のために入れたコード（例: 一時的な論理ID固定や暫定フラグ）は、検証完了後に必ず削除して恒久設計へ置き換える
 - CDK の構造整理（Stack->Construct 分離など）は、論理ID・依存関係・削除ポリシーへの影響を事前に確認してから実施する
 - deploy/destroy 実行状態が不明な場合は、状態が明確になるまで CDK 変更を行わない
+
+## DSQL ルール
+
+- Aurora DSQL 向け migration の DDL は、実装前に必ず一次情報（AWS 公式ドキュメント）で対応可否を確認する
+- `ALTER TABLE ADD COLUMN` は制約同時追加（`DEFAULT` / `NOT NULL`）が非対応のため、列追加と制約付与を分けて設計する
+- `SERIAL` は非対応のため、連番カラムは `IDENTITY` 前提で設計する
+- 同一 transaction 内で DDL と DML を混在できないため、DDL 実行と履歴更新 INSERT は分離する
+- PostgreSQL/MySQL で通る一括DDL（列追加+制約同時指定など）でも DSQL では失敗しうるため、同等SQLをそのまま流用しない
+- DSQL 制約で SQL を分解した場合は、migration ファイル内コメントに理由（どの構文が非対応か）を明記する
 
 ## ドキュメント記述ルール（overview）
 
@@ -64,3 +80,9 @@
 - 2026-04-28: `overview.md` の構成記述は予定表現を使わず、要素名とファイルパスで記載する方針を追加
 - 2026-04-28: `overview.md` は確定仕様のみを記載し、タスクは `plan/` の別ファイルに分離する方針を追加
 - 2026-04-30: 全体方針として、フロントエンドは vertical slice、バックエンドは horizontal（`handlers / graphql / services / shared`）で統一する方針を追加
+- 2026-05-02: exported 関数・クラスに責務コメントを付与する方針を追加
+- 2026-05-02: 責務分離が曖昧な場合は実装前確認を必須化し、未確認事項を断定しない方針を追加
+- 2026-05-02: DDL 追加時は Aurora DSQL の一次情報で対応可否を確認してから migration 化する方針を追加
+- 2026-05-02: AWS CLI の直接変更で状態是正せず、CDK 反映で恒久化する方針を追加
+- 2026-05-02: CDK は Stack 本体/`constructs/*/index.ts` へロジック集中させず、初期実装から責務分離する方針を追加
+- 2026-05-03: CDK の `constructs/*/index.ts` は compose 専用に限定する方針を追加

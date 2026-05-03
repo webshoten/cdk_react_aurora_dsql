@@ -12,6 +12,7 @@ import type { DbClient } from "../db/types.ts";
 export interface UserRow {
   createdAt: Date;
   email: string;
+  mfaPreference: string | null;
   uid: string;
   userType: string;
   username: string;
@@ -33,6 +34,7 @@ export async function listUsers(dbClient: DbClient): Promise<UserRow[]> {
         username: users.username,
         email: users.email,
         userType: users.userType,
+        mfaPreference: users.mfaPreference,
         createdAt: users.createdAt,
       })
       .from(users)
@@ -54,6 +56,7 @@ export async function createUserRecord(
     username: string;
     email: string;
     userType: string;
+    mfaPreference?: string;
   },
 ): Promise<void> {
   return dbClient(async (db) => {
@@ -63,6 +66,7 @@ export async function createUserRecord(
       username: input.username,
       email: input.email,
       userType: input.userType,
+      mfaPreference: input.mfaPreference ?? "none",
     });
   });
 }
@@ -83,6 +87,7 @@ export async function findUserByUsername(dbClient: DbClient, username: string): 
         username: users.username,
         email: users.email,
         userType: users.userType,
+        mfaPreference: users.mfaPreference,
         createdAt: users.createdAt,
       })
       .from(users)
@@ -90,5 +95,27 @@ export async function findUserByUsername(dbClient: DbClient, username: string): 
       .limit(1);
 
     return rows[0] ?? null;
+  });
+}
+
+/*
+ * ## 目的
+ * username 指定で users の mfaPreference を更新する。
+ *
+ * ## 説明
+ * 更新対象がない場合は何もしない。
+ */
+export async function updateUserMfaPreferenceByUsername(
+  dbClient: DbClient,
+  input: { mfaPreference: "none" | "sms" | "email"; username: string },
+): Promise<void> {
+  return dbClient(async (db) => {
+    const drizzleDb = drizzle(db);
+    await drizzleDb
+      .update(users)
+      .set({
+        mfaPreference: input.mfaPreference,
+      })
+      .where(eq(users.username, input.username));
   });
 }

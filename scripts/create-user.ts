@@ -32,6 +32,7 @@ const email = required(raw.email, "--email");
 main().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
   console.error(`[create-user] failed: ${message}`);
+  console.error("[create-user] FAILED");
   process.exit(1);
 });
 
@@ -45,7 +46,9 @@ async function main(): Promise<void> {
     DSQL_REGION: resources.region,
   });
 
-  const existing = await findUserByUsername(dbClient, username);
+  const existing = await findUserByUsername(dbClient, username).catch((error: unknown) => {
+    throw withDbHint(error);
+  });
   if (existing) {
     throw new Error(`username '${username}' は既に登録済みです`);
   }
@@ -113,9 +116,12 @@ async function main(): Promise<void> {
       username,
       email,
       userType: "general",
+    }).catch((error: unknown) => {
+      throw withDbHint(error);
     });
 
     console.log(`[create-user] created username=${username} uid=${sub}`);
+    console.log("[create-user] SUCCESS");
   } catch (error: unknown) {
     if (createdInIdentityProvider) {
       try {
@@ -140,6 +146,30 @@ async function main(): Promise<void> {
 
     throw error;
   }
+}
+
+function withDbHint(error: unknown): Error {
+  const message = error instanceof Error ? error.message : String(error);
+  const lower = message.toLowerCase();
+
+  if (lower.includes("column") && lower.includes("does not exist")) {
+    return new Error(
+      [
+        message,
+        "hint: users テーブル列不足の可能性があります（migration 未適用を確認してください）。",
+      ].join("\n"),
+    );
+  }
+
+  if (lower.includes("relation") && lower.includes("does not exist")) {
+    return new Error(
+      [message, "hint: users テーブル未作成の可能性があります（migration 状態を確認してください）。"].join(
+        "\n",
+      ),
+    );
+  }
+
+  return error instanceof Error ? error : new Error(String(error));
 }
 
 function runAws(profile: string, args: string[], containsSensitive: boolean): string {

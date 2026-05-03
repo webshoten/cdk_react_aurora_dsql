@@ -39,6 +39,9 @@
 
 - `auth-provider` と `urql-provider` を分離する構成としている
 - `Authorization` ヘッダーは自動付与する構成としている
+- runtime 設定は `packages/web/public/config.js` の `window.__CONFIG__` から解決する構成としている
+- 認証に必要な設定キーは `cognitoRegion` / `userPoolId` / `userPoolClientId` としている
+- local-dev では `local-dev:resolve-env` 実行時に `packages/web/public/config.js` を再生成する構成としている
 - アプリ全体を認証ガード配下に置き、未認証時はログイン導線へ遷移させる構成としている
 - 認証導線の実装手段は `rehacul` 継承を優先し、Amplify Auth（`signIn` / `confirmSignIn` / `nextStep`）と Amplify UI ベースで統一する
 - Amplify の token storage は `CookieStorage` を利用する

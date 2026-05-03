@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "@/app/auth/auth-context.tsx";
+import { useAuth } from "@/domains/auth/context/auth-context.tsx";
 
 /*
  * # 認証ガードレイアウト
@@ -11,10 +11,10 @@ import { useAuth } from "@/app/auth/auth-context.tsx";
  * 認証済みの場合のみ子ルートを表示し、保護対象ページの共通ガードとして利用する。
  */
 export function GuardedLayout() {
-  const { isAuthenticated } = useAuth();
+  const { authState } = useAuth();
   const location = useLocation();
 
-  if (!isAuthenticated) {
+  if (authState !== "authenticated") {
     return <Navigate replace to="/login" state={{ from: location.pathname }} />;
   }
 

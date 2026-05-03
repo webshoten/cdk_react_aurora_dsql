@@ -24,6 +24,8 @@
 ## 階層構造
 
 - `SharedStack`: `packages/infra/lib/stacks/shared/shared-stack.ts`
+  - `SharedMetaConstruct`: `packages/infra/lib/constructs/shared/meta.ts`
+  - `SharedSesConstruct`: `packages/infra/lib/constructs/shared/ses.ts`
   - `SharedLookupConstruct`: `packages/infra/lib/constructs/shared/lookup.ts`
 - `DbStack`: `packages/infra/lib/stacks/app/db-stack.ts`
   - `DbConstruct`: `packages/infra/lib/constructs/app/db/index.ts`

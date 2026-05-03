@@ -9,6 +9,7 @@
 
 - `AuthStack` は認証リソースを集約して管理する
 - `ApiStack` / `WebStack` へ認証設定値（UserPool / Client / IdentityPool）を提供する
+- Email MFA の送信設定は SharedStack が提供する SES 関連値を参照し、Cognito UserPool の `emailConfiguration` に接続する
 
 ## 構成
 
@@ -21,3 +22,4 @@
 ## 決定ログ
 
 - 2026-04-28: 認証基盤を `AuthStack` として分離する方針を追加
+- 2026-05-02: SES identity を SharedStack 管理とし、AuthStack で Cognito `emailConfiguration` に接続する方針を追加

@@ -88,7 +88,33 @@ run("aws", [
 ]);
 
 const output = fs.readFileSync(outputFile, "utf8");
+const parsed = parseMigrationRunnerOutput(output);
 console.log(`[migration-runner] output: ${output}`);
+
+if (parsed && parsed.ok === false) {
+  const failedMigrationId = extractFailedMigrationId(parsed.error?.message);
+  const message = parsed.error?.message ?? "unknown migration runner error";
+  const cause = parsed.error?.cause?.message ?? "unknown cause";
+
+  console.error("[migration-runner] failed:");
+  console.error(`- message: ${message}`);
+  console.error(`- cause: ${cause}`);
+  if (failedMigrationId) {
+    console.error(`- failed migration id: ${failedMigrationId}`);
+  }
+  console.error("[migration-runner] FAILED");
+  process.exit(1);
+}
+
+if (!parsed) {
+  console.error("[migration-runner] failed: output json parse error");
+  console.error("[migration-runner] FAILED");
+  process.exit(1);
+}
+
+if (parsed.ok === true) {
+  console.log("[migration-runner] SUCCESS");
+}
 
 /*
  * # CFN outputs から MigrationRunner リソース解決
@@ -166,4 +192,26 @@ function listTopLevelSqlFiles(dir: string): string[] {
     .filter((entry) => entry.isFile() && entry.name.endsWith(".sql"))
     .map((entry) => entry.name)
     .sort((a, b) => a.localeCompare(b));
+}
+
+type MigrationRunnerOutput = {
+  error?: {
+    cause?: { message?: string };
+    message?: string;
+  };
+  ok?: boolean;
+};
+
+function parseMigrationRunnerOutput(raw: string): MigrationRunnerOutput | null {
+  try {
+    return JSON.parse(raw) as MigrationRunnerOutput;
+  } catch {
+    return null;
+  }
+}
+
+function extractFailedMigrationId(message: string | undefined): string | null {
+  if (!message) return null;
+  const matched = message.match(/Migration failed:\s*([A-Za-z0-9_-]+)/);
+  return matched?.[1] ?? null;
 }

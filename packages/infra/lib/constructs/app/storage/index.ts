@@ -1,5 +1,6 @@
+import { createImageBucket } from "@infra/lib/constructs/app/storage/image-bucket";
+import { IMAGE_PREFIX } from "@infra/lib/constructs/app/storage/image-prefix";
 import * as s3 from "aws-cdk-lib/aws-s3";
-import * as cdk from "aws-cdk-lib/core";
 import { Construct } from "constructs";
 
 export interface StorageConstructProps {
@@ -23,22 +24,7 @@ export class StorageConstruct extends Construct {
   constructor(scope: Construct, id: string, _props: StorageConstructProps) {
     super(scope, id);
 
-    this.imagePrefix = "image/";
-
-    this.imageBucket = new s3.Bucket(this, "ImageBucket", {
-      autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      cors: [
-        {
-          allowedHeaders: ["*"],
-          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.HEAD, s3.HttpMethods.PUT],
-          allowedOrigins: ["*"],
-        },
-      ],
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      enforceSSL: true,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      versioned: false,
-    });
+    this.imagePrefix = IMAGE_PREFIX;
+    this.imageBucket = createImageBucket(this, "ImageBucket");
   }
 }

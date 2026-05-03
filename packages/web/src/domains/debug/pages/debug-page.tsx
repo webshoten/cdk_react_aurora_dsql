@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useMutation, useQuery } from "urql";
-import { useAuth } from "@/app/auth/auth-context.tsx";
+import { useAuth } from "@/domains/auth/context/auth-context.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
 
 /*

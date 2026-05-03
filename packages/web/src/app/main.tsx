@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
-import { AuthProvider } from "@/app/auth/auth-context.tsx";
+import { AuthProvider } from "@/domains/auth/context/auth-context.tsx";
 import "@aws-amplify/ui-react/styles.css";
 import "@/index.css";
 import { UrqlProvider } from "@/app/providers/urql-provider.tsx";

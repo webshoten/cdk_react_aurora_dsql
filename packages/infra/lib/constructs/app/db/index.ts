@@ -1,4 +1,4 @@
-import * as dsql from "aws-cdk-lib/aws-dsql";
+import { createDbCluster } from "@infra/lib/constructs/app/db/db-cluster";
 import { Construct } from "constructs";
 
 export interface DbConstructProps {
@@ -27,12 +27,9 @@ export class DbConstruct extends Construct {
   constructor(scope: Construct, id: string, props: DbConstructProps) {
     super(scope, id);
 
-    const cluster = new dsql.CfnCluster(this, "Cluster", {
-      deletionProtectionEnabled: false,
-      tags: [
-        { key: "Name", value: `${props.resourcePrefix}-db` },
-        { key: "Stage", value: props.stage },
-      ],
+    const cluster = createDbCluster(this, "Cluster", {
+      resourcePrefix: props.resourcePrefix,
+      stage: props.stage,
     });
     this.clusterArn = cluster.attrResourceArn;
     this.endpoint = cluster.attrEndpoint;

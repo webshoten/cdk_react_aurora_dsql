@@ -1,5 +1,5 @@
 import { cacheExchange, createClient, fetchExchange } from "urql";
-import { getCachedAccessToken } from "@/app/auth/amplify-auth.ts";
+import { getCachedAccessToken } from "@/domains/auth/lib/amplify-auth.ts";
 
 /*
  * # GraphQL クライアント生成

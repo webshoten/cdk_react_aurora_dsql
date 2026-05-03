@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { GuardedLayout } from "@/app/auth/guarded-layout.tsx";
+import { GuardedLayout } from "@/domains/auth/guarded-layout.tsx";
 import { AppLayout } from "@/app/layout/app-layout.tsx";
 import { LoginPage } from "@/domains/auth/pages/login-page.tsx";
 import { DebugPage } from "@/domains/debug/pages/debug-page.tsx";
