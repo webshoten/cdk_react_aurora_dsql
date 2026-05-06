@@ -24,6 +24,9 @@
 - IdentityPool の UserPool client 紐付けは Web 用のみとしている（function/test は対象外）
 - `/graphql` は Lambda Authorizer 経由としている（未認証は API Gateway で拒否）
 - UserPool trigger は `preAuthentication` / `preTokenGeneration` / `customMessage` を接続前提としている
+  - `preAuthentication`: サインイン確定前にログイン許可/拒否を判定する
+  - `preTokenGeneration`: トークン発行直前に custom claim の追加・抑制を行う
+  - `customMessage`: Cognito が送信する確認コード通知の件名・本文を整形する
 - `clientId -> clientName` マップは SSM Parameter Store で管理する前提としている
 - UserPool custom attributes は `UserPool.customAttributes` で定義する前提としている
 - 対象 ID は `custom:institution_id` / `custom:mfa_preference` とする
@@ -43,10 +46,13 @@
 - 認証に必要な設定キーは `cognitoRegion` / `userPoolId` / `userPoolClientId` としている
 - local-dev では `local-dev:resolve-env` 実行時に `packages/web/public/config.js` を再生成する構成としている
 - アプリ全体を認証ガード配下に置き、未認証時はログイン導線へ遷移させる構成としている
-- 認証導線の実装手段は `rehacul` 継承を優先し、Amplify Auth（`signIn` / `confirmSignIn` / `nextStep`）と Amplify UI ベースで統一する
+- 認証導線の実装手段は Amplify Auth API（`signIn` / `confirmSignIn` / `nextStep`）を利用し、UI は独自フォームコンポーネントで構成する
 - Amplify の token storage は `CookieStorage` を利用する
 - サインアップ UI は提供しない構成としている
 - ログイン画面は `/login` に分離する構成としている
+- `/login` は `LoginPage` が `authState` を見て、状態ごとの小さいフォームコンポーネントへ表示を委譲する
+- `AuthSignInForm` は username/password 入力と submit 通知のみを担当する
+- `AuthMfaConfirmForm` は MFA 確認コード入力、確定、再送通知のみを担当する
 - `11-3.auth-01` ではログインとユーザー作成の仕様をまとめて扱う構成としている
 - `11-3.auth-01` は説明専用とし、試験実行ボタンやデバッグ操作は配置しない
 - デバッグ機能は `main` と同列の `/debug` ルートに集約する
@@ -54,6 +60,16 @@
 ## 画面責務
 
 - `/login` はエンドユーザー向けの認証入口とする
+- `GuardedLayout`: 保護対象ページへアクセスしたユーザーを認証状態に応じて通す/止める入口
+  - アプリ起動直後は `authState` が `initializing` になる。この時点ではログイン済みか未ログインか判定中のため、`/login` へ遷移せず loading 表示で待つ。
+  - 認証確認後に `authState` が `authenticated` になった場合は、アクセスされた保護対象ページをそのまま表示する。
+  - 認証確認後に `authState` が `unauthenticated` になった場合のみ、`/login` へ遷移する。
+  - `/login` へ遷移する際は、元のアクセス先を `location.state.from` に保存する。ログイン後に元ページへ戻すため。
+- `LoginPage`: 未認証ユーザーのログイン入口
+  - `/login` を直接開いた場合は、ログイン成功後に `/` へ遷移する。
+  - 保護対象ページから `/login` へ遷移した場合は、ログイン成功後に `location.state.from` のページへ戻る。
+  - `location.state.from` が存在しない場合、または不正な値の場合は `/` へ遷移する。
+  - 認証済みユーザーが `/login` を開いた場合も、同じ戻り先ルールで遷移する。
 - ユーザー作成は運用者向け機能とし、一般ユーザー向け導線とは分離する
 - `11-3.auth-01` はログインとユーザー作成の仕様説明を集約するページとして扱う
 - `/debug` は認証済みユーザー向けの検証・運用補助ページとして扱う
@@ -105,7 +121,7 @@
 - `CONFIRM_SIGN_IN_WITH_SMS_CODE` / `CONFIRM_SIGN_IN_WITH_EMAIL_CODE` の導線を対象としている
 - `confirmSignIn` 成功後に `currentUser` Query が通ることを確認対象としている
 - SMS/Email の運用最適化（配信品質、テンプレート詳細）は 11-3 対象外としている
-- MFA 導線の API / UI 実装は Amplify ベースを前提とし、同等挙動を AWS SDK 低レベル API へ置換しない
+- MFA 導線の API 実装は Amplify Auth ベースを前提とし、同等挙動を AWS SDK 低レベル API へ置換しない
 
 ## スコープ外
 
@@ -133,7 +149,7 @@
 - 2026-04-28: `/debug` は認証済みユーザー全員に開放し、ユーザー作成は画面から直接 mutation 実行で行う方針を採用
 - 2026-04-28: ユーザー作成は script 経由と `/debug` 画面経由の2経路を併用する方針を採用
 - 2026-04-28: `/debug` にユーザー一覧表示を追加する方針を採用
-- 2026-04-29: 現在実装は Amplify Auth（`signIn` / `confirmSignIn` / `nextStep`）までを先行し、ログイン UI は独自フォームのまま。設計要件である Amplify UI ベース統一には未達のため、次実装で UI も Amplify UI へ揃える。
+- 2026-05-06: `/login` の UI は独自フォームコンポーネントを正式採用し、Amplify Auth API（`signIn` / `confirmSignIn` / `nextStep`）のみを認証処理の接続点とする方針へ更新
 
 ## 改善点
 

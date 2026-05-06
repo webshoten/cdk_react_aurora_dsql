@@ -14,6 +14,10 @@ export function GuardedLayout() {
   const { authState } = useAuth();
   const location = useLocation();
 
+  if (authState === "initializing") {
+    return <p className="mx-auto max-w-xl py-12 text-sm">loading...</p>;
+  }
+
   if (authState !== "authenticated") {
     return <Navigate replace to="/login" state={{ from: location.pathname }} />;
   }

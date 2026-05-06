@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { resolveConfigError } from "@/app/config/runtime-config.ts";
 import { useAuth } from "@/domains/auth/context/auth-context.tsx";
 import type { MfaType } from "@/domains/auth/lib/amplify-auth.ts";
@@ -19,6 +19,7 @@ import { AuthSignInForm } from "../components/auth-sign-in-form.tsx";
  * 認証済みユーザーは `/` へ遷移し、未認証ユーザーには Authenticator を表示する。
  */
 export function LoginPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const {
     authState,
@@ -39,10 +40,13 @@ export function LoginPage() {
   const [mfaContact, setMfaContact] = useState("");
   const [mfaSetupCode, setMfaSetupCode] = useState("");
   const [mfaSetupStarted, setMfaSetupStarted] = useState(false);
+  const locationState = location.state as { from?: unknown } | null;
+  const redirectTo = typeof locationState?.from === "string" ? locationState.from : "/";
 
+  //リロード時にそのまま対象画面にとどまる
   useEffect(() => {
-    if (authState === "authenticated") navigate("/", { replace: true });
-  }, [authState, navigate]);
+    if (authState === "authenticated") navigate(redirectTo, { replace: true });
+  }, [authState, navigate, redirectTo]);
 
   function renderAuthForm() {
     if (authState === "initializing") {
