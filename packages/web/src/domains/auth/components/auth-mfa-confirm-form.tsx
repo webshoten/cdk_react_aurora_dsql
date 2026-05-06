@@ -34,7 +34,11 @@ export function AuthMfaConfirmForm(props: AuthMfaConfirmFormProps) {
       <button className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground" type="submit">
         Confirm MFA
       </button>
-      <button className="ml-2 rounded bg-secondary px-4 py-2 text-sm" onClick={onResend} type="button">
+      <button
+        className="ml-2 rounded bg-secondary px-4 py-2 text-sm text-secondary-foreground"
+        onClick={onResend}
+        type="button"
+      >
         Resend Code
       </button>
     </form>

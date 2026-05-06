@@ -20,13 +20,16 @@
 - [2-5.storage-stack](./2-5.storage-stack/overview.md)
 - [2-6.web-stack](./2-6.web-stack/overview.md)
 - [2-7.auth-stack](./2-7.auth-stack/overview.md)
+- [2-8.domain](./2-8.domain/overview.md)
 
 ## 階層構造
 
 - `SharedStack`: `packages/infra/lib/stacks/shared/shared-stack.ts`
-  - `SharedMetaConstruct`: `packages/infra/lib/constructs/shared/meta.ts`
-  - `SharedSesConstruct`: `packages/infra/lib/constructs/shared/ses.ts`
-  - `SharedLookupConstruct`: `packages/infra/lib/constructs/shared/lookup.ts`
+  - `SharedMetaConstruct`: `packages/infra/lib/constructs/shared/meta/index.ts`
+  - `SharedSesConstruct`: `packages/infra/lib/constructs/shared/ses/index.ts`
+  - `SharedHostedZoneConstruct`: `packages/infra/lib/constructs/shared/hosted-zone/index.ts`
+- `SharedUsEast1ParamsStack`: `packages/infra/lib/stacks/shared/shared-us-east-1-params-stack.ts`
+  - `us-east-1` に `/pf/shared/<sharedEnv>/{meta,domain,ses}/*` を同期する
 - `DbStack`: `packages/infra/lib/stacks/app/db-stack.ts`
   - `DbConstruct`: `packages/infra/lib/constructs/app/db/index.ts`
 - `ApiStack`: `packages/infra/lib/stacks/app/api-stack.ts`
@@ -63,3 +66,5 @@
 - 2026-04-27: Custom Resource ベストプラクティスをインフラのノウハウとして追加
 - 2026-04-28: 決定ログのプレースホルダを廃止し、日付付き追記方式へ統一
 - 2026-04-28: 認証基盤を `AuthStack` として分離し、`AuthConstruct` を `constructs/app/auth/index.ts` に配置する方針を追加
+- 2026-05-03: ドメイン管理境界を `2-8.domain` として分離し、`proto-foundation.com` 前提の設計を追加
+- 2026-05-05: `us-east-1` で shared SSM 参照が必要な stack 向けに `SharedUsEast1ParamsStack` を追加し、`/pf/shared/<sharedEnv>/*` を同期する方針を追加

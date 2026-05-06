@@ -87,7 +87,7 @@ fs.mkdirSync(path.dirname(webConfigPath), { recursive: true });
 fs.writeFileSync(
   webConfigPath,
   `window.__CONFIG__=${JSON.stringify({
-    apiUrl: "http://localhost:4000",
+    apiUrl: "http://localhost:4000",//ローカル起動はローカルfunctionsサーバーに向ける
     cognitoRegion: "ap-northeast-1",
     userPoolId,
     userPoolClientId,

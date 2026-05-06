@@ -60,18 +60,27 @@ CLI: `tsx scripts/cdk.ts <subcommand>`（`pnpm cdk:*` 経由 推奨）
 - `--profile <name>` 既定: `AWS_PROFILE` env → `default`
 - `-- <cdk-args...>` 以降は cdk CLI へそのまま渡す
 
-デプロイ前提（CD 入力値）:
+SharedStack デプロイ前提:
 - SSM Parameter Store の `/pf/cd/<sharedEnv>/env/...` に入力値を設定してから deploy する
 - 設定は `pnpm env:set`、確認は `pnpm env:list` を利用する
 - `--profile` 未指定時は `AWS_PROFILE`、なければ `default` を利用する
+- 現在の必須値は `HOSTED_ZONE_ID` と `HOSTED_ZONE_NAME`
 
 ```bash
-# 例: SES 送信元メールアドレスを設定
-pnpm env:set --shared dev --key SES_FROM_EMAIL --value noreply@example.com
+# 例: Hosted Zone ID と Zone Name を設定
+pnpm env:set --shared dev --key HOSTED_ZONE_ID --value {ホストゾーンID}
+pnpm env:set --shared dev --key HOSTED_ZONE_NAME --value {ホストゾーン名}
 
 # 例: 現在の CD 入力値を確認
 pnpm env:list --shared dev
 ```
+
+AppStack デプロイ前提:
+- SharedStack がデプロイ済みで、`/pf/shared/<sharedEnv>/...` の参照値が存在すること
+- SharedStack デプロイ後、該当 Hosted Zone（domain）の SES Identity が `ap-northeast-1` で「検証済み（Verified）」になっていること
+- SES Identity が未検証だと `AWS::Cognito::UserPool` 更新が `Email address is not verified` で失敗する
+- SES はリージョン単位でサンドボックス解除が必要（任意宛先へ送信する場合）
+- 解除手順は SES コンソール `Account dashboard` → `Request production access`
 
 ```bash
 # 1. SharedStack（共有契約・SES設定。最初の1回 + 共有変更時）
@@ -115,6 +124,9 @@ pnpm cdk:destroy --shared dev
 pnpm cdk:destroy --shared dev --stage alice
 pnpm cdk:destroy:shared --shared dev
 ```
+
+- 依存関係で削除失敗した場合は、失敗した stack を先に消そうとせず、次の順で個別に削除する
+  - 例: `auth` スタック削除が失敗した場合は `web` → `api` → `auth` の順で削除する
 
 ## GraphQL 型生成（genql）
 

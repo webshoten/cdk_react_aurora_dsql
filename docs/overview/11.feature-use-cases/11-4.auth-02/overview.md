@@ -28,7 +28,7 @@
   - SMS での確認コード送信・確認を行う構成とする
   - AWS 側の Cognito/SMS送信設定を満たした環境で動作する前提とする
 - `Email MFA送信基盤`: Email MFA の送信経路を段階的に整備する
-  - 現段階は SES の指定メールアドレス送信を採用する構成とする
+  - 現段階は SES のドメイン配下送信元アドレス（`proto-foundation.com` 配下）を採用する構成とする
   - IaC の deploy 入力値は `SES_FROM_EMAIL` とし、送信元メールアドレス文字列を受け取る構成とする
   - `SES_FROM_EMAIL` を元に SES identity を作成し、Cognito UserPool の `emailConfiguration`（DEVELOPER）へ接続する構成とする
   - 実行基盤の共有値は `/pf/shared/<sharedEnv>/...`、CI/CD の deploy 入力値は `/pf/cd/<sharedEnv>/env/...` で管理する構成とする
@@ -46,6 +46,65 @@
   - 永続状態は `users.mfaPreference`（`none/sms/email`）で管理する構成とする
   - 画面遷移状態（`new_password_required` / `mfa_setup` / `mfa_required` など）はフロントの一時状態で管理する構成とする
 
+## 認証状態遷移図（auth-02）
+
+### 起動・サインイン遷移
+
+```mermaid
+stateDiagram-v2
+  [*] --> 初期化中
+  初期化中 --> 未認証: A1
+  初期化中 --> 認証済み: A2
+  初期化中 --> MFA設定待ち: A3
+
+  未認証 --> 認証済み: A4
+  未認証 --> MFA設定待ち: A5
+  未認証 --> 新PW設定待ち: A6
+  未認証 --> MFA認証待ち: A7
+```
+
+- A1: セッションなし
+- A2: セッションあり + MFA設定済み
+- A3: セッションあり + MFA未設定
+- A4: ログイン成功 + MFA設定済み
+- A5: ログイン成功 + MFA未設定
+- A6: 仮パスワード更新が必要
+- A7: 確認コード入力が必要
+
+### 新パスワード・MFA認証遷移
+
+```mermaid
+stateDiagram-v2
+  新PW設定待ち --> 認証済み: B1
+  新PW設定待ち --> MFA設定待ち: B2
+  新PW設定待ち --> MFA認証待ち: B3
+
+  MFA認証待ち --> 認証済み: B4
+  MFA認証待ち --> MFA設定待ち: B5
+  MFA認証待ち --> MFA認証待ち: B6
+```
+
+- B1: 新PW確定 + MFA設定済み
+- B2: 新PW確定 + MFA未設定
+- B3: 新PW確定後に確認コード要求
+- B4: 確認コード成功 + MFA設定済み
+- B5: 確認コード成功 + MFA未設定
+- B6: コード再送
+
+### MFAセットアップ・サインアウト遷移
+
+```mermaid
+stateDiagram-v2
+  MFA設定待ち --> MFA設定待ち: C1
+  MFA設定待ち --> 認証済み: C2
+
+  認証済み --> 未認証: C3
+```
+
+- C1: 手段選択 / コード送信 / 再送
+- C2: MFA設定完了
+- C3: ログアウト / セッション失効
+
 ## スコープ外
 
 - テナント間の詳細権限制御
@@ -60,3 +119,4 @@
 - 2026-04-28: 章テンプレートを統一し、未着手スコープを明文化
 - 2026-05-01: rehacul 移行検証として、auth-02 の検証対象を MFA/初回パスワード/clientId 制御/claim 整形の同等性確認へ更新
 - 2026-05-02: Email MFA の IaC 入力値（`SES_FROM_EMAIL`）と `/pf/shared`・`/pf/cd` の責務分離を明文化
+- 2026-05-03: Email MFA の送信元を `proto-foundation.com` ドメイン配下アドレスで統一する方針を追加

@@ -1,11 +1,12 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { GuardedLayout } from "@/domains/auth/guarded-layout.tsx";
 import { AppLayout } from "@/app/layout/app-layout.tsx";
+import { GuardedLayout } from "@/domains/auth/guarded-layout.tsx";
 import { LoginPage } from "@/domains/auth/pages/login-page.tsx";
 import { DebugPage } from "@/domains/debug/pages/debug-page.tsx";
 import { data01Route } from "@/domains/feature-use-cases/11-1.data-01/route.tsx";
 import { data02Route } from "@/domains/feature-use-cases/11-2.data-02/route.tsx";
 import { auth01Route } from "@/domains/feature-use-cases/11-3.auth-01/route.tsx";
+import { auth02Route } from "@/domains/feature-use-cases/11-4.auth-02/route.tsx";
 import { MainPage } from "@/domains/main/pages/main-page.tsx";
 
 /*
@@ -41,7 +42,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: "feature-use-cases",
-            children: [data01Route, data02Route, auth01Route],
+            children: [data01Route, data02Route, auth01Route, auth02Route],
           },
         ],
       },

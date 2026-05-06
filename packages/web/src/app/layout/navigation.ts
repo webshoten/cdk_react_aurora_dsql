@@ -46,7 +46,7 @@ export const FEATURE_USE_CASES_NAV_ITEMS: FeatureUseCasesNavItem[] = [
   { label: "11-1.data-01", to: "/feature-use-cases/11-1.data-01" },
   { label: "11-2.data-02", to: "/feature-use-cases/11-2.data-02" },
   { label: "11-3.auth-01", to: "/feature-use-cases/11-3.auth-01" },
-  { label: "11-4.auth-02" },
+  { label: "11-4.auth-02", to: "/feature-use-cases/11-4.auth-02" },
   { label: "11-5.ops-01" },
   { label: "11-6.oplog-01" },
   { label: "11-7.oplog-02" },

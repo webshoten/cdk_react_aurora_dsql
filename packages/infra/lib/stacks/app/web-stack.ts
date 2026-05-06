@@ -1,6 +1,7 @@
 import { WebConstruct } from "@infra/lib/constructs/app/web";
 import type { SharedLookupValues } from "@infra/lib/constructs/shared/lookup";
 import { SharedLookupConstruct } from "@infra/lib/constructs/shared/lookup";
+import type * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cdk from "aws-cdk-lib/core";
 import type { Construct } from "constructs";
 
@@ -11,6 +12,7 @@ export interface WebStackProps extends cdk.StackProps {
   sharedEnv: string;
   stage: string;
   resourcePrefix: string;
+  webCertificate: acm.ICertificate;
 }
 
 /*
@@ -34,18 +36,28 @@ export class WebStack extends cdk.Stack {
 
     cdk.Tags.of(this).add("SharedContractVersion", sharedConfig.contractVersion);
     cdk.Tags.of(this).add("SharedEnv", sharedConfig.sharedEnv);
+    const webDomainName = `web.${props.stage}.${sharedConfig.baseDomain}`;
 
     const web = new WebConstruct(this, "Web", {
       resourcePrefix: props.resourcePrefix,
+      baseDomain: sharedConfig.baseDomain,
+      hostedZoneId: sharedConfig.hostedZoneId,
       apiUrl: props.apiUrl,
       cognitoRegion: cdk.Stack.of(this).region,
       userPoolId: props.userPoolId,
       userPoolClientId: props.userPoolClientId,
+      customDomainCertificate: props.webCertificate,
+      customDomainName: webDomainName,
     });
 
     new cdk.CfnOutput(this, "WebUrl", {
       value: `https://${web.distributionDomain}`,
       description: "CloudFront distribution URL",
+    });
+
+    new cdk.CfnOutput(this, "WebCustomDomainName", {
+      value: webDomainName,
+      description: "Web custom domain name",
     });
   }
 }

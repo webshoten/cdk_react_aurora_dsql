@@ -1,15 +1,22 @@
+import { WebCustomDomainConstruct } from "@infra/lib/constructs/app/web/custom-domain";
 import { createWebBucket } from "@infra/lib/constructs/app/web/web-bucket";
 import { buildWebConfigContent } from "@infra/lib/constructs/app/web/web-config";
 import { createWebDeployment } from "@infra/lib/constructs/app/web/web-deployment";
 import { createWebDistribution } from "@infra/lib/constructs/app/web/web-distribution";
+import type * as acm from "aws-cdk-lib/aws-certificatemanager";
+import type * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import { Construct } from "constructs";
 
 export interface WebConstructProps {
   resourcePrefix: string;
+  baseDomain: string;
+  hostedZoneId: string;
   apiUrl: string;
   cognitoRegion: string;
   userPoolId: string;
   userPoolClientId: string;
+  customDomainName: string;
+  customDomainCertificate: acm.ICertificate;
 }
 
 /*
@@ -30,12 +37,17 @@ export interface WebConstructProps {
  */
 export class WebConstruct extends Construct {
   public readonly distributionDomain: string;
+  public readonly distribution: cloudfront.Distribution;
 
   constructor(scope: Construct, id: string, props: WebConstructProps) {
     super(scope, id);
 
     const bucket = createWebBucket(this, "WebBucket");
-    const distribution = createWebDistribution(this, "Distribution", bucket);
+    const distribution = createWebDistribution(this, "Distribution", {
+      bucket,
+      certificate: props.customDomainCertificate,
+      domainNames: [props.customDomainName],
+    });
     const configContent = buildWebConfigContent({
       apiUrl: props.apiUrl,
       cognitoRegion: props.cognitoRegion,
@@ -49,6 +61,14 @@ export class WebConstruct extends Construct {
       distribution,
     });
 
+    new WebCustomDomainConstruct(this, "CustomDomain", {
+      baseDomain: props.baseDomain,
+      domainName: props.customDomainName,
+      distribution,
+      hostedZoneId: props.hostedZoneId,
+    });
+
+    this.distribution = distribution;
     this.distributionDomain = distribution.distributionDomainName;
   }
 }

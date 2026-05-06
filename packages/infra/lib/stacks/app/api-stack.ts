@@ -39,10 +39,14 @@ export class ApiStack extends cdk.Stack {
 
     cdk.Tags.of(this).add("SharedContractVersion", sharedConfig.contractVersion);
     cdk.Tags.of(this).add("SharedEnv", sharedConfig.sharedEnv);
+    const apiDomainName = `api.${props.stage}.${sharedConfig.baseDomain}`;
 
-    const api = new ApiConstruct(this, "Api", {
+    new ApiConstruct(this, "Api", {
       dbClusterArn: props.dbClusterArn,
       dbEndpoint: props.dbEndpoint,
+      baseDomain: sharedConfig.baseDomain,
+      customDomainName: apiDomainName,
+      hostedZoneId: sharedConfig.hostedZoneId,
       imageBucketName: props.imageBucketName,
       imagePrefix: props.imagePrefix,
       resourcePrefix: props.resourcePrefix,
@@ -52,11 +56,16 @@ export class ApiStack extends cdk.Stack {
       userPoolId: props.userPoolId,
     });
 
-    this.apiUrl = api.apiUrl;
+    this.apiUrl = `https://${apiDomainName}`;
 
     new cdk.CfnOutput(this, "ApiUrl", {
-      value: api.apiUrl,
-      description: "API Gateway endpoint URL",
+      value: this.apiUrl,
+      description: "API custom domain URL",
+    });
+
+    new cdk.CfnOutput(this, "ApiCustomDomainName", {
+      value: apiDomainName,
+      description: "API custom domain name",
     });
   }
 }

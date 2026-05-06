@@ -10,6 +10,7 @@
 - `AuthStack` は認証リソースを集約して管理する
 - `ApiStack` / `WebStack` へ認証設定値（UserPool / Client / IdentityPool）を提供する
 - Email MFA の送信設定は SharedStack が提供する SES 関連値を参照し、Cognito UserPool の `emailConfiguration` に接続する
+  - 参照元は `/pf/shared/<sharedEnv>/ses/fromEmail` と `/pf/shared/<sharedEnv>/ses/fromEmailArn`
 
 ## 構成
 

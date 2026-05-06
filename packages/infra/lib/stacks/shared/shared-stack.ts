@@ -1,3 +1,4 @@
+import { SharedHostedZoneConstruct } from "@infra/lib/constructs/shared/hosted-zone";
 import { SharedMetaConstruct } from "@infra/lib/constructs/shared/meta";
 import { SharedSesConstruct } from "@infra/lib/constructs/shared/ses";
 import * as cdk from "aws-cdk-lib/core";
@@ -22,6 +23,10 @@ export interface SharedStackProps extends cdk.StackProps {
  */
 export class SharedStack extends cdk.Stack {
   public static readonly CONTRACT_VERSION = "1";
+  public readonly baseDomain: string;
+  public readonly hostedZoneId: string;
+  public readonly sesFromEmail: string;
+  public readonly sesFromEmailArn: string;
 
   constructor(scope: Construct, id: string, props: SharedStackProps) {
     super(scope, id, props);
@@ -34,6 +39,13 @@ export class SharedStack extends cdk.Stack {
     const sharedSes = new SharedSesConstruct(this, "Ses", {
       sharedEnv: props.sharedEnv,
     });
+    this.sesFromEmail = sharedSes.fromEmail;
+    this.sesFromEmailArn = sharedSes.fromEmailArn;
+    const sharedHostedZone = new SharedHostedZoneConstruct(this, "HostedZone", {
+      sharedEnv: props.sharedEnv,
+    });
+    this.baseDomain = sharedHostedZone.baseDomain;
+    this.hostedZoneId = sharedHostedZone.hostedZoneId;
 
     new cdk.CfnOutput(this, "SharedEnv", {
       value: props.sharedEnv,
@@ -46,8 +58,13 @@ export class SharedStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "SesFromEmail", {
-      value: sharedSes.fromEmail,
+      value: this.sesFromEmail,
       description: "SES from email used by Cognito",
+    });
+
+    new cdk.CfnOutput(this, "BaseDomain", {
+      value: this.baseDomain,
+      description: "Base domain used by web/api custom domains",
     });
   }
 }

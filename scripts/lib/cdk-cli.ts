@@ -47,7 +47,7 @@ export function runCdk(args: CdkRunArgs): void {
   const { scope, command, opts, extra = [], outputsFile } = args;
 
   const stackFilter =
-    scope === "shared" ? `pf-${opts.sharedEnv}-shared` : `pf-${opts.sharedEnv}-${opts.stage}-*`;
+    scope === "shared" ? `pf-${opts.sharedEnv}-shared*` : `pf-${opts.sharedEnv}-${opts.stage}-*`;
 
   const sharedOnly = scope === "shared" ? "true" : "false";
 

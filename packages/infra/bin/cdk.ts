@@ -5,8 +5,10 @@ import { AuthStack } from "@infra/lib/stacks/app/auth-stack";
 import { DbStack } from "@infra/lib/stacks/app/db-stack";
 import { OpsStack } from "@infra/lib/stacks/app/ops-stack";
 import { StorageStack } from "@infra/lib/stacks/app/storage-stack";
+import { WebCertificateStack } from "@infra/lib/stacks/app/web-certificate-stack";
 import { WebStack } from "@infra/lib/stacks/app/web-stack";
 import { SharedStack } from "@infra/lib/stacks/shared/shared-stack";
+import { SharedUsEast1ParamsStack } from "@infra/lib/stacks/shared/shared-us-east-1-params-stack";
 import * as cdk from "aws-cdk-lib/core";
 
 /*
@@ -41,7 +43,25 @@ const env = {
 };
 
 // SharedStack 群（環境に1つ・長命）
-new SharedStack(app, `pf-${sharedEnv}-shared`, { env, sharedEnv });
+const sharedStack = new SharedStack(app, `pf-${sharedEnv}-shared`, { env, sharedEnv });
+const sharedUsEast1ParamsStack = new SharedUsEast1ParamsStack(
+  app,
+  `pf-${sharedEnv}-shared-us-east-1-params`,
+  {
+    env: {
+      account: env.account,
+      region: "us-east-1",
+    },
+    crossRegionReferences: true,
+    sharedEnv,
+    contractVersion: SharedStack.CONTRACT_VERSION,
+    baseDomain: sharedStack.baseDomain,
+    hostedZoneId: sharedStack.hostedZoneId,
+    sesFromEmail: sharedStack.sesFromEmail,
+    sesFromEmailArn: sharedStack.sesFromEmailArn,
+  },
+);
+sharedUsEast1ParamsStack.addDependency(sharedStack);
 
 // AppStack（stage ごと・破棄前提）
 if (!sharedOnly) {
@@ -93,13 +113,26 @@ if (!sharedOnly) {
   });
   opsStack.addDependency(dbStack);
 
+  // CloudFront に関連付ける ACM 証明書は us-east-1 必須のため、Web 用証明書は別リージョン Stack で作成する。
+  const webCertificateStack = new WebCertificateStack(app, `${resourcePrefix}-web-cert`, {
+    env: {
+      account: env.account,
+      region: "us-east-1",
+    },
+    crossRegionReferences: true,
+    sharedEnv,
+    stage,
+  });
+
   new WebStack(app, `${resourcePrefix}-web`, {
     env,
+    crossRegionReferences: true,
     sharedEnv,
     stage,
     resourcePrefix,
     apiUrl: apiStack.apiUrl,
     userPoolClientId: authStack.userPoolClientId,
     userPoolId: authStack.userPoolId,
+    webCertificate: webCertificateStack.certificate,
   });
 }

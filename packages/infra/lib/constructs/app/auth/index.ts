@@ -11,6 +11,7 @@ export interface AuthConstructProps {
   resourcePrefix: string;
   sharedEnv: string;
   sesFromEmail: string;
+  sesFromEmailArn: string;
   stage: string;
 }
 
@@ -35,6 +36,7 @@ export class AuthConstruct extends Construct {
     this.userPool = createUserPool(this, "UserPool", {
       resourcePrefix: props.resourcePrefix,
       sesFromEmail: props.sesFromEmail,
+      sesFromEmailArn: props.sesFromEmailArn,
     });
 
     new AuthTriggerConstruct(this, "Triggers", {

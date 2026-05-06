@@ -2,6 +2,7 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import type { Construct } from "constructs";
 
 export interface CreateApiGatewayInput {
+  allowOrigins: string[];
   resourcePrefix: string;
 }
 
@@ -21,7 +22,7 @@ export function createApiGateway(
     corsPreflight: {
       allowMethods: [apigwv2.CorsHttpMethod.GET, apigwv2.CorsHttpMethod.POST],
       allowHeaders: ["Content-Type", "Authorization"],
-      allowOrigins: ["*"],
+      allowOrigins: input.allowOrigins,
     },
   });
 }

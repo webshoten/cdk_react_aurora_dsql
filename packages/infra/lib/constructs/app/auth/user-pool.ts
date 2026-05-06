@@ -4,6 +4,7 @@ import type { Construct } from "constructs";
 export interface CreateUserPoolInput {
   resourcePrefix: string;
   sesFromEmail: string;
+  sesFromEmailArn: string;
 }
 
 /*
@@ -43,6 +44,7 @@ export function createUserPool(scope: Construct, id: string, input: CreateUserPo
   });
 
   const cfnUserPool = userPool.node.defaultChild as cognito.CfnUserPool;
+  cfnUserPool.addPropertyOverride("EmailConfiguration.SourceArn", input.sesFromEmailArn);
   cfnUserPool.enabledMfas = ["EMAIL_OTP", "SMS_MFA", "SOFTWARE_TOKEN_MFA"];
   return userPool;
 }

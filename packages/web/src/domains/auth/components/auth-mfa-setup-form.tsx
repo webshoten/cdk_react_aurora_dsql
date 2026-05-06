@@ -90,7 +90,7 @@ export function AuthMfaSetupForm(props: AuthMfaSetupFormProps) {
             Complete MFA Setup
           </button>
           <button
-            className="ml-2 rounded bg-secondary px-4 py-2 text-sm"
+            className="ml-2 rounded bg-secondary px-4 py-2 text-sm text-secondary-foreground"
             onClick={onResend}
             type="button"
           >

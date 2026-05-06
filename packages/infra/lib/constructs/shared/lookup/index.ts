@@ -10,6 +10,8 @@ export interface SharedLookupValues {
   sharedEnv: string;
   sesFromEmail: string;
   sesFromEmailArn: string;
+  baseDomain: string;
+  hostedZoneId: string;
 }
 
 /*
@@ -31,12 +33,15 @@ export class SharedLookupConstruct extends Construct implements SharedLookupValu
   public readonly sharedEnv: string;
   public readonly sesFromEmail: string;
   public readonly sesFromEmailArn: string;
+  public readonly baseDomain: string;
+  public readonly hostedZoneId: string;
 
   constructor(scope: Construct, id: string, props: SharedLookupConstructProps) {
     super(scope, id);
 
     const prefix = `/pf/shared/${props.sharedEnv}/meta`;
     const sesPrefix = `/pf/shared/${props.sharedEnv}/ses`;
+    const domainPrefix = `/pf/shared/${props.sharedEnv}/domain`;
 
     this.sharedEnv = ssm.StringParameter.valueForStringParameter(this, `${prefix}/sharedEnv`);
     this.contractVersion = ssm.StringParameter.valueForStringParameter(
@@ -47,6 +52,14 @@ export class SharedLookupConstruct extends Construct implements SharedLookupValu
     this.sesFromEmailArn = ssm.StringParameter.valueForStringParameter(
       this,
       `${sesPrefix}/fromEmailArn`,
+    );
+    this.baseDomain = ssm.StringParameter.valueForStringParameter(
+      this,
+      `${domainPrefix}/baseDomain`,
+    );
+    this.hostedZoneId = ssm.StringParameter.valueForStringParameter(
+      this,
+      `${domainPrefix}/hostedZoneId`,
     );
   }
 }
