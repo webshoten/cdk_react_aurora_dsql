@@ -1,6 +1,10 @@
 export interface WebConfigInput {
   apiUrl: string;
   cognitoRegion: string;
+  iotAuthorizerName: string;
+  iotEndpoint: string;
+  sharedEnv: string;
+  stage: string;
   userPoolClientId: string;
   userPoolId: string;
 }
@@ -15,6 +19,10 @@ export function buildWebConfigContent(input: WebConfigInput): string {
   return `window.__CONFIG__=${JSON.stringify({
     apiUrl: input.apiUrl,
     cognitoRegion: input.cognitoRegion,
+    iotEndpoint: input.iotEndpoint,
+    iotAuthorizerName: input.iotAuthorizerName,
+    sharedEnv: input.sharedEnv,
+    stage: input.stage,
     userPoolId: input.userPoolId,
     userPoolClientId: input.userPoolClientId,
   })};`;

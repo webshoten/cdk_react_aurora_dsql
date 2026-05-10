@@ -22,7 +22,14 @@ export async function handler(
       isAuthorized: true,
       context,
     };
-  } catch {
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : String(cause);
+    console.warn(
+      JSON.stringify({
+        message: "GraphqlAuthorizer authorization failed",
+        reason: message,
+      }),
+    );
     return {
       isAuthorized: false,
       context: {

@@ -9,6 +9,8 @@ export interface ApiConstructProps {
   dbEndpoint: string;
   imageBucketName: string;
   imagePrefix: string;
+  iotDataEndpoint: string;
+  iotStateTableName: string;
   resourcePrefix: string;
   sharedEnv: string;
   stage: string;
@@ -50,6 +52,8 @@ export class ApiConstruct extends Construct {
       httpApi: this.httpApi,
       imageBucketName: props.imageBucketName,
       imagePrefix: props.imagePrefix,
+      iotDataEndpoint: props.iotDataEndpoint,
+      iotStateTableName: props.iotStateTableName,
       sharedEnv: props.sharedEnv,
       stage: props.stage,
       userPoolClientId: props.userPoolClientId,

@@ -2,7 +2,7 @@ export default {
     "scalars": [
         1,
         4,
-        14
+        10
     ],
     "types": {
         "CreateUserPayload": {
@@ -55,6 +55,38 @@ export default {
             ]
         },
         "Int": {},
+        "IotState": {
+            "entityType": [
+                1
+            ],
+            "event": [
+                1
+            ],
+            "medicalInstitutionId": [
+                1
+            ],
+            "patientStateJson": [
+                1
+            ],
+            "roomId": [
+                1
+            ],
+            "roomStateJson": [
+                1
+            ],
+            "sessionUid": [
+                1
+            ],
+            "topic": [
+                1
+            ],
+            "updatedAt": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
         "MedicalStaff": {
             "institutionCode": [
                 1
@@ -74,7 +106,7 @@ export default {
         },
         "Mutation": {
             "addRandomMedicalStaff": [
-                12,
+                16,
                 {
                     "institutionCode": [
                         1,
@@ -83,7 +115,7 @@ export default {
                 }
             ],
             "clearMedicalStaffsByInstitution": [
-                12,
+                16,
                 {
                     "institutionCode": [
                         1,
@@ -92,7 +124,7 @@ export default {
                 }
             ],
             "createImageUploadUrl": [
-                7,
+                8,
                 {
                     "contentType": [
                         1,
@@ -121,8 +153,21 @@ export default {
                     ]
                 }
             ],
-            "registerImage": [
+            "publishOnStartRoom": [
                 9,
+                {
+                    "roomId": [
+                        1,
+                        "String!"
+                    ],
+                    "startedAt": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
+            "registerImage": [
+                12,
                 {
                     "contentType": [
                         1,
@@ -143,7 +188,7 @@ export default {
                 }
             ],
             "resetUserPassword": [
-                10,
+                13,
                 {
                     "username": [
                         1,
@@ -152,7 +197,16 @@ export default {
                 }
             ],
             "seedMedicalStaffs": [
-                12
+                16
+            ],
+            "syncCurrentUserMfaPreference": [
+                15,
+                {
+                    "mfaPreference": [
+                        1,
+                        "String!"
+                    ]
+                }
             ],
             "__typename": [
                 1
@@ -169,6 +223,18 @@ export default {
                 1
             ]
         },
+        "PublishOnStartRoomPayload": {
+            "published": [
+                10
+            ],
+            "topic": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
+        "Boolean": {},
         "Query": {
             "currentUser": [
                 2
@@ -176,8 +242,17 @@ export default {
             "images": [
                 3
             ],
-            "medicalStaffsByInstitution": [
+            "iotStatesByRoom": [
                 5,
+                {
+                    "roomId": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
+            "medicalStaffsByInstitution": [
+                6,
                 {
                     "institutionCode": [
                         1,
@@ -186,10 +261,10 @@ export default {
                 }
             ],
             "seedItems": [
-                11
+                14
             ],
             "users": [
-                13
+                17
             ],
             "__typename": [
                 1
@@ -225,6 +300,14 @@ export default {
                 1
             ]
         },
+        "SyncCurrentUserMfaPreferencePayload": {
+            "synced": [
+                10
+            ],
+            "__typename": [
+                1
+            ]
+        },
         "UpsertMedicalStaffsPayload": {
             "appliedCount": [
                 4
@@ -240,6 +323,12 @@ export default {
             "email": [
                 1
             ],
+            "medicalInstitutionId": [
+                1
+            ],
+            "mfaPreference": [
+                1
+            ],
             "uid": [
                 1
             ],
@@ -252,7 +341,6 @@ export default {
             "__typename": [
                 1
             ]
-        },
-        "Boolean": {}
+        }
     }
 }

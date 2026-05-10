@@ -1,5 +1,9 @@
 import { createUserRecord, listUsers, updateUserMfaPreferenceByUsername } from "@pf/core";
-import { createAuthUser, deleteAuthUser, resetAuthUserPassword } from "../../services/auth/identity-provider.ts";
+import {
+  createAuthUser,
+  deleteAuthUser,
+  resetAuthUserPassword,
+} from "../../services/auth/identity-provider.ts";
 import type { GraphqlContext } from "../context.ts";
 
 /*
@@ -25,6 +29,7 @@ export async function resolveUsers(context: GraphqlContext): Promise<
   {
     createdAt: string;
     email: string;
+    medicalInstitutionId: string | null;
     mfaPreference: string;
     uid: string;
     userType: string;
@@ -67,7 +72,8 @@ export async function resolveCreateUser(
     try {
       await deleteAuthUser({ username: args.username });
     } catch (rollbackError: unknown) {
-      const message = rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
+      const message =
+        rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
       console.error(`[createUser resolver] rollback failed: ${message}`);
     }
     throw error;

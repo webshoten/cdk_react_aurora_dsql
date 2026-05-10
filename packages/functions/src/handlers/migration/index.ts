@@ -162,12 +162,12 @@ async function bodyToUint8Array(body: unknown): Promise<Uint8Array> {
  * - cleanup でディレクトリ削除（呼び出し側 finally で実行）
  *
  * ## NOTE
- * - リージョンは AWS_REGION → DSQL_REGION fallback。Lambda 環境では AWS_REGION 必ず存在のはずだが冗長化。
+ * - リージョンは AWS_REGION を利用する。Lambda 環境で常に利用可能な前提。
  */
 async function prepareArtifactDirs(requestId?: string): Promise<PreparedArtifactDirs> {
   const bucket = requireEnv("ARTIFACT_S3_BUCKET");
   const key = requireEnv("ARTIFACT_S3_KEY");
-  const region = process.env.AWS_REGION ?? process.env.DSQL_REGION;
+  const region = process.env.AWS_REGION;
   const s3 = new S3Client({ region });
   const safeRequestId = sanitizeForPath(requestId ?? `${Date.now()}`);
   const baseDir = path.join("/tmp", "migration-artifact", safeRequestId);

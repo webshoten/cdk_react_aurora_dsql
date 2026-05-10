@@ -64,6 +64,7 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull(),
   userType: text("user_type").notNull(),
+  medicalInstitutionId: text("medical_institution_id"),
   mfaPreference: text("mfa_preference"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

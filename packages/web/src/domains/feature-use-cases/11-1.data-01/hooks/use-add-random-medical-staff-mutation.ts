@@ -1,20 +1,4 @@
-import type { MutationResult } from "@pf/graphql/genql";
-import { useTypedMutation } from "@pf/graphql/urql";
-
-interface AddRandomMedicalStaffVariables {
-  institutionCode: string;
-}
-
-type AddRandomMedicalStaffMutation = {
-  addRandomMedicalStaff: {
-    __args: {
-      institutionCode: string;
-    };
-    appliedCount: true;
-  };
-};
-
-type AddRandomMedicalStaffData = MutationResult<AddRandomMedicalStaffMutation>;
+import { useTypedMutation } from "@pf/graphql-schema/urql";
 
 /*
  * # ランダム医療スタッフ追加 Mutation フック
@@ -23,11 +7,7 @@ type AddRandomMedicalStaffData = MutationResult<AddRandomMedicalStaffMutation>;
  * Data01Page から利用される、addRandomMedicalStaff Mutation 発行ラッパー。
  */
 export function useAddRandomMedicalStaffMutation() {
-  return useTypedMutation<
-    AddRandomMedicalStaffVariables,
-    AddRandomMedicalStaffMutation,
-    AddRandomMedicalStaffData
-  >((variables) => ({
+  return useTypedMutation((variables: { institutionCode: string }) => ({
     addRandomMedicalStaff: {
       __args: {
         institutionCode: variables.institutionCode,

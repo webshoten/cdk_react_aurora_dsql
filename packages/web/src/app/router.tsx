@@ -7,6 +7,7 @@ import { data01Route } from "@/domains/feature-use-cases/11-1.data-01/route.tsx"
 import { data02Route } from "@/domains/feature-use-cases/11-2.data-02/route.tsx";
 import { auth01Route } from "@/domains/feature-use-cases/11-3.auth-01/route.tsx";
 import { auth02Route } from "@/domains/feature-use-cases/11-4.auth-02/route.tsx";
+import { iot01Route } from "@/domains/feature-use-cases/11-11.iot-01/route.tsx";
 import { MainPage } from "@/domains/main/pages/main-page.tsx";
 
 /*
@@ -42,7 +43,7 @@ export const appRouter = createBrowserRouter([
           },
           {
             path: "feature-use-cases",
-            children: [data01Route, data02Route, auth01Route, auth02Route],
+            children: [data01Route, data02Route, auth01Route, auth02Route, iot01Route],
           },
         ],
       },

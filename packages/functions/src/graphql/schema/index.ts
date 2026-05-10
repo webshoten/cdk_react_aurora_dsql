@@ -1,14 +1,25 @@
 import SchemaBuilder from "@pothos/core";
 import type { GraphqlContext } from "../context.ts";
-import { resolveCreateImageUploadUrl, resolveImages, resolveRegisterImage } from "../resolvers/images.ts";
+import {
+  resolveCreateImageUploadUrl,
+  resolveImages,
+  resolveRegisterImage,
+} from "../resolvers/images.ts";
 import {
   resolveAddRandomMedicalStaff,
   resolveClearMedicalStaffsByInstitution,
   resolveMedicalStaffsByInstitution,
   resolveSeedMedicalStaffs,
 } from "../resolvers/medical-staffs.ts";
+import { resolveIotStatesByRoom, resolvePublishOnStartRoom } from "../resolvers/realtime.ts";
 import { resolveSeedItems } from "../resolvers/seed.ts";
-import { resolveCreateUser, resolveCurrentUser, resolveResetUserPassword, resolveSyncCurrentUserMfaPreference, resolveUsers } from "../resolvers/users.ts";
+import {
+  resolveCreateUser,
+  resolveCurrentUser,
+  resolveResetUserPassword,
+  resolveSyncCurrentUserMfaPreference,
+  resolveUsers,
+} from "../resolvers/users.ts";
 
 const builder = new SchemaBuilder<{
   Context: GraphqlContext;
@@ -58,6 +69,7 @@ const CurrentUserRef = builder.objectRef<{
 const UserRef = builder.objectRef<{
   createdAt: string;
   email: string;
+  medicalInstitutionId: string | null;
   mfaPreference: string;
   uid: string;
   userType: string;
@@ -76,6 +88,23 @@ const ResetUserPasswordPayloadRef = builder.objectRef<{
 const SyncCurrentUserMfaPreferencePayloadRef = builder.objectRef<{
   synced: boolean;
 }>("SyncCurrentUserMfaPreferencePayload");
+
+const PublishOnStartRoomPayloadRef = builder.objectRef<{
+  published: boolean;
+  topic: string;
+}>("PublishOnStartRoomPayload");
+
+const IotStateRef = builder.objectRef<{
+  entityType: string;
+  event: string;
+  medicalInstitutionId: string;
+  patientStateJson: string | null;
+  roomId: string;
+  roomStateJson: string | null;
+  sessionUid: string;
+  topic: string;
+  updatedAt: string;
+}>("IotState");
 
 SeedItemRef.implement({
   fields: (t) => ({
@@ -141,6 +170,10 @@ UserRef.implement({
     email: t.exposeString("email", { description: "メールアドレス。" }),
     uid: t.exposeString("uid", { description: "Cognito sub を保持するユーザーID。" }),
     userType: t.exposeString("userType", { description: "ユーザー種別。" }),
+    medicalInstitutionId: t.exposeString("medicalInstitutionId", {
+      description: "所属医療機関 ID。未設定時は null。",
+      nullable: true,
+    }),
     mfaPreference: t.exposeString("mfaPreference", { description: "MFA 設定（none/sms/email）。" }),
     createdAt: t.exposeString("createdAt", { description: "レコード作成日時（ISO8601）。" }),
   }),
@@ -155,13 +188,42 @@ CreateUserPayloadRef.implement({
 ResetUserPasswordPayloadRef.implement({
   fields: (t) => ({
     username: t.exposeString("username", { description: "再設定対象のユーザー名。" }),
-    temporaryPassword: t.exposeString("temporaryPassword", { description: "再設定後の一時パスワード。" }),
+    temporaryPassword: t.exposeString("temporaryPassword", {
+      description: "再設定後の一時パスワード。",
+    }),
   }),
 });
 
 SyncCurrentUserMfaPreferencePayloadRef.implement({
   fields: (t) => ({
     synced: t.exposeBoolean("synced", { description: "同期成功フラグ。" }),
+  }),
+});
+
+PublishOnStartRoomPayloadRef.implement({
+  fields: (t) => ({
+    published: t.exposeBoolean("published", { description: "publish 実行成功フラグ。" }),
+    topic: t.exposeString("topic", { description: "publish 先 topic。" }),
+  }),
+});
+
+IotStateRef.implement({
+  fields: (t) => ({
+    topic: t.exposeString("topic", { description: "MQTT topic。" }),
+    sessionUid: t.exposeString("sessionUid", { description: "session UID（roomId）。" }),
+    entityType: t.exposeString("entityType", { description: "state entity 種別。" }),
+    medicalInstitutionId: t.exposeString("medicalInstitutionId", { description: "医療機関 ID。" }),
+    roomId: t.exposeString("roomId", { description: "監視ルーム ID。" }),
+    event: t.exposeString("event", { description: "最新反映イベント名。" }),
+    roomStateJson: t.exposeString("roomStateJson", {
+      description: "room state JSON 文字列。未設定時は null。",
+      nullable: true,
+    }),
+    patientStateJson: t.exposeString("patientStateJson", {
+      description: "patient state JSON 文字列。未設定時は null。",
+      nullable: true,
+    }),
+    updatedAt: t.exposeString("updatedAt", { description: "最終更新日時（ISO8601）。" }),
   }),
 });
 
@@ -196,6 +258,14 @@ builder.queryType({
       type: [ImageRef],
       resolve: async (_root, _args, context) => resolveImages(context),
     }),
+    iotStatesByRoom: t.field({
+      description: "指定 roomId に対応する IoT state 一覧を返す。",
+      type: [IotStateRef],
+      args: {
+        roomId: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, context) => resolveIotStatesByRoom(context, args),
+    }),
   }),
 });
 
@@ -220,7 +290,8 @@ builder.mutationType({
       args: {
         institutionCode: t.arg.string({ required: true }),
       },
-      resolve: async (_root, args, context) => resolveClearMedicalStaffsByInstitution(context, args),
+      resolve: async (_root, args, context) =>
+        resolveClearMedicalStaffsByInstitution(context, args),
     }),
     createImageUploadUrl: t.field({
       description: "画像アップロード用の署名付きURLを発行する。",
@@ -269,6 +340,19 @@ builder.mutationType({
       resolve: async (_root, args, context) =>
         resolveSyncCurrentUserMfaPreference(context, {
           mfaPreference: args.mfaPreference as "none" | "sms" | "email",
+        }),
+    }),
+    publishOnStartRoom: t.field({
+      description: "room 開始イベントを backend 経由で MQTT publish する。",
+      type: PublishOnStartRoomPayloadRef,
+      args: {
+        roomId: t.arg.string({ required: true }),
+        startedAt: t.arg.string({ required: true }),
+      },
+      resolve: async (_root, args, context) =>
+        resolvePublishOnStartRoom(context, {
+          roomId: args.roomId,
+          startedAt: args.startedAt,
         }),
     }),
   }),

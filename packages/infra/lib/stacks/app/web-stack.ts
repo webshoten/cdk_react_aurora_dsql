@@ -7,6 +7,7 @@ import type { Construct } from "constructs";
 
 export interface WebStackProps extends cdk.StackProps {
   apiUrl: string;
+  iotAuthorizerName: string;
   userPoolId: string;
   userPoolClientId: string;
   sharedEnv: string;
@@ -44,6 +45,10 @@ export class WebStack extends cdk.Stack {
       hostedZoneId: sharedConfig.hostedZoneId,
       apiUrl: props.apiUrl,
       cognitoRegion: cdk.Stack.of(this).region,
+      iotEndpoint: sharedConfig.iotDataEndpoint,
+      iotAuthorizerName: props.iotAuthorizerName,
+      sharedEnv: props.sharedEnv,
+      stage: props.stage,
       userPoolId: props.userPoolId,
       userPoolClientId: props.userPoolClientId,
       customDomainCertificate: props.webCertificate,

@@ -1,5 +1,5 @@
 import { cacheExchange, createClient, fetchExchange } from "urql";
-import { getCachedAccessToken } from "@/domains/auth/lib/amplify-auth.ts";
+import { readIdToken } from "@/domains/auth/lib/amplify-auth.ts";
 
 /*
  * # GraphQL クライアント生成
@@ -13,14 +13,14 @@ import { getCachedAccessToken } from "@/domains/auth/lib/amplify-auth.ts";
 export function createGraphqlClient(url: string) {
   return createClient({
     exchanges: [cacheExchange, fetchExchange],
-    fetchOptions: () => {
-      const token = getCachedAccessToken();
-      if (!token) return {};
-      return {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
+    fetch: async (input, init) => {
+      const token = await readIdToken();
+      const headers = new Headers(init?.headers);
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      return fetch(input, {
+        ...init,
+        headers,
+      });
     },
     url,
   });

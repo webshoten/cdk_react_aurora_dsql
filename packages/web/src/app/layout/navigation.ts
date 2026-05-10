@@ -53,7 +53,7 @@ export const FEATURE_USE_CASES_NAV_ITEMS: FeatureUseCasesNavItem[] = [
   { label: "11-8.livekit-01" },
   { label: "11-9.video-01" },
   { label: "11-10.video-auth-01" },
-  { label: "11-11.iot-01" },
+  { label: "11-11.iot-01", to: "/feature-use-cases/11-11.iot-01" },
   { label: "11-12.iot-02" },
   { label: "11-13.maintenance-01" },
 ];

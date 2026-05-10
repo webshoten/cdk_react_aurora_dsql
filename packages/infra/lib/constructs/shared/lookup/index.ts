@@ -12,6 +12,7 @@ export interface SharedLookupValues {
   sesFromEmailArn: string;
   baseDomain: string;
   hostedZoneId: string;
+  iotDataEndpoint: string;
 }
 
 /*
@@ -35,6 +36,7 @@ export class SharedLookupConstruct extends Construct implements SharedLookupValu
   public readonly sesFromEmailArn: string;
   public readonly baseDomain: string;
   public readonly hostedZoneId: string;
+  public readonly iotDataEndpoint: string;
 
   constructor(scope: Construct, id: string, props: SharedLookupConstructProps) {
     super(scope, id);
@@ -42,6 +44,7 @@ export class SharedLookupConstruct extends Construct implements SharedLookupValu
     const prefix = `/pf/shared/${props.sharedEnv}/meta`;
     const sesPrefix = `/pf/shared/${props.sharedEnv}/ses`;
     const domainPrefix = `/pf/shared/${props.sharedEnv}/domain`;
+    const iotPrefix = `/pf/shared/${props.sharedEnv}/iot`;
 
     this.sharedEnv = ssm.StringParameter.valueForStringParameter(this, `${prefix}/sharedEnv`);
     this.contractVersion = ssm.StringParameter.valueForStringParameter(
@@ -60,6 +63,11 @@ export class SharedLookupConstruct extends Construct implements SharedLookupValu
     this.hostedZoneId = ssm.StringParameter.valueForStringParameter(
       this,
       `${domainPrefix}/hostedZoneId`,
+    );
+    // IoT Data endpoint はアカウント+リージョンで一意・固定値。SharedStack の SharedIotEndpointConstruct で取得済みの SSM 値を参照する。
+    this.iotDataEndpoint = ssm.StringParameter.valueForStringParameter(
+      this,
+      `${iotPrefix}/data-endpoint`,
     );
   }
 }

@@ -108,7 +108,13 @@ pnpm migrate --shared dev --stage alice --profile my-aws
 - 認証検証ユーザーを作成する場合は user 作成 script を実行する
 
 ```bash
-pnpm user:create --shared <sharedEnv> --stage <stage> --username <username> --password <password> --email <email> --profile <awsProfile>
+pnpm user:create --shared <sharedEnv> --stage <stage> --username <username> --password <password> --email <email> --medical-institution-id <medicalInstitutionId> --profile <awsProfile>
+```
+
+- 認証検証ユーザーを削除する場合は user 削除 script を実行する
+
+```bash
+pnpm user:delete --shared <sharedEnv> --stage <stage> --username <username> --profile <awsProfile>
 ```
 
 ## 差分確認
@@ -159,4 +165,4 @@ pnpm dev:web          # http://localhost:5173
 - `.vscode/launch.json` の `local-dev: web+functions` を使う
 - 起動前に `local-dev:resolve-env` が走り、AWS 環境値を `.vscode/.local-dev.env` に解決する
 - 1つの起動構成で `@pf/functions` と `@pf/web` を並列起動できる
-- 固定値（`DSQL_DATABASE` / `DSQL_DB_USER` / `DSQL_PORT` / `DSQL_REGION` / `PORT`）は launch 側で渡す
+- 固定値（`DSQL_DATABASE` / `DSQL_DB_USER` / `DSQL_PORT` / `AWS_REGION` / `PORT`）は launch 側で渡す

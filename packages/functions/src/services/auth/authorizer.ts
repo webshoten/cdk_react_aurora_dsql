@@ -1,5 +1,5 @@
-import { CognitoIdentityProviderClient, GetUserCommand } from "@aws-sdk/client-cognito-identity-provider";
 import type { APIGatewayRequestAuthorizerEventV2 } from "aws-lambda";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 export interface AuthorizerContext {
   groups: string;
@@ -8,30 +8,20 @@ export interface AuthorizerContext {
   username: string;
 }
 
-const cognito = new CognitoIdentityProviderClient({ region: process.env.COGNITO_REGION });
-
 /*
  * ## 目的
  * Authorizer リクエストを検証し、GraphQL へ渡す認可コンテキストを生成する。
  *
  * ## 説明
- * Bearer token を検証し、Cognito からユーザー情報を取得して context へ正規化する。
+ * Bearer token（ID token）を検証し、claim から context を正規化する。
  */
 export async function authorizeRequest(
   event: APIGatewayRequestAuthorizerEventV2,
 ): Promise<AuthorizerContext> {
   const token = readBearerToken(event.headers?.authorization ?? event.headers?.Authorization);
-  const payload = decodeJwtPayload(token);
-  validateTokenClaims(payload);
-
-  const response = await cognito.send(
-    new GetUserCommand({
-      AccessToken: token,
-    }),
-  );
-
-  const userId = readSub(response.UserAttributes);
-  const username = response.Username ?? "";
+  const payload = await verifyIdToken(token);
+  const userId = readSub(payload);
+  const username = readUsername(payload);
   const groups = readGroups(payload).join(",");
   const institutionCode = readInstitutionCode(payload);
 
@@ -59,50 +49,56 @@ function readBearerToken(headerValue?: string): string {
 
 /*
  * ## 目的
- * JWT payload を JSON として取得する。
+ * GraphQL Authorizer 用 ID token を署名検証する。
  *
  * ## 説明
- * Base64URL を通常 Base64 へ変換して decode する。
+ * CognitoJwtVerifier で tokenUse=id / userPoolId / clientId(aud) を検証し、
+ * 検証済み payload を返す。
  */
-function decodeJwtPayload(token: string): Record<string, unknown> {
-  const parts = token.split(".");
-  const payload = parts[1];
-  if (!payload) throw new Error("invalid token");
+async function verifyIdToken(token: string): Promise<Record<string, unknown>> {
+  const userPoolId = process.env.USER_POOL_ID;
+  const userPoolClientId = process.env.USER_POOL_CLIENT_ID;
+  if (!userPoolId || !userPoolClientId) {
+    throw new Error("USER_POOL_ID and USER_POOL_CLIENT_ID are required");
+  }
 
-  const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
-  const decoded = Buffer.from(base64, "base64").toString("utf8");
-  return JSON.parse(decoded) as Record<string, unknown>;
-}
-
-/*
- * ## 目的
- * token claims の必須条件を検証する。
- *
- * ## 説明
- * access token であることと、想定 client_id であることを確認する。
- */
-function validateTokenClaims(payload: Record<string, unknown>): void {
-  const tokenUse = payload.token_use;
-  if (tokenUse !== "access") throw new Error("token_use must be access");
-
-  const expectedClientId = process.env.USER_POOL_CLIENT_ID;
-  const clientId = payload.client_id;
-  if (!expectedClientId || clientId !== expectedClientId) {
-    throw new Error("invalid client_id");
+  try {
+    const verifier = CognitoJwtVerifier.create({
+      userPoolId,
+      tokenUse: "id",
+      clientId: userPoolClientId,
+    });
+    return (await verifier.verify(token)) as unknown as Record<string, unknown>;
+  } catch (cause) {
+    const reason = cause instanceof Error ? cause.message : String(cause);
+    throw new Error(`idToken verification failed: ${reason}`);
   }
 }
 
 /*
  * ## 目的
- * Cognito 属性から sub を取得する。
+ * token claim から sub を取得する。
  *
  * ## 説明
  * sub が存在しない場合は例外を投げる。
  */
-function readSub(attributes?: { Name?: string; Value?: string }[]): string {
-  const sub = attributes?.find((attr) => attr.Name === "sub")?.Value;
-  if (!sub) throw new Error("sub not found");
+function readSub(payload: Record<string, unknown>): string {
+  const sub = payload.sub;
+  if (typeof sub !== "string" || !sub) throw new Error("sub not found");
   return sub;
+}
+
+/*
+ * ## 目的
+ * token claim から username を取得する。
+ *
+ * ## 説明
+ * cognito:username がない場合は空文字を返す。
+ */
+function readUsername(payload: Record<string, unknown>): string {
+  const username = payload["cognito:username"];
+  if (typeof username !== "string") return "";
+  return username;
 }
 
 /*

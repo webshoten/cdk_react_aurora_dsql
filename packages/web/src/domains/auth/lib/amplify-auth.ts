@@ -25,7 +25,7 @@ import { resolveAuthConfig } from "@/app/config/runtime-config.ts";
  * 設定初期化、サインイン/サインアウト、トークン取得を集約し、呼び出し側を薄く保つ。
  */
 let configured = false;
-let cachedAccessToken: string | null = null;
+let cachedIdToken: string | null = null;
 
 export type SignInChallenge = "CONFIRM_SIGN_IN_WITH_SMS_CODE" | "CONFIRM_SIGN_IN_WITH_EMAIL_CODE";
 export type SignInStep = SignInChallenge | "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED";
@@ -68,26 +68,26 @@ export function configureAmplifyAuth(): void {
 }
 
 /*
- * # アクセストークン取得
+ * # IDトークン取得
  *
  * ## 目的
- * 現在セッションの access token を取得し、API ヘッダー付与用キャッシュを更新する。
+ * IoT Custom Authorizer に渡す Cognito ID token を取得する。
  */
-export async function readAccessToken(): Promise<string | null> {
+export async function readIdToken(): Promise<string | null> {
   const session = await fetchAuthSession();
-  const token = session.tokens?.accessToken?.toString();
-  cachedAccessToken = token ?? null;
-  return cachedAccessToken;
+  const token = session.tokens?.idToken?.toString();
+  cachedIdToken = token ?? null;
+  return cachedIdToken;
 }
 
 /*
- * # キャッシュ済みトークン参照
+ * # キャッシュ済み ID token 参照
  *
  * ## 目的
- * 直近取得した access token を非同期呼び出しなしで参照する。
+ * 直近取得した id token を非同期呼び出しなしで参照する。
  */
-export function getCachedAccessToken(): string | null {
-  return cachedAccessToken;
+export function getCachedIdToken(): string | null {
+  return cachedIdToken;
 }
 
 /*
@@ -252,5 +252,5 @@ export async function amplifyCompleteMfaSetup(type: MfaType, code: string): Prom
  */
 export async function amplifySignOut(): Promise<void> {
   await signOut();
-  cachedAccessToken = null;
+  cachedIdToken = null;
 }

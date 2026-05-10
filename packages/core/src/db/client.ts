@@ -34,11 +34,11 @@ export async function generateDsqlAdminAuthToken(config: DsqlClientConfig): Prom
 }
 
 export interface DsqlRuntimeEnv {
+  AWS_REGION?: string;
   DSQL_DATABASE?: string;
   DSQL_DB_USER?: string;
   DSQL_ENDPOINT?: string;
   DSQL_PORT?: string;
-  DSQL_REGION?: string;
 }
 
 /*
@@ -54,12 +54,12 @@ export function resolveDsqlClientConfigFromEnv(env: DsqlRuntimeEnv): DsqlClientC
   const database = env.DSQL_DATABASE;
   const endpoint = env.DSQL_ENDPOINT;
   const port = env.DSQL_PORT;
-  const region = env.DSQL_REGION;
+  const region = env.AWS_REGION;
   const user = env.DSQL_DB_USER;
 
   if (!database || !endpoint || !port || !region || !user) {
     throw new Error(
-      "DSQL_DATABASE, DSQL_ENDPOINT, DSQL_PORT, DSQL_REGION, and DSQL_DB_USER are required",
+      "DSQL_DATABASE, DSQL_ENDPOINT, DSQL_PORT, AWS_REGION, and DSQL_DB_USER are required",
     );
   }
 

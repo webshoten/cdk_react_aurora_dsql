@@ -1,5 +1,5 @@
 {
-  "name": "@pf/graphql",
+  "name": "@pf/graphql-schema",
   "version": "0.1.0",
   "private": true,
   "type": "module",

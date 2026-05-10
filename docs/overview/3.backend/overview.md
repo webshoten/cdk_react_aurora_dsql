@@ -28,6 +28,8 @@
 - DSQL 制約として「同一 transaction 内の DDL + DML は不可」のため、migration SQL 実行と履歴INSERTは分離して実行する
 - 検証導線として、seed 済みデータを GraphQL `seedItems` で取得しフロント表示で確認する
 - `user:create` は DB クエリ失敗時に原因ヒントを表示し、migration 未適用や列不足を追跡できるエラーメッセージを返す
+- `user:create --medical-institution-id <id>` は数値文字列の所属 ID を Cognito `custom:institution_id` と `users.medical_institution_id` へ保存する
+- `user:delete` は Cognito ユーザー削除と `users` テーブル削除を同一フローで実行し、Cognito 側に存在しない場合も DB 削除を継続する
 
 ## GraphQL 命名ルール（推奨）
 
@@ -43,6 +45,10 @@
 - GraphQL resolver で参照する設定値の読み取りは `createGraphqlContext` に集約し、resolver は `context` からのみ参照する
 - 設定値の取得責務（env 解決）と業務処理責務（resolver 実装）を分離する
 - テスト時は `context` を差し替えて挙動確認できる形を維持する
+- GraphQL Authorizer は `idToken` を前提に認証する
+- JWT はローカル decode のみで信頼しない
+- `aws-jwt-verify`（`CognitoJwtVerifier`）で署名検証を必須化する
+- 検証失敗時は `isAuthorized=false` を返す
 
 ## GraphQL ディレクトリ責務
 
@@ -55,8 +61,9 @@
   - 役割: 認証基盤 API 呼び出し（ユーザー作成・削除・パスワード再設定）
 - `packages/functions/src/graphql/schema/index.ts`
   - 役割: GraphQL 型定義と Query/Mutation resolver の接続
+  - 補足: 現在は集約 schema を 1 ファイルで管理し、resolver 実装は `graphql/resolvers/*` に分離している
 - `packages/functions/src/graphql/extract.ts`
-  - 役割: schema 抽出（`packages/graphql/schema.graphql` 生成）
+  - 役割: schema 抽出（`packages/graphql-schema/schema.graphql` 生成）
 - `packages/functions/src/graphql/resolvers/users.ts`
   - 役割: `currentUser`, `users`, `createUser`, `resetUserPassword`
 - `packages/functions/src/graphql/resolvers/images.ts`
@@ -65,6 +72,8 @@
   - 役割: `medicalStaffsByInstitution`, `seedMedicalStaffs`, `addRandomMedicalStaff`, `clearMedicalStaffsByInstitution`
 - `packages/functions/src/graphql/resolvers/seed.ts`
   - 役割: `seedItems`
+- `packages/functions/src/graphql/resolvers/realtime.ts`
+  - 役割: `publishOnStartRoom`, `iotStatesByRoom`
 - `packages/functions/src/handlers/*`
   - 役割: Lambda エントリポイント（薄い入口）
 - `packages/functions/src/services/*`
@@ -74,6 +83,7 @@
 - `packages/functions/src/shared/env.ts`
   - 役割: 必須環境変数取得（`requireEnv`）の共通化
 - 方針: 機能名トップディレクトリは作らず、`handlers / graphql / services / shared` のレイヤー軸で統一する
+- 補足: `graphql/schema` は I/F 層の集約入口として扱い、業務ロジックは resolver / services / `@pf/core` へ分離する
 
 ### 現在の Context 値
 

@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { Command } from "commander";
+import { logSuccess } from "./lib/log.ts";
 
 type SharedOption = {
   sharedEnv: string;
@@ -31,7 +32,7 @@ program
       const parameterName = buildCdParameterName(opts.sharedEnv, opts.key);
       putParameter(opts.profile, parameterName, opts.value, opts.secure);
       console.log(`[env] set ${parameterName}`);
-      console.log("[env:set] SUCCESS");
+      logSuccess();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`[env:set] failed: ${message}`);
@@ -51,7 +52,7 @@ program
       logResolved(opts);
       const prefix = buildCdPrefix(opts.sharedEnv);
       listParameters(opts.profile, prefix);
-      console.log("[env:list] SUCCESS");
+      logSuccess();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`[env:list] failed: ${message}`);

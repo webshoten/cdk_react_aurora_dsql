@@ -4,8 +4,11 @@
   "private": true,
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.940.0",
+    "@aws-sdk/client-iot-data-plane": "^3.940.0",
     "@aws-sdk/client-s3": "^3.940.0",
     "@aws-sdk/s3-request-presigner": "^3.940.0",
+    "@pf/mqtt-schema": "workspace:*",
+    "aws-jwt-verify": "^5.1.1",
     "@pf/core": "workspace:*",
     "@pothos/core": "^4.10.0",
     "fflate": "^0.8.2",

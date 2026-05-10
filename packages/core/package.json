@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.940.0",
     "@aws-sdk/dsql-signer": "^3.940.0",
+    "@aws-sdk/lib-dynamodb": "^3.940.0",
     "drizzle-orm": "^0.44.7",
+    "electrodb": "^3.5.0",
     "pg": "^8.16.3"
   },
   "exports": {

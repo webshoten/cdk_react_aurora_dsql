@@ -1,0 +1,200 @@
+type CreateUserPayload {
+  """作成されたユーザー名。"""
+  username: String
+}
+
+type CurrentUser {
+  """認証ユーザーに付与されたグループ一覧。"""
+  groups: [String!]
+
+  """認証ユーザーの所属機関コード。未設定時は null。"""
+  institutionCode: String
+
+  """認証ユーザーの一意ID（sub）。"""
+  userId: String
+
+  """認証ユーザーのユーザー名。"""
+  username: String
+}
+
+type Image {
+  """MIME type。"""
+  contentType: String
+
+  """署名付きダウンロードURL。"""
+  downloadUrl: String
+
+  """元ファイル名。"""
+  fileName: String
+
+  """画像ID。"""
+  imageId: String
+
+  """S3 上の画像パス。"""
+  imagePath: String
+
+  """ファイルサイズ（byte）。"""
+  sizeBytes: Int
+}
+
+type IotState {
+  """state entity 種別。"""
+  entityType: String
+
+  """最新反映イベント名。"""
+  event: String
+
+  """医療機関 ID。"""
+  medicalInstitutionId: String
+
+  """patient state JSON 文字列。未設定時は null。"""
+  patientStateJson: String
+
+  """監視ルーム ID。"""
+  roomId: String
+
+  """room state JSON 文字列。未設定時は null。"""
+  roomStateJson: String
+
+  """session UID（roomId）。"""
+  sessionUid: String
+
+  """MQTT topic。"""
+  topic: String
+
+  """最終更新日時（ISO8601）。"""
+  updatedAt: String
+}
+
+type MedicalStaff {
+  """所属機関コード。"""
+  institutionCode: String
+
+  """スタッフ名。"""
+  name: String
+
+  """職種。"""
+  profession: String
+
+  """スタッフコード。"""
+  staffCode: String
+}
+
+type Mutation {
+  """指定機関へランダムスタッフを1件追加する。"""
+  addRandomMedicalStaff(institutionCode: String!): UpsertMedicalStaffsPayload
+
+  """指定機関のスタッフを全削除する。"""
+  clearMedicalStaffsByInstitution(institutionCode: String!): UpsertMedicalStaffsPayload
+
+  """画像アップロード用の署名付きURLを発行する。"""
+  createImageUploadUrl(contentType: String!, fileName: String!): PresignedUploadPayload
+
+  """認証基盤と users テーブルへユーザーを作成する。"""
+  createUser(email: String!, password: String!, username: String!): CreateUserPayload
+
+  """room 開始イベントを backend 経由で MQTT publish する。"""
+  publishOnStartRoom(roomId: String!, startedAt: String!): PublishOnStartRoomPayload
+
+  """アップロード済み画像のメタデータを登録する。"""
+  registerImage(contentType: String!, fileName: String!, imagePath: String!, sizeBytes: Int!): RegisterImagePayload
+
+  """ユーザーのパスワードを再設定し、一時パスワードを返す。"""
+  resetUserPassword(username: String!): ResetUserPasswordPayload
+
+  """デモ用スタッフデータを投入/更新する。"""
+  seedMedicalStaffs: UpsertMedicalStaffsPayload
+
+  """認証ユーザー自身の MFA 設定を users テーブルへ同期する。"""
+  syncCurrentUserMfaPreference(mfaPreference: String!): SyncCurrentUserMfaPreferencePayload
+}
+
+type PresignedUploadPayload {
+  """アップロード先画像パス。"""
+  imagePath: String
+
+  """署名付きアップロードURL。"""
+  uploadUrl: String
+}
+
+type PublishOnStartRoomPayload {
+  """publish 実行成功フラグ。"""
+  published: Boolean
+
+  """publish 先 topic。"""
+  topic: String
+}
+
+type Query {
+  """認証済みユーザー情報を返す。未認証時は null。"""
+  currentUser: CurrentUser
+
+  """画像メタデータ一覧を返し、各行に署名付きダウンロードURLを付与する。"""
+  images: [Image!]
+
+  """指定 roomId に対応する IoT state 一覧を返す。"""
+  iotStatesByRoom(roomId: String!): [IotState!]
+
+  """指定機関のスタッフ一覧を返す。"""
+  medicalStaffsByInstitution(institutionCode: String!): [MedicalStaff!]
+
+  """シード項目一覧を返す。"""
+  seedItems: [SeedItem!]
+
+  """users テーブルの一覧を返す。"""
+  users: [User!]
+}
+
+type RegisterImagePayload {
+  """反映件数。"""
+  appliedCount: Int
+}
+
+type ResetUserPasswordPayload {
+  """再設定後の一時パスワード。"""
+  temporaryPassword: String
+
+  """再設定対象のユーザー名。"""
+  username: String
+}
+
+type SeedItem {
+  """シード項目コード。"""
+  code: String
+
+  """シード項目ラベル。"""
+  label: String
+}
+
+type SyncCurrentUserMfaPreferencePayload {
+  """同期成功フラグ。"""
+  synced: Boolean
+}
+
+type UpsertMedicalStaffsPayload {
+  """反映件数。"""
+  appliedCount: Int
+}
+
+type User {
+  """レコード作成日時（ISO8601）。"""
+  createdAt: String
+
+  """メールアドレス。"""
+  email: String
+
+  """所属医療機関 ID。未設定時は null。"""
+  medicalInstitutionId: String
+
+  """MFA 設定（none/sms/email）。"""
+  mfaPreference: String
+
+  """Cognito sub を保持するユーザーID。"""
+  uid: String
+
+  """ユーザー種別。"""
+  userType: String
+
+  """ユーザー名。"""
+  username: String
+}

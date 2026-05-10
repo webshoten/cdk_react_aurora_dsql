@@ -26,7 +26,7 @@
 - `local-dev:resolve-env` で `packages/web/public/config.js` を生成する
 - ローカルデバッグ時の DB 接続先は Aurora DSQL の実環境を使う
 - 接続関連の変動値（`DSQL_ENDPOINT` / `DSQL_CLUSTER_ARN`）は `cdk-outputs.json` から解決する
-- 固定値（`DSQL_DATABASE` / `DSQL_DB_USER` / `DSQL_PORT` / `DSQL_REGION`）は `launch.json` で管理する
+- 固定値（`DSQL_DATABASE` / `DSQL_DB_USER` / `DSQL_PORT` / `AWS_REGION`）は `launch.json` で管理する
 - `.env` は常用しない（`local-dev` では `.vscode/.local-dev.env` を使う）
 
 ## 切り分けポイント

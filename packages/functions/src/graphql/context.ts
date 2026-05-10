@@ -30,7 +30,7 @@ export interface GraphqlContext {
 export function createGraphqlContext(auth: GraphqlAuthorizerContext | null = null): GraphqlContext {
   const imageBucket = requireEnv("IMAGE_BUCKET");
   const imagePrefix = requireEnv("IMAGE_PREFIX");
-  const region = requireEnv("DSQL_REGION");
+  const region = requireEnv("AWS_REGION");
 
   return {
     auth,

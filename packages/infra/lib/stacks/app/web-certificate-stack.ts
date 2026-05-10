@@ -1,6 +1,6 @@
 import { WebCertificateConstruct } from "@infra/lib/constructs/app/web-certificate";
-import type { SharedLookupValues } from "@infra/lib/constructs/shared/lookup";
-import { SharedLookupConstruct } from "@infra/lib/constructs/shared/lookup";
+import type { SharedUsEast1LookupValues } from "@infra/lib/constructs/shared/lookup-us-east-1";
+import { SharedUsEast1LookupConstruct } from "@infra/lib/constructs/shared/lookup-us-east-1";
 import type * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cdk from "aws-cdk-lib/core";
 import type { Construct } from "constructs";
@@ -23,9 +23,13 @@ export class WebCertificateStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: WebCertificateStackProps) {
     super(scope, id, props);
 
-    const sharedConfig: SharedLookupValues = new SharedLookupConstruct(this, "SharedLookup", {
-      sharedEnv: props.sharedEnv,
-    });
+    const sharedConfig: SharedUsEast1LookupValues = new SharedUsEast1LookupConstruct(
+      this,
+      "SharedLookup",
+      {
+        sharedEnv: props.sharedEnv,
+      },
+    );
     const webCertificate = new WebCertificateConstruct(this, "WebCertificate", {
       baseDomain: sharedConfig.baseDomain,
       hostedZoneId: sharedConfig.hostedZoneId,

@@ -13,6 +13,8 @@
 - deploy 時は `BucketDeployment` の `Source.data("config.js", ...)` で生成する
 - 配信は CloudFront / S3 前提
 - GraphQL `seedItems` を表示
+- TSX の責務は `route -> pages -> components/hooks` に分離する
+- 認証初期化中は GuardedLayout で待機表示し、初期化完了前に `/login` へ遷移させない
 
 ## 全体設計（ナビゲーション）
 

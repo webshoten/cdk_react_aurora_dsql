@@ -17,9 +17,10 @@
     "dev:web": "pnpm --filter @pf/web dev",
     "dev:functions": "pnpm --filter @pf/functions dev",
     "graphql:extract": "pnpm --filter @pf/functions graphql:extract",
-    "graphql:genql": "pnpm --filter @pf/graphql graphql:genql",
+    "graphql:genql": "pnpm --filter @pf/graphql-schema graphql:genql",
     "graphql:build": "pnpm graphql:extract && pnpm graphql:genql",
     "user:create": "tsx scripts/create-user.ts",
+    "user:delete": "tsx scripts/delete-user.ts",
     "env:set": "tsx scripts/env.ts set",
     "env:list": "tsx scripts/env.ts list"
   },

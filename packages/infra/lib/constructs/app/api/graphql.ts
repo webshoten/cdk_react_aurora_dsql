@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { GraphqlAuthorizerConstruct } from "@infra/lib/constructs/app/auth/authorizer";
+import { GraphqlAuthorizerConstruct } from "@infra/lib/constructs/app/api/graphql-authorizer";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -15,6 +15,8 @@ export interface GraphqlApiConstructProps {
   httpApi: apigwv2.HttpApi;
   imageBucketName: string;
   imagePrefix: string;
+  iotDataEndpoint: string;
+  iotStateTableName: string;
   sharedEnv: string;
   stage: string;
   userPoolId: string;
@@ -42,6 +44,7 @@ export class GraphqlApiConstruct extends Construct {
     super(scope, id);
 
     const graphqlAuthorizer = new GraphqlAuthorizerConstruct(this, "GraphqlAuthorizer", {
+      userPoolId: props.userPoolId,
       userPoolClientId: props.userPoolClientId,
     });
 
@@ -57,7 +60,13 @@ export class GraphqlApiConstruct extends Construct {
       }),
       bundling: {
         minify: true,
-        nodeModules: ["@aws-sdk/client-s3", "@aws-sdk/dsql-signer", "@aws-sdk/s3-request-presigner", "pg"],
+        nodeModules: [
+          "@aws-sdk/client-iot-data-plane",
+          "@aws-sdk/client-s3",
+          "@aws-sdk/dsql-signer",
+          "@aws-sdk/s3-request-presigner",
+          "pg",
+        ],
         sourceMap: true,
         esbuildArgs: {
           "--sources-content": "false",
@@ -70,9 +79,10 @@ export class GraphqlApiConstruct extends Construct {
         DSQL_CLUSTER_ARN: props.dbClusterArn,
         DSQL_ENDPOINT: props.dbEndpoint,
         DSQL_PORT: "5432",
-        DSQL_REGION: cdk.Stack.of(this).region,
         IMAGE_BUCKET: props.imageBucketName,
         IMAGE_PREFIX: props.imagePrefix,
+        IOT_DATA_ENDPOINT: props.iotDataEndpoint,
+        IOT_STATE_TABLE_NAME: props.iotStateTableName,
         NODE_OPTIONS: "--enable-source-maps",
         PRESIGNED_URL_EXPIRES_SECONDS: "300",
         SHARED_ENV: props.sharedEnv,
@@ -92,6 +102,19 @@ export class GraphqlApiConstruct extends Construct {
       new iam.PolicyStatement({
         actions: ["s3:GetObject", "s3:PutObject"],
         resources: [`arn:aws:s3:::${props.imageBucketName}/${props.imagePrefix}*`],
+      }),
+    );
+
+    graphqlFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["iot:Publish"],
+        resources: [
+          cdk.Stack.of(this).formatArn({
+            service: "iot",
+            resource: "topic",
+            resourceName: `pf/${props.sharedEnv}/${props.stage}/medicalInstitution/*/room/*/event`,
+          }),
+        ],
       }),
     );
 

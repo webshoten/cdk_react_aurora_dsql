@@ -11,3 +11,4 @@ cdk-outputs.json
 .vscode/.local-dev.env
 .migration-artifact.zip
 .migration-runner-output.json
+.migration-sql.zip

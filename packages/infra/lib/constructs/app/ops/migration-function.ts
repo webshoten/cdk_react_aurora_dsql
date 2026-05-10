@@ -53,7 +53,6 @@ export function createMigrationFunction(
       DSQL_DB_USER: "admin",
       DSQL_ENDPOINT: input.dbEndpoint,
       DSQL_PORT: "5432",
-      DSQL_REGION: cdk.Stack.of(scope).region,
       MIGRATIONS_SCHEMA: "public",
       MIGRATIONS_TABLE: "pf_migration_files",
       NODE_OPTIONS: "--enable-source-maps",

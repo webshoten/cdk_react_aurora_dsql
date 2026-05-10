@@ -34,6 +34,10 @@
 ### Backend
 
 - Authorizer context は最小で `userId`, `username`, `groups`, `institutionCode?` を扱う
+- GraphQL Authorizer は `idToken` を前提に認証する
+- JWT はローカル decode のみで信頼しない
+- `aws-jwt-verify`（`CognitoJwtVerifier`）で署名検証を必須化する
+- 検証失敗時は `isAuthorized=false` を返す
 - GraphQL は `currentUser` Query で認証済みコンテキストを確認する構成としている
 - `me` Query は採用せず、認証済みユーザー確認の Query 名は `currentUser` に統一する
 - Authorizer context は API Gateway の `requestContext.authorizer` を server context 経由で resolver に渡す
@@ -41,7 +45,7 @@
 ### Frontend
 
 - `auth-provider` と `urql-provider` を分離する構成としている
-- `Authorization` ヘッダーは自動付与する構成としている
+- `Authorization` ヘッダーは `Bearer <idToken>` を自動付与する構成としている
 - runtime 設定は `packages/web/public/config.js` の `window.__CONFIG__` から解決する構成としている
 - 認証に必要な設定キーは `cognitoRegion` / `userPoolId` / `userPoolClientId` としている
 - local-dev では `local-dev:resolve-env` 実行時に `packages/web/public/config.js` を再生成する構成としている
@@ -74,7 +78,7 @@
 - `11-3.auth-01` はログインとユーザー作成の仕様説明を集約するページとして扱う
 - `/debug` は認証済みユーザー向けの検証・運用補助ページとして扱う
 - `/debug` は認証済みユーザーであれば全員アクセス可能とする
-- `/debug` ではトークン表示/コピー、claim 確認、認証付き GraphQL 疎通確認、ユーザー作成実行、ユーザー一覧表示を扱う
+- `/debug` では `idToken` の表示/コピー、claim 確認、認証付き GraphQL 疎通確認、ユーザー作成実行、ユーザー一覧表示を扱う
   - 補足: ユーザー一覧はテーブル表示とし、各行に「パスワード再設定」ボタンを配置する
   - 補足: ボタン押下時は新しい一時パスワードを発行し、その発行値のみ画面表示する（既存パスワード参照は行わない）
   - 補足: パスワード値は運用ログ（CloudWatch / アプリログ）に出力しない
@@ -86,6 +90,11 @@
 - `users.uid` には Cognito の `sub` を保存する
 - `user_type` は `general` 固定とする
 - script の入力は `username` / `password` / `email` を必須とする
+- script は任意入力として `--medical-institution-id <id>` を受け付ける
+- `--medical-institution-id` は数値文字列のみを受け付ける
+- `--medical-institution-id` 指定時は、Cognito `custom:institution_id` と `users.medical_institution_id` に同じ値を保存する
+- `users.medical_institution_id` はアプリケーション上の所属管理・表示・監査に利用する
+- Cognito `custom:institution_id` は ID token の claim として扱い、IoT Custom Authorizer などの認可で利用する
 - script では `email_verified=true` を設定し、検証済みメールとして作成する
 - script は既存運用に合わせて SEA 実行前提とする
 - パスワード運用は、作成時は `Permanent=true`（初回変更必須なし）、再設定時は `Permanent=false`（次回ログイン時に変更必須）とする
@@ -93,6 +102,21 @@
 - DB 登録は Cognito 作成直後に実行する
 - CloudWatch ログには `password` を出力しない
 - script 実行時の失敗パターンを考慮し、再実行時に不整合を増やさない冪等実行を前提とする
+
+## ユーザー削除方針
+
+- ユーザー削除は運用者向け script で実行し、一般ユーザー向け導線とは分離する
+- script は Cognito ユーザー削除と `users` テーブル削除を同一フローで実行する
+- script の入力は `username` を必須とする
+- 削除対象の判定キーは `username` とする
+- Cognito 削除は `admin-delete-user` を利用し、UserPool は `cdk-outputs.json` の Auth Stack 出力から解決する
+- DB 削除は `users.username` を条件に実行する
+- 削除順は Cognito 削除を先に行い、その後に `users` テーブルを削除する
+- Cognito に対象ユーザーが存在しない場合は警告を出し、DB 削除は継続する
+- DB に対象ユーザーが存在しない場合は削除対象なしとして扱い、Cognito 削除結果とあわせて実行結果を表示する
+- script は `password` や token を扱わない
+- script 成功時は共通 CLI 表示として緑の `Success!` を出力する
+- 目的は、検証ユーザー削除時に Cognito と `users` テーブルの片残りを減らすこととする
 
 ## rehacul 同等化の方針
 
@@ -109,6 +133,7 @@
 - `preTokenGeneration`: トークン発行直前の加工ポイント（claim の調整）
   - `custom:mfa_preference` を claim に追加/上書きする
   - `custom:institution_id` がある場合のみ claim に追加する
+  - 所属医療機関 ID を後から変更した場合、変更後の claim を使うには再ログインまたは token 更新が必要になる
   - `phone_number` / `email` などの個人情報系 claim を suppress する
 - `customMessage`: Cognito 通知（メール/確認コード）の文面制御ポイント
   - 認証コード通知の本文を固定フォーマットで組み立てる
@@ -150,6 +175,8 @@
 - 2026-04-28: ユーザー作成は script 経由と `/debug` 画面経由の2経路を併用する方針を採用
 - 2026-04-28: `/debug` にユーザー一覧表示を追加する方針を採用
 - 2026-05-06: `/login` の UI は独自フォームコンポーネントを正式採用し、Amplify Auth API（`signIn` / `confirmSignIn` / `nextStep`）のみを認証処理の接続点とする方針へ更新
+- 2026-05-06: `pnpm user:create --medical-institution-id` は Cognito `custom:institution_id` と `users.medical_institution_id` に同じ所属 ID を保存する方針を追加
+- 2026-05-06: ユーザー削除 script は Cognito と `users` テーブルを同一フローで削除し、Cognito 側に存在しない場合も DB 削除を継続する方針を追加
 
 ## 改善点
 
@@ -162,6 +189,7 @@
 - ユーザー作成 script の入力項目（`user_type`, `email`, `mfa_preference` など）を固定する
 - 失敗時のロールバック方針（Cognito 作成済み / DB 未登録など）を運用手順に追加する
 - 既存ユーザーが存在する場合は script をエラー終了する仕様を明文化する
+- ユーザー削除 script の実装と、Cognito / DB の削除件数表示を追加する
 - MFA 初期値を `email` 固定とし、SMS は対象外とする方針を明文化する
 - 監査ログ（誰がいつ script でユーザー作成したか）の記録方式を決める
 - script の CloudWatch ログ出力形式（開始/成功/失敗、username/sub、失敗理由）を定義する

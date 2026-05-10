@@ -1,4 +1,4 @@
-import { useTypedQuery } from "@pf/graphql/urql";
+import { useTypedQuery } from "@pf/graphql-schema/urql";
 
 /*
  * # 画像一覧 Query フック

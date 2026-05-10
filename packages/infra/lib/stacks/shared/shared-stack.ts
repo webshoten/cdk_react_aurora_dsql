@@ -1,4 +1,5 @@
 import { SharedHostedZoneConstruct } from "@infra/lib/constructs/shared/hosted-zone";
+import { SharedIotEndpointConstruct } from "@infra/lib/constructs/shared/iot-endpoint";
 import { SharedMetaConstruct } from "@infra/lib/constructs/shared/meta";
 import { SharedSesConstruct } from "@infra/lib/constructs/shared/ses";
 import * as cdk from "aws-cdk-lib/core";
@@ -46,6 +47,10 @@ export class SharedStack extends cdk.Stack {
     });
     this.baseDomain = sharedHostedZone.baseDomain;
     this.hostedZoneId = sharedHostedZone.hostedZoneId;
+
+    new SharedIotEndpointConstruct(this, "IotEndpoint", {
+      sharedEnv: props.sharedEnv,
+    });
 
     new cdk.CfnOutput(this, "SharedEnv", {
       value: props.sharedEnv,

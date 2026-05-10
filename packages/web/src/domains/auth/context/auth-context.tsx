@@ -14,7 +14,7 @@ import {
   configureAmplifyAuth,
   type MfaPreference,
   type MfaType,
-  readAccessToken,
+  readIdToken,
   readMfaPreference,
 } from "@/domains/auth/lib/amplify-auth.ts";
 
@@ -28,7 +28,7 @@ import {
  * Amplify の auth イベントを購読し、サインイン/サインアウト時に状態を同期する。
  */
 interface AuthContextValue {
-  accessToken: string | null;
+  idToken: string | null;
   authState: AuthState;
   error: string | null;
   isAuthenticated: boolean;
@@ -44,7 +44,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [accessToken, setAccessTokenState] = useState<string | null>(null);
+  const [idToken, setIdTokenState] = useState<string | null>(null);
   const [authState, setAuthState] = useState<AuthState>("initializing");
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const resetToUnauthenticatedState = useCallback((): void => {
     setIsAuthenticated(false);
-    setAccessTokenState(null);
+    setIdTokenState(null);
     setAuthState("unauthenticated");
     setPendingMfaType(null);
     setPendingLoginUsername(null);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const syncMfaPreferenceToUsersTable = useCallback(
     async (preference: MfaPreference): Promise<void> => {
-      const token = await readAccessToken();
+      const token = await readIdToken();
       const graphqlUrl = resolveGraphqlUrl();
       if (!token || !graphqlUrl) return;
 
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       try {
         const mfaPreference = await readMfaPreference();
         setIsAuthenticated(mfaPreference !== "none");
-        setAccessTokenState(await readAccessToken());
+        setIdTokenState(await readIdToken());
         setAuthState(mfaPreference !== "none" ? "authenticated" : "mfa_setup");
         await syncMfaPreferenceToUsersTable(mfaPreference);
       } catch {
@@ -135,7 +135,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [resetToUnauthenticatedState, syncMfaPreferenceToUsersTable]);
 
   const value: AuthContextValue = {
-    accessToken,
+    idToken,
     authState,
     error,
     isAuthenticated,
@@ -145,7 +145,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (result.status === "authenticated") {
           const mfaPreference = await readMfaPreference();
           setIsAuthenticated(mfaPreference !== "none");
-          setAccessTokenState(await readAccessToken());
+          setIdTokenState(await readIdToken());
           setAuthState(mfaPreference !== "none" ? "authenticated" : "mfa_setup");
           await syncMfaPreferenceToUsersTable(mfaPreference);
           setError(null);
@@ -174,7 +174,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await amplifyConfirmSignIn(code);
         const mfaPreference = await readMfaPreference();
         setIsAuthenticated(mfaPreference !== "none");
-        setAccessTokenState(await readAccessToken());
+        setIdTokenState(await readIdToken());
         setAuthState(mfaPreference !== "none" ? "authenticated" : "mfa_setup");
         await syncMfaPreferenceToUsersTable(mfaPreference);
         setError(null);
@@ -202,7 +202,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (result.status === "authenticated") {
           const mfaPreference = await readMfaPreference();
           setIsAuthenticated(mfaPreference !== "none");
-          setAccessTokenState(await readAccessToken());
+          setIdTokenState(await readIdToken());
           setAuthState(mfaPreference !== "none" ? "authenticated" : "mfa_setup");
           await syncMfaPreferenceToUsersTable(mfaPreference);
           setError(null);
@@ -237,7 +237,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await amplifyCompleteMfaSetup(pendingMfaType, code);
         const mfaPreference = await readMfaPreference();
         setIsAuthenticated(mfaPreference !== "none");
-        setAccessTokenState(await readAccessToken());
+        setIdTokenState(await readIdToken());
         setAuthState(mfaPreference !== "none" ? "authenticated" : "mfa_setup");
         await syncMfaPreferenceToUsersTable(mfaPreference);
         setPendingMfaType(null);
@@ -251,7 +251,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       await amplifySignOut();
       // 明示ログアウトでも signedOut 時と同じ最終状態へ揃える。
       setIsAuthenticated(false);
-      setAccessTokenState(null);
+      setIdTokenState(null);
       setAuthState("unauthenticated");
       setPendingMfaType(null);
       setPendingLoginUsername(null);

@@ -17,7 +17,7 @@
 - `SharedLookupConstruct`
 - `AuthConstruct`（`constructs/app/auth/index.ts`）
 - `AuthTriggerConstruct`（`constructs/app/auth/triggers.ts`）
-- `GraphqlAuthorizerConstruct`（`constructs/app/auth/authorizer.ts`）
+- `GraphqlAuthorizerConstruct`（`constructs/app/api/graphql-authorizer.ts`）
 - `ClientIdNameMapConstruct`（`constructs/app/auth/client-id-name-map.ts`）
 
 ## 決定ログ

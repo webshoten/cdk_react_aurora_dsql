@@ -12,6 +12,7 @@ import type { DbClient } from "../db/types.ts";
 export interface UserRow {
   createdAt: Date;
   email: string;
+  medicalInstitutionId: string | null;
   mfaPreference: string | null;
   uid: string;
   userType: string;
@@ -34,6 +35,7 @@ export async function listUsers(dbClient: DbClient): Promise<UserRow[]> {
         username: users.username,
         email: users.email,
         userType: users.userType,
+        medicalInstitutionId: users.medicalInstitutionId,
         mfaPreference: users.mfaPreference,
         createdAt: users.createdAt,
       })
@@ -56,6 +58,7 @@ export async function createUserRecord(
     username: string;
     email: string;
     userType: string;
+    medicalInstitutionId?: string;
     mfaPreference?: string;
   },
 ): Promise<void> {
@@ -66,6 +69,7 @@ export async function createUserRecord(
       username: input.username,
       email: input.email,
       userType: input.userType,
+      medicalInstitutionId: input.medicalInstitutionId,
       mfaPreference: input.mfaPreference ?? "none",
     });
   });
@@ -78,7 +82,10 @@ export async function createUserRecord(
  * ## 説明
  * username をキーに users を 1 件検索し、未登録時は null を返す。
  */
-export async function findUserByUsername(dbClient: DbClient, username: string): Promise<UserRow | null> {
+export async function findUserByUsername(
+  dbClient: DbClient,
+  username: string,
+): Promise<UserRow | null> {
   return dbClient(async (db) => {
     const drizzleDb = drizzle(db);
     const rows = await drizzleDb
@@ -87,6 +94,7 @@ export async function findUserByUsername(dbClient: DbClient, username: string): 
         username: users.username,
         email: users.email,
         userType: users.userType,
+        medicalInstitutionId: users.medicalInstitutionId,
         mfaPreference: users.mfaPreference,
         createdAt: users.createdAt,
       })
@@ -117,5 +125,33 @@ export async function updateUserMfaPreferenceByUsername(
         mfaPreference: input.mfaPreference,
       })
       .where(eq(users.username, input.username));
+  });
+}
+
+/*
+ * ## 目的
+ * username 指定で users レコードを削除する。
+ *
+ * ## 説明
+ * 削除対象がない場合は false を返し、削除した場合は true を返す。
+ */
+export async function deleteUserRecordByUsername(
+  dbClient: DbClient,
+  username: string,
+): Promise<boolean> {
+  return dbClient(async (db) => {
+    const drizzleDb = drizzle(db);
+    const rows = await drizzleDb
+      .select({ uid: users.uid })
+      .from(users)
+      .where(eq(users.username, username))
+      .limit(1);
+
+    if (!rows[0]) {
+      return false;
+    }
+
+    await drizzleDb.delete(users).where(eq(users.username, username));
+    return true;
   });
 }

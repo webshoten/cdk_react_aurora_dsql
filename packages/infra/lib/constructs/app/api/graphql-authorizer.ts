@@ -6,6 +6,7 @@ import * as cdk from "aws-cdk-lib/core";
 import { Construct } from "constructs";
 
 export interface GraphqlAuthorizerConstructProps {
+  userPoolId: string;
   userPoolClientId: string;
 }
 
@@ -32,6 +33,7 @@ export class GraphqlAuthorizerConstruct extends Construct {
       timeout: cdk.Duration.seconds(5),
       environment: {
         COGNITO_REGION: cdk.Stack.of(this).region,
+        USER_POOL_ID: props.userPoolId,
         USER_POOL_CLIENT_ID: props.userPoolClientId,
       },
     });

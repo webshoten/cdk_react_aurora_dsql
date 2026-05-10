@@ -26,8 +26,8 @@ function readClaimsFromToken(token: string): Record<string, unknown> | null {
 }
 
 export function DebugPage() {
-  const { accessToken, logout } = useAuth();
-  const claims = useMemo(() => (accessToken ? readClaimsFromToken(accessToken) : null), [accessToken]);
+  const { idToken, logout } = useAuth();
+  const claims = useMemo(() => (idToken ? readClaimsFromToken(idToken) : null), [idToken]);
   const [usersResult, refetchUsers] = useQuery({
     query: `query DebugUsers { users { uid username email userType createdAt } currentUser { userId username groups institutionCode } }`,
   });
@@ -56,9 +56,9 @@ export function DebugPage() {
     return result.data?.resetUserPassword?.temporaryPassword ?? null;
   }
 
-  async function handleCopyAccessToken(): Promise<void> {
-    if (!accessToken) return;
-    await navigator.clipboard.writeText(accessToken);
+  async function handleCopyIdToken(): Promise<void> {
+    if (!idToken) return;
+    await navigator.clipboard.writeText(idToken);
   }
 
   return (
@@ -74,19 +74,19 @@ export function DebugPage() {
 
         <div className="mt-4 space-y-2">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-medium">Access Token</p>
+            <p className="text-sm font-medium">ID Token</p>
             <button
               className="rounded bg-secondary px-2 py-1 text-xs"
-              disabled={!accessToken}
+              disabled={!idToken}
               onClick={() => {
-                void handleCopyAccessToken();
+                void handleCopyIdToken();
               }}
               type="button"
             >
               Copy
             </button>
           </div>
-          <pre className="overflow-x-auto rounded-md border border-border p-3 text-xs">{accessToken ?? "(none)"}</pre>
+          <pre className="overflow-x-auto rounded-md border border-border p-3 text-xs">{idToken ?? "(none)"}</pre>
         </div>
 
         <div className="mt-4 space-y-2">

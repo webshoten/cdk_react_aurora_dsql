@@ -3,6 +3,10 @@ declare global {
     __CONFIG__?: {
       apiUrl?: string;
       cognitoRegion?: string;
+      iotAuthorizerName?: string;
+      iotEndpoint?: string;
+      sharedEnv?: string;
+      stage?: string;
       userPoolId?: string;
       userPoolClientId?: string;
     };
@@ -13,6 +17,13 @@ export interface AuthRuntimeConfig {
   cognitoRegion: string;
   userPoolClientId: string;
   userPoolId: string;
+}
+
+export interface IotRuntimeConfig {
+  iotAuthorizerName: string;
+  iotEndpoint: string;
+  sharedEnv: string;
+  stage: string;
 }
 
 /*
@@ -75,5 +86,26 @@ export function resolveAuthConfig(): AuthRuntimeConfig | null {
     cognitoRegion,
     userPoolId,
     userPoolClientId,
+  };
+}
+
+/*
+ * # IoT runtime 設定解決
+ *
+ * ## 目的
+ * MQTT subscribe 接続に必要な endpoint / authorizer / topic segment 情報を config.js から取得する。
+ */
+export function resolveIotConfig(): IotRuntimeConfig | null {
+  const iotEndpoint = window.__CONFIG__?.iotEndpoint?.trim();
+  const iotAuthorizerName = window.__CONFIG__?.iotAuthorizerName?.trim();
+  const sharedEnv = window.__CONFIG__?.sharedEnv?.trim();
+  const stage = window.__CONFIG__?.stage?.trim();
+  if (!iotEndpoint || !iotAuthorizerName || !sharedEnv || !stage) return null;
+
+  return {
+    iotEndpoint,
+    iotAuthorizerName,
+    sharedEnv,
+    stage,
   };
 }

@@ -4,6 +4,7 @@ import { ApiStack } from "@infra/lib/stacks/app/api-stack";
 import { AuthStack } from "@infra/lib/stacks/app/auth-stack";
 import { DbStack } from "@infra/lib/stacks/app/db-stack";
 import { OpsStack } from "@infra/lib/stacks/app/ops-stack";
+import { RealtimeStack } from "@infra/lib/stacks/app/realtime-stack";
 import { StorageStack } from "@infra/lib/stacks/app/storage-stack";
 import { WebCertificateStack } from "@infra/lib/stacks/app/web-certificate-stack";
 import { WebStack } from "@infra/lib/stacks/app/web-stack";
@@ -87,9 +88,20 @@ if (!sharedOnly) {
     resourcePrefix,
   });
 
+  const realtimeStack = new RealtimeStack(app, `${resourcePrefix}-realtime`, {
+    env,
+    sharedEnv,
+    stage,
+    resourcePrefix,
+    userPoolClientId: authStack.userPoolClientId,
+    userPoolId: authStack.userPoolId,
+  });
+  realtimeStack.addDependency(authStack);
+
   const apiStack = new ApiStack(app, `${resourcePrefix}-api`, {
     dbClusterArn: dbStack.clusterArn,
     dbEndpoint: dbStack.endpoint,
+    iotStateTableName: realtimeStack.realtimeIotStateTableName,
     imageBucketName: storageStack.imageBucketName,
     imagePrefix: storageStack.imagePrefix,
     env,
@@ -131,6 +143,7 @@ if (!sharedOnly) {
     stage,
     resourcePrefix,
     apiUrl: apiStack.apiUrl,
+    iotAuthorizerName: realtimeStack.realtimeCustomAuthorizerName,
     userPoolClientId: authStack.userPoolClientId,
     userPoolId: authStack.userPoolId,
     webCertificate: webCertificateStack.certificate,

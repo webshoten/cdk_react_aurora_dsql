@@ -1,13 +1,18 @@
-import { spawnSync } from "node:child_process";
-import * as fs from "node:fs";
-import { createDsqlClientFromEnv, createUserRecord, findUserByUsername } from "../packages/core/src/index.ts";
 import { Command } from "commander";
+import {
+  createDsqlClientFromEnv,
+  createUserRecord,
+  findUserByUsername,
+} from "../packages/core/src/index.ts";
+import { logSuccess } from "./lib/log.ts";
 import { logResolved, type RawOptions, resolveOptions } from "./lib/options.ts";
+import { resolveUserCommandResources, runAwsCapture, withDbHint } from "./lib/user-command.ts";
 
 type CreateUserRawOptions = RawOptions & {
   username?: string;
   password?: string;
   email?: string;
+  medicalInstitutionId?: string;
 };
 
 const program = new Command()
@@ -17,6 +22,10 @@ const program = new Command()
   .requiredOption("--username <username>", "ユーザー名（必須）")
   .requiredOption("--password <password>", "パスワード（必須）")
   .requiredOption("--email <email>", "メールアドレス（必須）")
+  .option(
+    "--medical-institution-id <id>",
+    "所属医療機関 ID（Cognito custom:institution_id と users.medical_institution_id に保存）",
+  )
   .option("--stage <stage>", "ステージ名（既定: whoami）")
   .option("--profile <name>", "AWS profile（既定: AWS_PROFILE → default）");
 
@@ -28,6 +37,7 @@ logResolved(opts);
 const username = required(raw.username, "--username");
 const password = required(raw.password, "--password");
 const email = required(raw.email, "--email");
+const medicalInstitutionId = optionalMedicalInstitutionId(raw.medicalInstitutionId);
 
 main().catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
@@ -37,13 +47,13 @@ main().catch((error: unknown) => {
 });
 
 async function main(): Promise<void> {
-  const resources = resolveResources(opts.sharedEnv, opts.stage);
+  const resources = resolveUserCommandResources(opts.sharedEnv, opts.stage);
   const dbClient = createDsqlClientFromEnv({
+    AWS_REGION: resources.region,
     DSQL_DATABASE: "postgres",
     DSQL_DB_USER: "admin",
     DSQL_ENDPOINT: resources.dsqlEndpoint,
     DSQL_PORT: "5432",
-    DSQL_REGION: resources.region,
   });
 
   const existing = await findUserByUsername(dbClient, username).catch((error: unknown) => {
@@ -55,7 +65,7 @@ async function main(): Promise<void> {
 
   let createdInIdentityProvider = false;
   try {
-    runAws(
+    runAwsCapture(
       opts.profile,
       [
         "cognito-idp",
@@ -69,12 +79,13 @@ async function main(): Promise<void> {
         "--user-attributes",
         `Name=email,Value=${email}`,
         "Name=email_verified,Value=true",
+        ...cognitoInstitutionAttributes(medicalInstitutionId),
       ],
       false,
     );
     createdInIdentityProvider = true;
 
-    runAws(
+    runAwsCapture(
       opts.profile,
       [
         "cognito-idp",
@@ -90,7 +101,7 @@ async function main(): Promise<void> {
       true,
     );
 
-    const sub = runAws(
+    const sub = runAwsCapture(
       opts.profile,
       [
         "cognito-idp",
@@ -116,16 +127,17 @@ async function main(): Promise<void> {
       username,
       email,
       userType: "general",
+      medicalInstitutionId,
     }).catch((error: unknown) => {
       throw withDbHint(error);
     });
 
     console.log(`[create-user] created username=${username} uid=${sub}`);
-    console.log("[create-user] SUCCESS");
+    logSuccess();
   } catch (error: unknown) {
     if (createdInIdentityProvider) {
       try {
-        runAws(
+        runAwsCapture(
           opts.profile,
           [
             "cognito-idp",
@@ -139,7 +151,8 @@ async function main(): Promise<void> {
         );
         console.error(`[create-user] rollback: deleted username=${username} from Cognito`);
       } catch (rollbackError: unknown) {
-        const message = rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
+        const message =
+          rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
         console.error(`[create-user] rollback failed: ${message}`);
       }
     }
@@ -148,84 +161,27 @@ async function main(): Promise<void> {
   }
 }
 
-function withDbHint(error: unknown): Error {
-  const message = error instanceof Error ? error.message : String(error);
-  const lower = message.toLowerCase();
-
-  if (lower.includes("column") && lower.includes("does not exist")) {
-    return new Error(
-      [
-        message,
-        "hint: users テーブル列不足の可能性があります（migration 未適用を確認してください）。",
-      ].join("\n"),
-    );
-  }
-
-  if (lower.includes("relation") && lower.includes("does not exist")) {
-    return new Error(
-      [message, "hint: users テーブル未作成の可能性があります（migration 状態を確認してください）。"].join(
-        "\n",
-      ),
-    );
-  }
-
-  return error instanceof Error ? error : new Error(String(error));
-}
-
-function runAws(profile: string, args: string[], containsSensitive: boolean): string {
-  if (containsSensitive) {
-    console.log("[exec] aws <sensitive-args-masked>");
-  } else {
-    console.log(`[exec] aws --profile ${profile} ${args.join(" ")}`);
-  }
-
-  const result = spawnSync("aws", ["--profile", profile, ...args], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-
-  if (result.status !== 0) {
-    const stderr = (result.stderr ?? "").trim();
-    throw new Error(stderr || "aws command failed");
-  }
-
-  return (result.stdout ?? "").trim();
-}
-
 function required(value: string | undefined, key: string): string {
   if (!value?.trim()) throw new Error(`${key} は必須です`);
   return value.trim();
 }
 
-function resolveResources(sharedEnv: string, stage: string): {
-  dsqlEndpoint: string;
-  region: string;
-  userPoolId: string;
-} {
-  const outputsPath = "cdk-outputs.json";
-  if (!fs.existsSync(outputsPath)) {
-    throw new Error("cdk-outputs.json が見つかりません。先に cdk deploy を実行してください。");
+function optionalMedicalInstitutionId(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) throw new Error("--medical-institution-id は空文字にできません");
+  if (!/^[0-9]+$/.test(trimmed)) {
+    throw new Error("--medical-institution-id は数値文字列のみ指定できます");
   }
-
-  const outputs = JSON.parse(fs.readFileSync(outputsPath, "utf8")) as Record<string, Record<string, string>>;
-
-  const dbStack = outputs[`pf-${sharedEnv}-${stage}-db`];
-  const authStack = outputs[`pf-${sharedEnv}-${stage}-auth`];
-
-  const dsqlEndpoint = dbStack?.DsqlEndpoint;
-  const userPoolId = authStack?.UserPoolId;
-  const region = process.env.AWS_REGION || "ap-northeast-1";
-
-  if (!dsqlEndpoint) {
-    throw new Error(`cdk-outputs.json から pf-${sharedEnv}-${stage}-db.DsqlEndpoint を解決できません`);
+  if (trimmed.length > 10) {
+    throw new Error(
+      "--medical-institution-id は Cognito custom:institution_id の上限に合わせて 10 文字以内です",
+    );
   }
-  if (!userPoolId) {
-    throw new Error(`cdk-outputs.json から pf-${sharedEnv}-${stage}-auth.UserPoolId を解決できません`);
-  }
+  return trimmed;
+}
 
-  return {
-    dsqlEndpoint,
-    userPoolId,
-    region,
-  };
+function cognitoInstitutionAttributes(medicalInstitutionId: string | undefined): string[] {
+  if (!medicalInstitutionId) return [];
+  return [`Name=custom:institution_id,Value=${medicalInstitutionId}`];
 }

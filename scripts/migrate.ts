@@ -22,6 +22,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { Command } from "commander";
 import { zipSync } from "fflate";
+import { logSuccess } from "./lib/log.ts";
 import { logResolved, type RawOptions, resolveOptions } from "./lib/options.ts";
 import { run } from "./lib/run.ts";
 
@@ -113,7 +114,7 @@ if (!parsed) {
 }
 
 if (parsed.ok === true) {
-  console.log("[migration-runner] SUCCESS");
+  logSuccess();
 }
 
 /*

@@ -13,6 +13,10 @@ export interface WebConstructProps {
   hostedZoneId: string;
   apiUrl: string;
   cognitoRegion: string;
+  iotEndpoint: string;
+  iotAuthorizerName: string;
+  sharedEnv: string;
+  stage: string;
   userPoolId: string;
   userPoolClientId: string;
   customDomainName: string;
@@ -51,6 +55,10 @@ export class WebConstruct extends Construct {
     const configContent = buildWebConfigContent({
       apiUrl: props.apiUrl,
       cognitoRegion: props.cognitoRegion,
+      iotEndpoint: props.iotEndpoint,
+      iotAuthorizerName: props.iotAuthorizerName,
+      sharedEnv: props.sharedEnv,
+      stage: props.stage,
       userPoolId: props.userPoolId,
       userPoolClientId: props.userPoolClientId,
     });

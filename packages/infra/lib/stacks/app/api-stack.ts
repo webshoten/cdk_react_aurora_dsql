@@ -7,6 +7,7 @@ import type { Construct } from "constructs";
 export interface ApiStackProps extends cdk.StackProps {
   dbClusterArn: string;
   dbEndpoint: string;
+  iotStateTableName: string;
   imageBucketName: string;
   imagePrefix: string;
   stage: string;
@@ -49,6 +50,8 @@ export class ApiStack extends cdk.Stack {
       hostedZoneId: sharedConfig.hostedZoneId,
       imageBucketName: props.imageBucketName,
       imagePrefix: props.imagePrefix,
+      iotDataEndpoint: sharedConfig.iotDataEndpoint,
+      iotStateTableName: props.iotStateTableName,
       resourcePrefix: props.resourcePrefix,
       sharedEnv: props.sharedEnv,
       stage: props.stage,

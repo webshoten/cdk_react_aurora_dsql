@@ -30,10 +30,10 @@
 - import は `@/` エイリアス（`src` 基準）を利用する
 - サイドバーは `1` 〜 `11` の章を表示し、`11.feature-use-cases` のみ開閉可能なアコーディオンとして子項目（`11-1`〜`11-13`）を表示する
 - `urql client` 初期化は `app/providers/graphql-client.ts` に分離し、`createClient` の直接利用を集約する
-- GraphQL 型は `Pothos schema` から `packages/graphql` へ生成する
-  - `pnpm graphql:extract` で `packages/graphql/schema.graphql` を更新
-  - `pnpm graphql:genql` で `packages/graphql/genql/*` を更新
-- hooks は `@pf/graphql/urql` の `useTypedQuery` / `useTypedMutation` を利用し、生文字列クエリ/ミューテーションは使用しない
+- GraphQL 型は `Pothos schema` から `packages/graphql-schema` へ生成する
+  - `pnpm graphql:extract` で `packages/graphql-schema/schema.graphql` を更新
+  - `pnpm graphql:genql` で `packages/graphql-schema/genql/*` を更新
+- hooks は `@pf/graphql-schema/urql` の `useTypedQuery` / `useTypedMutation` を利用し、生文字列クエリ/ミューテーションは使用しない
 
 ## 対象クエリと表示項目（11-1確定）
 

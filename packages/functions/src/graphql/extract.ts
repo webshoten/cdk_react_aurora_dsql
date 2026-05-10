@@ -8,11 +8,11 @@ import { schema } from "./schema/index.ts";
  * 実行中の GraphQL schema を SDL ファイルへ出力する。
  *
  * ## 説明
- * ソート済み schema を `packages/graphql/schema.graphql` へ書き出す。
+ * ソート済み schema を `packages/graphql-schema/schema.graphql` へ書き出す。
  */
 async function extractSchema() {
   const schemaAsString = printSchema(lexicographicSortSchema(schema));
-  const outputPath = path.resolve(process.cwd(), "..", "graphql", "schema.graphql");
+  const outputPath = path.resolve(process.cwd(), "..", "graphql-schema", "schema.graphql");
 
   await mkdir(path.dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${schemaAsString}\n`, "utf8");
