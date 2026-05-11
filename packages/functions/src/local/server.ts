@@ -1,5 +1,8 @@
 import { createServer } from "node:http";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import type { GraphqlAuthorizerContext } from "../graphql/context.ts";
 import { yoga } from "../graphql/yoga.ts";
+import { authorizeGraphqlLocalRequest } from "./graphql-authorizer.ts";
 
 /*
  * # GraphQL ローカル開発サーバー
@@ -8,19 +11,24 @@ import { yoga } from "../graphql/yoga.ts";
  * Lambda にデプロイせず手元で GraphQL を叩けるようにする dev エントリ。pnpm dev 等から起動する想定。
  *
  * ## 説明
- * /health は固定 200 を返し、それ以外のリクエストは Yoga にそのまま渡す薄いルーター。
+ * 受けたリクエストを Yoga に渡す。Authorization ヘッダーがある場合は
+ * 疑似 authorizer で検証し、GraphQL context.authorizer へ注入する。
  * PORT 未指定時は 4000。
  */
 const PORT = Number(process.env.PORT ?? 4000);
 
-const server = createServer(async (req, res) => {
-  if (req.method === "GET" && req.url === "/health") {
-    res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({ ok: true }));
-    return;
-  }
+type LocalYogaRequestListener = (
+  req: IncomingMessage,
+  res: ServerResponse<IncomingMessage>,
+  context: { authorizer: GraphqlAuthorizerContext | null },
+) => void;
 
-  yoga(req, res);
+const server = createServer(async (req, res) => {
+  const authorizer = await authorizeGraphqlLocalRequest(req.headers);
+
+  const requestListener = yoga as unknown as LocalYogaRequestListener;
+
+  requestListener(req, res, { authorizer });
 });
 
 server.listen(PORT, () => {

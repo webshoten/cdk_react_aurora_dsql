@@ -29,6 +29,8 @@
 - CDK は「その場しのぎ」の回避コードを禁止し、恒久的な設計で解決する
 - AWS CLI 等でリソース状態を直接更新して問題解決しない。恒久対応は CDK 定義へ反映して deploy で揃える
 - CDK で扱う構成値・依存値の解決は、手動 CLI 前提の運用で補わず、CDK deploy を再実行しても同じ結果に収束する冪等な構成として設計する
+- `cdk-outputs.json` を読む script / local-dev 起動がある場合、CDK 変更時は Output 契約（キー名・存在有無）を同時に確認し、必要な `CfnOutput` を追加する
+- `cdk-outputs.json` の Output 契約を変更した場合は、依存する script（例: `scripts/local-dev/resolve-env.ts`）とドキュメントを同一タスクで更新する
 - CDK は Stack 本体や `constructs/*/index.ts` にロジックを集中させず、初期実装段階から責務ごとに Construct / module を分離して記述する
 - CDK の `constructs/*/index.ts` は「各 Construct / resource 定義を呼び出して接続する役割だけ」を持たせ、設定組み立て・権限付与・補助ロジックは別モジュールへ分離する
 - CDK の `constructs/**/index.ts` は「集約（compose）専用」とし、配下モジュールを束ねる入口以外の責務を持たせない

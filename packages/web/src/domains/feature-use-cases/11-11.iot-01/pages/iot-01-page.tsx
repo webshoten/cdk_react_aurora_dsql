@@ -51,6 +51,36 @@ export function Iot01Page() {
         <CardDescription>MQTT subscribe / unsubscribe と受信表示を検証します。</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        <section className="text-sm">
+          <p className="font-medium">Realtime検証導線: 1画面で publish -&gt; subscribe -&gt; 保存確認までを通す</p>
+          <ul className="list-disc pl-6">
+            <li>`subscribe -&gt; mutation publish -&gt; Web受信 -&gt; Lambda発火 -&gt; DynamoDB query` を連続確認する</li>
+            <li>Web から MQTT publish は行わず、publish は GraphQL mutation 経由で backend が実行する</li>
+            <li>受信確認は MQTT メッセージ表示、保存確認は `iotStatesByRoom` の query 結果で行う</li>
+          </ul>
+        </section>
+
+        <section className="text-sm">
+          <p className="font-medium">前提条件: 接続・認可に必要な入力と設定を満たす</p>
+          <ul className="list-disc pl-6">
+            <li>認証済みユーザーでログイン済みであること</li>
+            <li>`custom:institution_id` を持つユーザーであること（`currentUser.institutionCode` が空でない）</li>
+            <li>`config.js` に `iotEndpoint / iotAuthorizerName / sharedEnv / stage` が設定されていること</li>
+            <li>`roomId` 入力時のみ subscribe/publish/query を有効化する</li>
+          </ul>
+        </section>
+
+        <section className="text-sm">
+          <p className="font-medium">このページで確認する仕様</p>
+          <ul className="list-disc pl-6">
+            <li>Subscribe ボタンで接続し、Unsubscribe で解除できること</li>
+            <li>`Publish onStartRoom` 実行後に topic と publish 結果が表示されること</li>
+            <li>受信欄に MQTT メッセージが表示されること</li>
+            <li>DynamoDB 保存結果が GraphQL query で確認できること</li>
+            <li>`roomId` 未入力時は query を実行しないこと</li>
+          </ul>
+        </section>
+
         <div className="rounded border border-border p-4 text-xs">
           <p>sharedEnv: {iotConfig?.sharedEnv ?? "(config未設定)"}</p>
           <p>stage: {iotConfig?.stage ?? "(config未設定)"}</p>

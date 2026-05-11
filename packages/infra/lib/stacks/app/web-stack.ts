@@ -64,5 +64,15 @@ export class WebStack extends cdk.Stack {
       value: webDomainName,
       description: "Web custom domain name",
     });
+
+    new cdk.CfnOutput(this, "WebIotEndpoint", {
+      value: sharedConfig.iotDataEndpoint,
+      description: "IoT Data endpoint (Data-ATS)",
+    });
+
+    new cdk.CfnOutput(this, "WebIotAuthorizerName", {
+      value: props.iotAuthorizerName,
+      description: "IoT custom authorizer name",
+    });
   }
 }

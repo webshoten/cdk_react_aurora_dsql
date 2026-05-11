@@ -19,6 +19,7 @@ const stackName = `pf-${opts.sharedEnv}-${opts.stage}-db`;
 const apiStackName = `pf-${opts.sharedEnv}-${opts.stage}-api`;
 const authStackName = `pf-${opts.sharedEnv}-${opts.stage}-auth`;
 const storageStackName = `pf-${opts.sharedEnv}-${opts.stage}-storage`;
+const webStackName = `pf-${opts.sharedEnv}-${opts.stage}-web`;
 const outputsPath = path.resolve(process.cwd(), "cdk-outputs.json");
 
 if (!fs.existsSync(outputsPath)) {
@@ -42,6 +43,10 @@ const storageStackOutputs = outputs[storageStackName];
 if (!storageStackOutputs) {
   throw new Error(`${outputsPath} に ${storageStackName} の出力がありません。`);
 }
+const webStackOutputs = outputs[webStackName];
+if (!webStackOutputs) {
+  throw new Error(`${outputsPath} に ${webStackName} の出力がありません。`);
+}
 
 const endpoint = stackOutputs.DsqlEndpoint;
 const clusterArn = stackOutputs.DsqlClusterArn;
@@ -50,6 +55,8 @@ const userPoolId = authStackOutputs.UserPoolId;
 const userPoolClientId = authStackOutputs.UserPoolClientId;
 const imageBucket = storageStackOutputs.ImageBucketName;
 const imagePrefix = storageStackOutputs.ImagePrefix;
+const iotEndpoint = webStackOutputs.WebIotEndpoint;
+const iotAuthorizerName = webStackOutputs.WebIotAuthorizerName;
 
 if (!endpoint || !clusterArn) {
   throw new Error(`${stackName} の DsqlEndpoint / DsqlClusterArn を解決できませんでした。`);
@@ -62,6 +69,9 @@ if (!userPoolId || !userPoolClientId) {
 }
 if (!imageBucket || !imagePrefix) {
   throw new Error(`${storageStackName} の ImageBucketName / ImagePrefix を解決できませんでした。`);
+}
+if (!iotEndpoint || !iotAuthorizerName) {
+  throw new Error(`${webStackName} の WebIotEndpoint / WebIotAuthorizerName を解決できませんでした。`);
 }
 
 const envFilePath = path.resolve(process.cwd(), ".vscode/.local-dev.env");
@@ -89,6 +99,10 @@ fs.writeFileSync(
   `window.__CONFIG__=${JSON.stringify({
     apiUrl: "http://localhost:4000",//ローカル起動はローカルfunctionsサーバーに向ける
     cognitoRegion: "ap-northeast-1",
+    iotEndpoint,
+    iotAuthorizerName,
+    sharedEnv: opts.sharedEnv,
+    stage: opts.stage,
     userPoolId,
     userPoolClientId,
   })};\n`,

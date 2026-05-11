@@ -49,6 +49,7 @@
 - JWT はローカル decode のみで信頼しない
 - `aws-jwt-verify`（`CognitoJwtVerifier`）で署名検証を必須化する
 - 検証失敗時は `isAuthorized=false` を返す
+- ローカル GraphQL は API Gateway を通らないため、`APIGatewayRequestAuthorizerEventV2` 互換入力を組み立てる疑似 authorizer で `context.auth` を構成する
 
 ## GraphQL ディレクトリ責務
 

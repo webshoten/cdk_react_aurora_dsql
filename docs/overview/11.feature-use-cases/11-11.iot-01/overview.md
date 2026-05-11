@@ -16,6 +16,7 @@
 - `publish`: Web からは GraphQL mutation を呼び、backend が IoT Data Plane で publish する
 - `Web受信表示`: subscribe 中に受信したメッセージを一覧表示できる
 - `DynamoDB保存確認`: `iotStatesByRoom(roomId)` で保存済み state を確認できる
+- `ローカル認証前提`: `currentUser.institutionCode` 取得はローカル疑似 authorizer が `context.auth` を構成できることを前提とする
 
 ## 命名制約（IoT TopicRule）
 
@@ -57,6 +58,7 @@
 
 - IoT Data endpoint / 認証情報の受け渡し経路が利用可能であること
 - 認証済み Web ユーザーで検証ページへアクセスできること
+- ローカル検証時は `Authorization: Bearer <idToken>` が GraphQL ローカルサーバーに渡り、`currentUser` が解決できること
 
 ## 決定ログ
 
