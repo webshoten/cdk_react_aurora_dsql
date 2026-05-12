@@ -28,6 +28,13 @@
 - 実装前に、対象タスクで使う MCP / Skill を明示する
 - 公式ドキュメントと矛盾する場合は、公式情報を優先する
 - 新規 Skill 導入時は本章に目的と取得元を追記する
+- AI がコード変更を行った場合は、完了報告前に `pnpm qa:agent` を必ず実行する
+- `pnpm qa:agent` が失敗した場合は、成功扱いで完了報告しない
+- `pnpm qa:agent` は「AI 作業後の必須検証の単一入口」として運用する
+- `pnpm qa:agent` の検証対象は次を含める
+  - `@pf/core` / `@pf/functions` / `@pf/web` の型チェック
+  - `pnpm graphql:build`（schema 抽出と型生成）
+  - lint/format/依存境界など、当該タスクで必須とした静的検証
 
 ## 決定ログ
 
@@ -35,3 +42,4 @@
 - 2026-04-26: 利用MCPを `awslabs-aws-iac-mcp-server` として明記
 - 2026-04-26: `react-best-practices` を導入
 - 2026-04-26: AI 利用前提として `Codex` / `Claude` を明記
+- 2026-05-12: AI コード変更後の必須検証コマンドとして `pnpm qa:agent` 運用を追加

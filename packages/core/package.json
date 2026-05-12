@@ -12,8 +12,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./db": "./src/db/index.ts",
-    "./migration": "./src/migration/index.ts"
+    "./db": "./src/shared/db/index.ts",
+    "./migration": "./src/shared/migration/index.ts"
   },
   "scripts": {
     "drizzle:generate": "drizzle-kit generate --config ./drizzle.config.ts",

@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "tsx watch src/local/server.ts",
     "test": "node --import tsx --test tests/**/*.test.ts",
-    "graphql:extract": "node --import tsx src/graphql/extract.ts"
+    "graphql:extract": "node --import tsx src/domains/graphql/extract.ts"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",

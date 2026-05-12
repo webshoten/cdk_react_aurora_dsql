@@ -17,6 +17,7 @@
 ## 今回の仕様概要（Drizzle + DSQL）
 
 - DB クエリ層は `@pf/core` で Drizzle を利用する
+- `@pf/core` は `domains/*`（entity/repository）と `shared/db`・`shared/migration` の構成で責務を分離する
 - migration は `schema.ts` から `drizzle-kit generate` で SQL 生成し、生成SQLを Git 管理する
 - migration 実行は `MigrationRunner Lambda`（`OpsStack`）を invoke して実行する
 - migration/seed SQL は `migrate` 実行時に zip 化して S3 へ upload し、Lambda は固定の bucket/key（環境変数）から取得する
@@ -51,40 +52,35 @@
 - 検証失敗時は `isAuthorized=false` を返す
 - ローカル GraphQL は API Gateway を通らないため、`APIGatewayRequestAuthorizerEventV2` 互換入力を組み立てる疑似 authorizer で `context.auth` を構成する
 
-## GraphQL ディレクトリ責務
+## GraphQL / Domain ディレクトリ責務
 
-- バックエンドのディレクトリ方針は horizontal（レイヤー軸）で統一する
-- `packages/functions/src/graphql/context.ts`
+- バックエンドの基本構成は `handlers / domains / shared` とする
+- `packages/functions/src/domains/graphql/context.ts`
   - 役割: GraphQL 実行コンテキスト生成（env 解決・SDK/DB クライアント組み立て）
-- `packages/functions/src/graphql/yoga.ts`
+- `packages/functions/src/domains/graphql/yoga.ts`
   - 役割: Yoga インスタンス定義（schema と context の接続）
-- `packages/functions/src/services/auth/identity-provider.ts`
-  - 役割: 認証基盤 API 呼び出し（ユーザー作成・削除・パスワード再設定）
-- `packages/functions/src/graphql/schema/index.ts`
-  - 役割: GraphQL 型定義と Query/Mutation resolver の接続
-  - 補足: 現在は集約 schema を 1 ファイルで管理し、resolver 実装は `graphql/resolvers/*` に分離している
-- `packages/functions/src/graphql/extract.ts`
+- `packages/functions/src/domains/graphql/schema/index.ts`
+  - 役割: ドメイン schema を束ねる compose 入口
+- `packages/functions/src/domains/graphql/extract.ts`
   - 役割: schema 抽出（`packages/graphql-schema/schema.graphql` 生成）
-- `packages/functions/src/graphql/resolvers/users.ts`
-  - 役割: `currentUser`, `users`, `createUser`, `resetUserPassword`
-- `packages/functions/src/graphql/resolvers/images.ts`
-  - 役割: `images`, `createImageUploadUrl`, `registerImage`
-- `packages/functions/src/graphql/resolvers/medical-staffs.ts`
-  - 役割: `medicalStaffsByInstitution`, `seedMedicalStaffs`, `addRandomMedicalStaff`, `clearMedicalStaffsByInstitution`
-- `packages/functions/src/graphql/resolvers/seed.ts`
-  - 役割: `seedItems`
-- `packages/functions/src/graphql/resolvers/realtime.ts`
-  - 役割: `publishOnStartRoom`, `iotStatesByRoom`
 - `packages/functions/src/handlers/*`
   - 役割: Lambda エントリポイント（薄い入口）
-- `packages/functions/src/services/*`
-  - 役割: ハンドラ/GraphQL から呼ばれる業務ロジック
+- `packages/functions/src/domains/<domain>/*`
+  - 役割: ドメイン実装本体（`schema.ts` / `resolver.ts` / `service.ts`）
+- `packages/functions/src/domains/auth/*`
+  - 役割: 認証ドメイン実装（GraphQL Authorizer / Cognito 操作 / IoT Authorizer）
 - `packages/functions/src/shared/*`
   - 役割: 複数レイヤーで共通利用するユーティリティ
 - `packages/functions/src/shared/env.ts`
   - 役割: 必須環境変数取得（`requireEnv`）の共通化
-- 方針: 機能名トップディレクトリは作らず、`handlers / graphql / services / shared` のレイヤー軸で統一する
-- 補足: `graphql/schema` は I/F 層の集約入口として扱い、業務ロジックは resolver / services / `@pf/core` へ分離する
+- 方針: `domains/graphql` は I/F 集約専用とし、業務ロジックは `domains/*` へ配置する
+- `packages/core/src/domains/<domain>/*`
+  - 役割: core 側ドメイン責務（entity/repository）
+- `packages/core/src/shared/db/*`
+  - 役割: DSQL 接続・DB 共通型
+- `packages/core/src/shared/migration/*`
+  - 役割: migration 実行共通基盤
+- 方針: core は functions 非依存を維持し、複数実行基盤で共有できる責務に限定する
 
 ### 現在の Context 値
 

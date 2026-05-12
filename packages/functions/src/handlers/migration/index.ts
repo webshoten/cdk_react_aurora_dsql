@@ -5,7 +5,7 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { resolveMigrationConfigFromEnv, runDsqlMigrationAndSeed } from "@pf/core";
 import type { Handler } from "aws-lambda";
 import { unzipSync } from "fflate";
-import { requireEnv } from "../../shared/env.ts";
+import { requireEnv } from "@functions/shared/env.ts";
 
 interface MigrationInvokeEvent {
   migration?: {

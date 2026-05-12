@@ -20,8 +20,8 @@
 - DB の DDL は Aurora DSQL で実行可能かを一次情報で確認した上で migration 化する
 - どうしても実現できない場合を除き、SQL 構築は `drizzle-orm` を利用する（`pg` 生SQL直書きは例外扱い）
 - フロントエンド（`packages/web`）は vertical slice（機能軸）で構成する
-- バックエンド（`packages/functions`）は horizontal（レイヤー軸）で構成する
-- バックエンドのレイヤー軸は `handlers / graphql / services / shared` で統一する
+- バックエンド（`packages/functions`）は `handlers / domains / shared` を基本構成とする
+- バックエンドの `domains/graphql` は統合専用（schema compose / context / server）とし、業務ロジックは `domains/*` へ配置する
 - フロントエンドの `components` 配下はドメイン単位（vertical slice）で分割し、ドメインごとに専用 `hooks` / `context` を配置する
 - フロントエンドの `components` は表示とイベント通知を主責務とし、状態遷移・API 呼び出し・認証処理は `pages` / `hooks` / `context` / `lib` に分離する
 - exported 関数・クラスには責務が分かる短いコメントを付与し、処理意図が読み取れる状態を維持する

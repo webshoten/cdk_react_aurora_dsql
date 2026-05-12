@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { GraphqlAuthorizerContext } from "../graphql/context.ts";
-import { yoga } from "../graphql/yoga.ts";
-import { authorizeGraphqlLocalRequest } from "./graphql-authorizer.ts";
+import type { GraphqlAuthorizerContext } from "@functions/shared/context/graphql-context.ts";
+import { yoga } from "@functions/domains/graphql/yoga.ts";
+import { authorizeGraphqlLocalRequest } from "@functions/local/graphql-authorizer.ts";
 
 /*
  * # GraphQL ローカル開発サーバー

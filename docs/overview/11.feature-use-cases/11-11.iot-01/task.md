@@ -85,7 +85,7 @@
    - 完了条件: 別 medicalInstitutionId の topic を subscribe できない。app stack 側に IoT endpoint 取得用のカスタムリソースが残っていない。
 
 4. `GraphQL mutation publish`
-   - 変更対象: `packages/functions/src/graphql` の schema/resolver, backend IoT publish service, `packages/graphql-schema` の生成物。
+   - 変更対象: `packages/functions/src/domains/graphql` の schema compose, `packages/functions/src/domains/realtime` の resolver/service, `packages/graphql-schema` の生成物。
    - 実装内容: Web から mutation を呼び、backend が IoT Data Plane で event topic へ publish する。
    - 確認項目: mutation は `roomId` と room state payload を受け、認証 context の所属 ID で topic を決める。
    - 完了条件: mutation 実行で event topic へ `onStartRoom` payload が publish される。
@@ -109,7 +109,7 @@
    - 完了条件: GraphQL mutation publish 後に DynamoDB state が更新される。
 
 8. `GraphQL query 保存結果取得`
-   - 変更対象: `packages/functions/src/graphql` の schema/resolver, core repository, `packages/graphql-schema` の生成物。
+   - 変更対象: `packages/functions/src/domains/graphql` の schema compose, `packages/functions/src/domains/realtime` の resolver/service, core repository, `packages/graphql-schema` の生成物。
    - 実装内容: `roomId` を受け取り、topic と `sessionUid=roomId` に対応する room / patient state 一覧を返す。
    - 確認項目: `roomId` 未指定では Web から query を実行しない。
    - 完了条件: Web で対象 room の DynamoDB 保存結果を確認できる。

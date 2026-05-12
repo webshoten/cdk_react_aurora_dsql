@@ -2,7 +2,13 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@pf/core": ["packages/core/src/index.ts"],
+      "@core/*": ["packages/core/src/*"]
+    },
+    "ignoreDeprecations": "6.0"
   },
   "include": ["scripts/**/*.ts"]
 }

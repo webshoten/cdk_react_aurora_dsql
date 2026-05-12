@@ -1,7 +1,7 @@
 import {
   authorizeIotConnection,
   type IotCustomAuthorizerEvent,
-} from "../../../services/auth/iot-authorizer.ts";
+} from "@functions/domains/auth/iot-authorizer.ts";
 
 /*
  * # IoT Custom Authorizer ハンドラ
