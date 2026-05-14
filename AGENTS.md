@@ -15,6 +15,16 @@
 3. 「進める」「お願いします」など解釈が分かれる表現は次フェーズ承認として扱わず、確認してから進む。
 4. 実装判断の詳細ルール（責務分離、停止条件、禁止事項、配置方針など）は `docs/overview/8.coding-rules/overview.md` を正本とし、必ず従う。
 5. AGENTS.md と coding-rules の内容が競合して見える場合は、独断で解釈せずユーザーに確認する。
+6. Codex と Claude の両方を利用する前提で、`AGENTS.md` と `CLAUDE.md` の内容は常に同期して維持する。
+7. 片方だけ更新する場合は、同一タスクで必ずもう片方も更新する。
+8. コード変更後は、変更対象に応じて `qa:*` を実行し、結果を報告する。
+9. QA 実行ルールは次を基本とする。
+   - 常時実行: `pnpm qa:static` と `pnpm qa:base`
+   - `packages/web` のみ変更: `pnpm qa:frontend` を追加実行する
+   - `packages/functions` または `packages/core` のみ変更: `pnpm qa:backend` を追加実行する
+   - `packages/infra` のみ変更: `pnpm qa:infra` を追加実行する（`CDK_SHARED_ENV` 必須）
+   - 認証/認可/秘密情報/IAM/ネットワーク変更: `pnpm qa:security` を追加実行する
+   - 複数領域変更や統合確認: `pnpm qa:full` を実行する
 
 ## 編集前チェック（宣言必須）
 1. 変更対象ファイル
