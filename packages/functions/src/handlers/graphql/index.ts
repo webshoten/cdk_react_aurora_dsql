@@ -1,5 +1,5 @@
-import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { yoga } from "@functions/domains/graphql/yoga.ts";
+import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 
 /*
  * # GraphQL Lambda ハンドラ（API Gateway v2）

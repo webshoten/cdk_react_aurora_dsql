@@ -1,15 +1,15 @@
 import { Amplify } from "aws-amplify";
 import {
+  confirmSignIn,
+  confirmUserAttribute,
   fetchAuthSession,
+  fetchMFAPreference,
   getCurrentUser,
+  sendUserAttributeVerificationCode,
   signIn,
   signOut,
-  confirmSignIn,
-  fetchMFAPreference,
-  updateUserAttributes,
-  sendUserAttributeVerificationCode,
-  confirmUserAttribute,
   updateMFAPreference,
+  updateUserAttributes,
 } from "aws-amplify/auth";
 import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
 import { CookieStorage } from "aws-amplify/utils";
@@ -127,10 +127,10 @@ export async function readMfaPreference(): Promise<MfaPreference> {
  * ## 目的
  * USER_PASSWORD_AUTH でサインインし、認証完了か確認コードチャレンジかを呼び出し側へ返す。
  */
-export async function amplifySignIn(username: string, password: string): Promise<
-  | { status: "authenticated" }
-  | { status: "challenge"; step: SignInStep }
-> {
+export async function amplifySignIn(
+  username: string,
+  password: string,
+): Promise<{ status: "authenticated" } | { status: "challenge"; step: SignInStep }> {
   const result = await signIn({
     username,
     password,
@@ -174,10 +174,9 @@ export async function amplifyConfirmSignIn(code: string): Promise<void> {
  * ## 目的
  * NEW_PASSWORD_REQUIRED チャレンジで入力した新パスワードを確定し、次のサインイン段階を返す。
  */
-export async function amplifyConfirmNewPassword(newPassword: string): Promise<
-  | { status: "authenticated" }
-  | { status: "challenge"; step: SignInChallenge }
-> {
+export async function amplifyConfirmNewPassword(
+  newPassword: string,
+): Promise<{ status: "authenticated" } | { status: "challenge"; step: SignInChallenge }> {
   const result = await confirmSignIn({ challengeResponse: newPassword });
   const step = result.nextStep?.signInStep;
   if (step === "DONE") return { status: "authenticated" };

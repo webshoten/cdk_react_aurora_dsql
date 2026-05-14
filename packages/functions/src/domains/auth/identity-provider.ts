@@ -139,7 +139,8 @@ async function createUserInIdentityProvider(input: {
           }),
         );
       } catch (rollbackError: unknown) {
-        const message = rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
+        const message =
+          rollbackError instanceof Error ? rollbackError.message : String(rollbackError);
         console.error(`[createAuthUser] rollback failed: ${message}`);
       }
     }

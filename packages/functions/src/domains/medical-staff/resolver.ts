@@ -1,5 +1,10 @@
-import { addRandomMedicalStaff, clearMedicalStaffsByInstitution, listMedicalStaffsByInstitution, upsertDemoMedicalStaffs } from "@pf/core";
 import type { GraphqlContext } from "@functions/shared/context/graphql-context.ts";
+import {
+  addRandomMedicalStaff,
+  clearMedicalStaffsByInstitution,
+  listMedicalStaffsByInstitution,
+  upsertDemoMedicalStaffs,
+} from "@pf/core";
 
 /*
  * ## 目的
@@ -22,7 +27,9 @@ export async function resolveMedicalStaffsByInstitution(
  * ## 説明
  * 反映件数を payload 形式で返す。
  */
-export async function resolveSeedMedicalStaffs(context: GraphqlContext): Promise<{ appliedCount: number }> {
+export async function resolveSeedMedicalStaffs(
+  context: GraphqlContext,
+): Promise<{ appliedCount: number }> {
   return {
     appliedCount: await upsertDemoMedicalStaffs(context.dbClient),
   };

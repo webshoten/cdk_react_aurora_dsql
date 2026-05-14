@@ -48,6 +48,7 @@ export class AuthStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "UserPoolId", { value: this.userPoolId });
     new cdk.CfnOutput(this, "UserPoolClientId", { value: this.userPoolClientId });
+    new cdk.CfnOutput(this, "CognitoRegion", { value: cdk.Stack.of(this).region });
     new cdk.CfnOutput(this, "IdentityPoolId", { value: auth.identityPool.identityPoolId });
     new cdk.CfnOutput(this, "ClientIdNameMapParameterName", {
       value: this.clientIdNameMapParameterName,

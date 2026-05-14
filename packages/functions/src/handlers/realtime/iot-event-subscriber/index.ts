@@ -1,6 +1,6 @@
-import type { IoTHandler } from "aws-lambda";
 import { validateIotEventInput } from "@functions/domains/realtime/iot-event-subscriber.ts";
 import { upsertIotStateFromEvent } from "@functions/domains/realtime/iot-state-upsert.ts";
+import type { IoTHandler } from "aws-lambda";
 
 /*
  * # IoT Event Subscriber Handler

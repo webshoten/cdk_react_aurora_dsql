@@ -9,7 +9,9 @@ import type { PreTokenGenerationTriggerEvent } from "aws-lambda";
  * ## 説明
  * 現段階は接続確認と監査ログ出力のみを行い、イベントをそのまま返す。
  */
-export async function handler(event: PreTokenGenerationTriggerEvent): Promise<PreTokenGenerationTriggerEvent> {
+export async function handler(
+  event: PreTokenGenerationTriggerEvent,
+): Promise<PreTokenGenerationTriggerEvent> {
   console.info(
     JSON.stringify({
       clientId: event.callerContext.clientId,

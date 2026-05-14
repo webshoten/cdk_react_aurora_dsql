@@ -13,7 +13,11 @@ export interface CreateUserPoolInput {
  * ## 目的
  * AuthConstruct から UserPool 生成責務を分離する。
  */
-export function createUserPool(scope: Construct, id: string, input: CreateUserPoolInput): cognito.UserPool {
+export function createUserPool(
+  scope: Construct,
+  id: string,
+  input: CreateUserPoolInput,
+): cognito.UserPool {
   const userPool = new cognito.UserPool(scope, id, {
     selfSignUpEnabled: true,
     signInAliases: {

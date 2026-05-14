@@ -1,8 +1,8 @@
+import { type AuthorizerContext, authorizeRequest } from "@functions/domains/auth/authorizer.ts";
 import type {
   APIGatewayRequestAuthorizerEventV2,
   APIGatewaySimpleAuthorizerResult,
 } from "aws-lambda";
-import { authorizeRequest, type AuthorizerContext } from "@functions/domains/auth/authorizer.ts";
 
 /*
  * # Lambda Authorizer ハンドラ

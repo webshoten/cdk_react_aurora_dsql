@@ -9,7 +9,9 @@ import type { PreAuthenticationTriggerEvent } from "aws-lambda";
  * ## 説明
  * 現段階は接続確認と監査ログ出力のみを行い、イベントをそのまま返す。
  */
-export async function handler(event: PreAuthenticationTriggerEvent): Promise<PreAuthenticationTriggerEvent> {
+export async function handler(
+  event: PreAuthenticationTriggerEvent,
+): Promise<PreAuthenticationTriggerEvent> {
   // 11-3 仕様では、ここで SSM の clientId->clientName マップを参照してログイン許可/拒否を判定する想定。
   // 現段階は trigger 接続確認のため、イベントをそのまま通す。
   console.info(

@@ -1,4 +1,5 @@
 import type * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
+import type * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import { createApiGateway } from "./api-gateway";
 import { ApiCustomDomainConstruct } from "./custom-domain";
@@ -10,7 +11,7 @@ export interface ApiConstructProps {
   imageBucketName: string;
   imagePrefix: string;
   iotDataEndpoint: string;
-  iotStateTableName: string;
+  iotStateTable: dynamodb.ITable;
   resourcePrefix: string;
   sharedEnv: string;
   stage: string;
@@ -53,7 +54,7 @@ export class ApiConstruct extends Construct {
       imageBucketName: props.imageBucketName,
       imagePrefix: props.imagePrefix,
       iotDataEndpoint: props.iotDataEndpoint,
-      iotStateTableName: props.iotStateTableName,
+      iotStateTable: props.iotStateTable,
       sharedEnv: props.sharedEnv,
       stage: props.stage,
       userPoolClientId: props.userPoolClientId,

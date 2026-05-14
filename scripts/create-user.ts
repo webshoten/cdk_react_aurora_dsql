@@ -1,9 +1,5 @@
+import { createDsqlClientFromEnv, createUserRecord, findUserByUsername } from "@pf/core";
 import { Command } from "commander";
-import {
-  createDsqlClientFromEnv,
-  createUserRecord,
-  findUserByUsername,
-} from "@pf/core";
 import { logSuccess } from "./lib/log.ts";
 import { logResolved, type RawOptions, resolveOptions } from "./lib/options.ts";
 import { resolveUserCommandResources, runAwsCapture, withDbHint } from "./lib/user-command.ts";

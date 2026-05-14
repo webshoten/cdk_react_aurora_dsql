@@ -29,7 +29,9 @@ export function registerRealtimeSchema(builder: AppSchemaBuilder): void {
       topic: t.exposeString("topic", { description: "MQTT topic。" }),
       sessionUid: t.exposeString("sessionUid", { description: "session UID（roomId）。" }),
       entityType: t.exposeString("entityType", { description: "state entity 種別。" }),
-      medicalInstitutionId: t.exposeString("medicalInstitutionId", { description: "医療機関 ID。" }),
+      medicalInstitutionId: t.exposeString("medicalInstitutionId", {
+        description: "医療機関 ID。",
+      }),
       roomId: t.exposeString("roomId", { description: "監視ルーム ID。" }),
       event: t.exposeString("event", { description: "最新反映イベント名。" }),
       roomStateJson: t.exposeString("roomStateJson", {

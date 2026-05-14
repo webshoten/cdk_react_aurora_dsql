@@ -1,13 +1,14 @@
 import { ApiConstruct } from "@infra/lib/constructs/app/api";
 import type { SharedLookupValues } from "@infra/lib/constructs/shared/lookup";
 import { SharedLookupConstruct } from "@infra/lib/constructs/shared/lookup";
+import type * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as cdk from "aws-cdk-lib/core";
 import type { Construct } from "constructs";
 
 export interface ApiStackProps extends cdk.StackProps {
   dbClusterArn: string;
   dbEndpoint: string;
-  iotStateTableName: string;
+  iotStateTable: dynamodb.ITable;
   imageBucketName: string;
   imagePrefix: string;
   stage: string;
@@ -51,7 +52,7 @@ export class ApiStack extends cdk.Stack {
       imageBucketName: props.imageBucketName,
       imagePrefix: props.imagePrefix,
       iotDataEndpoint: sharedConfig.iotDataEndpoint,
-      iotStateTableName: props.iotStateTableName,
+      iotStateTable: props.iotStateTable,
       resourcePrefix: props.resourcePrefix,
       sharedEnv: props.sharedEnv,
       stage: props.stage,

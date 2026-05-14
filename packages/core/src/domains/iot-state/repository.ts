@@ -110,8 +110,8 @@ export function createIotStateRepository(input: CreateIotStateRepositoryInput) {
         .go();
     },
     async listByRoom(input: { roomId: string; topic: string }): Promise<IotStateRecord[]> {
-      const result = await iotStateEntity
-        .query.primary({
+      const result = await iotStateEntity.query
+        .primary({
           topic: input.topic,
           sessionUid: input.roomId,
         })

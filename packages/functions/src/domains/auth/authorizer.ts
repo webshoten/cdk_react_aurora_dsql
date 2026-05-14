@@ -1,5 +1,5 @@
-import type { APIGatewayRequestAuthorizerEventV2 } from "aws-lambda";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
+import type { APIGatewayRequestAuthorizerEventV2 } from "aws-lambda";
 
 export interface AuthorizerContext {
   groups: string;

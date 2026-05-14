@@ -143,6 +143,9 @@ importers:
       aws-cdk-lib:
         specifier: ^2.251.0
         version: 2.251.0(constructs@10.6.0)
+      cdk-nag:
+        specifier: ^2.37.55
+        version: 2.38.2(aws-cdk-lib@2.251.0(constructs@10.6.0))(constructs@10.6.0)
       constructs:
         specifier: ^10.6.0
         version: 10.6.0
@@ -2486,6 +2489,13 @@ packages:
   camelcase@5.3.1:
     resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
     engines: {node: '>=6'}
+
+  cdk-nag@2.38.2:
+    resolution: {integrity: sha512-Ddim1r8IwAPQn95KB2owbHoU4YHveHg4PfM+k7TdcANqfVmoHem6cTFMpcIuoDM16BkQQ+xshxYxZgcAoeVKGw==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      aws-cdk-lib: ^2.176.0
+      constructs: ^10.5.1
 
   class-variance-authority@0.7.1:
     resolution: {integrity: sha512-Ka+9Trutv7G8M6WT6SeiRWz792K5qEqIGEGzXKhAE6xOWAY6pPH8U+9IY3oCMv6kqTmLsv7Xh/2w2RigkePMsg==}
@@ -6668,6 +6678,11 @@ snapshots:
       get-intrinsic: 1.3.0
 
   camelcase@5.3.1: {}
+
+  cdk-nag@2.38.2(aws-cdk-lib@2.251.0(constructs@10.6.0))(constructs@10.6.0):
+    dependencies:
+      aws-cdk-lib: 2.251.0(constructs@10.6.0)
+      constructs: 10.6.0
 
   class-variance-authority@0.7.1:
     dependencies:

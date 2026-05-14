@@ -34,7 +34,10 @@ export function lookupHostedZone(
  * ## 目的
  * CD 入力パラメータ（`HOSTED_ZONE_ID` / `HOSTED_ZONE_NAME`）を shared 側で参照する。
  */
-export function resolveHostedZoneInput(scope: Construct, input: ResolveHostedZoneInput): LookupHostedZoneInput {
+export function resolveHostedZoneInput(
+  scope: Construct,
+  input: ResolveHostedZoneInput,
+): LookupHostedZoneInput {
   return {
     hostedZoneId: ssm.StringParameter.valueForStringParameter(
       scope,

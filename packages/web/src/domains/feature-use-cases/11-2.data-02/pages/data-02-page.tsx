@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useState } from "react";
 import { resolveConfigError } from "@/app/config/runtime-config.ts";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card.tsx";
-import { useCallback, useEffect, useState } from "react";
 import { Data02Specification } from "../components/data-02-specification.tsx";
 import { ImageStatusMessages } from "../components/image-status-messages.tsx";
 import { ImageUploadControls } from "../components/image-upload-controls.tsx";

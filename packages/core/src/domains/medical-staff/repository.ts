@@ -1,9 +1,9 @@
-import { asc, eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { medicalStaffs } from "@core/shared/db/schema.ts";
-import type { DbClient } from "@core/shared/db/types.ts";
 import { DEMO_MEDICAL_STAFFS } from "@core/domains/medical-staff/demo-data.ts";
 import type { MedicalStaff } from "@core/domains/medical-staff/types.ts";
+import { medicalStaffs } from "@core/shared/db/schema.ts";
+import type { DbClient } from "@core/shared/db/types.ts";
+import { asc, eq, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
 
 /*
  * # 医療機関別スタッフ一覧

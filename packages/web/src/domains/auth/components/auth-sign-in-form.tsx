@@ -38,7 +38,10 @@ export function AuthSignInForm(props: AuthSignInFormProps) {
         type="password"
         value={password}
       />
-      <button className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground" type="submit">
+      <button
+        className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground"
+        type="submit"
+      >
         Sign In
       </button>
     </form>

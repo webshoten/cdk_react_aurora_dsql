@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { lexicographicSortSchema, printSchema } from "graphql";
 import { schema } from "@functions/domains/graphql/schema/index.ts";
+import { lexicographicSortSchema, printSchema } from "graphql";
 
 /*
  * ## 目的

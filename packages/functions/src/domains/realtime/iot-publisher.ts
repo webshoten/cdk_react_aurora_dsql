@@ -1,10 +1,10 @@
 import { IoTDataPlaneClient, PublishCommand } from "@aws-sdk/client-iot-data-plane";
+import { requireEnv } from "@functions/shared/env.ts";
 import {
   buildIotEventTopic,
   normalizeMedicalInstitutionId,
   type RoomStatePayload,
 } from "@pf/mqtt-schema";
-import { requireEnv } from "@functions/shared/env.ts";
 
 export type PublishOnStartRoomInput = {
   medicalInstitutionId: string;

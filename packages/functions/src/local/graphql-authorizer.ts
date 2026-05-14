@@ -1,6 +1,6 @@
-import type { APIGatewayRequestAuthorizerEventV2 } from "aws-lambda";
-import type { GraphqlAuthorizerContext } from "@functions/shared/context/graphql-context.ts";
 import { authorizeRequest } from "@functions/domains/auth/authorizer.ts";
+import type { GraphqlAuthorizerContext } from "@functions/shared/context/graphql-context.ts";
+import type { APIGatewayRequestAuthorizerEventV2 } from "aws-lambda";
 
 /*
  * # ローカル GraphQL 疑似 Authorizer

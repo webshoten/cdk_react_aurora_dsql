@@ -1,10 +1,10 @@
-import * as cognito from "aws-cdk-lib/aws-cognito";
-import * as cognitoIdentity from "aws-cdk-lib/aws-cognito-identitypool";
 import { ClientIdNameMapConstruct } from "@infra/lib/constructs/app/auth/client-id-name-map";
 import { createIdentityPool } from "@infra/lib/constructs/app/auth/identity-pool";
 import { AuthTriggerConstruct } from "@infra/lib/constructs/app/auth/triggers";
 import { createUserPool } from "@infra/lib/constructs/app/auth/user-pool";
 import { createWebUserPoolClient } from "@infra/lib/constructs/app/auth/web-user-pool-client";
+import type * as cognito from "aws-cdk-lib/aws-cognito";
+import type * as cognitoIdentity from "aws-cdk-lib/aws-cognito-identitypool";
 import { Construct } from "constructs";
 
 export interface AuthConstructProps {

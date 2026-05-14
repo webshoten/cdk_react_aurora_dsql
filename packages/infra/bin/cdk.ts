@@ -11,6 +11,7 @@ import { WebStack } from "@infra/lib/stacks/app/web-stack";
 import { SharedStack } from "@infra/lib/stacks/shared/shared-stack";
 import { SharedUsEast1ParamsStack } from "@infra/lib/stacks/shared/shared-us-east-1-params-stack";
 import * as cdk from "aws-cdk-lib/core";
+import { AwsSolutionsChecks } from "cdk-nag";
 
 /*
  * # CDK アプリケーションエントリ
@@ -28,6 +29,14 @@ import * as cdk from "aws-cdk-lib/core";
  * - リージョン既定値を ap-northeast-1 でハードコード。CDK_DEFAULT_REGION 未設定時のフォールバック。
  */
 const app = new cdk.App();
+/*
+ * cdk-nag は CDK テンプレートに対して AWS ベストプラクティス違反を検出する静的チェック。
+ * deploy 時に常時有効化すると既知違反でもデプロイ停止するため、
+ * QA 専用実行（CDK_NAG=1）でのみ有効にする。
+ */
+if (process.env.CDK_NAG === "1") {
+  cdk.Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }));
+}
 const stage = app.node.tryGetContext("stage") || os.userInfo().username;
 const sharedEnv = app.node.tryGetContext("shared-env") || process.env.CDK_SHARED_ENV;
 const sharedOnly = app.node.tryGetContext("shared-only") === "true";
@@ -101,7 +110,7 @@ if (!sharedOnly) {
   const apiStack = new ApiStack(app, `${resourcePrefix}-api`, {
     dbClusterArn: dbStack.clusterArn,
     dbEndpoint: dbStack.endpoint,
-    iotStateTableName: realtimeStack.realtimeIotStateTableName,
+    iotStateTable: realtimeStack.realtimeIotStateTable,
     imageBucketName: storageStack.imageBucketName,
     imagePrefix: storageStack.imagePrefix,
     env,

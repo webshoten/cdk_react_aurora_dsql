@@ -1,8 +1,8 @@
+import { publishOnStartRoom } from "@functions/domains/realtime/iot-publisher.ts";
+import type { GraphqlContext } from "@functions/shared/context/graphql-context.ts";
+import { requireEnv } from "@functions/shared/env.ts";
 import { createIotStateRepository } from "@pf/core";
 import { buildIotEventTopic } from "@pf/mqtt-schema";
-import type { GraphqlContext } from "@functions/shared/context/graphql-context.ts";
-import { publishOnStartRoom } from "@functions/domains/realtime/iot-publisher.ts";
-import { requireEnv } from "@functions/shared/env.ts";
 
 export type IotStateView = {
   entityType: string;
@@ -50,7 +50,8 @@ export const realtimeService = {
     if (!context.auth?.institutionCode) {
       throw new Error("institutionCode is required in auth context");
     }
-    const roomId = input.roomId.trim();
+    const rawRoomId = input.roomId;
+    const roomId = rawRoomId.trim();
     if (!roomId) {
       throw new Error("roomId is required");
     }
@@ -67,6 +68,16 @@ export const realtimeService = {
       tableName: requireEnv("IOT_STATE_TABLE_NAME"),
     });
     const rows = await repository.listByRoom({ topic, roomId });
+    console.info(
+      JSON.stringify({
+        message: "RealtimeService iotStatesByRoom query completed",
+        institutionId: context.auth.institutionCode,
+        rawRoomId,
+        roomId,
+        topic,
+        count: rows.length,
+      }),
+    );
 
     return rows.map((row) => ({
       topic: row.topic,

@@ -11,4 +11,3 @@ export const iot01Route: RouteObject = {
   path: "11-11.iot-01",
   element: <Iot01Page />,
 };
-

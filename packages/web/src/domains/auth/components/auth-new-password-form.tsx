@@ -30,7 +30,10 @@ export function AuthNewPasswordForm(props: AuthNewPasswordFormProps) {
         type="password"
         value={newPassword}
       />
-      <button className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground" type="submit">
+      <button
+        className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground"
+        type="submit"
+      >
         Confirm New Password
       </button>
     </form>

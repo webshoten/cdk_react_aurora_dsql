@@ -19,6 +19,7 @@
   "dependencies": {
     "@pf/functions": "workspace:*",
     "aws-cdk-lib": "^2.251.0",
+    "cdk-nag": "^2.37.55",
     "constructs": "^10.6.0"
   }
 }

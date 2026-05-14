@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useState } from "react";
 import { resolveConfigError } from "@/app/config/runtime-config.ts";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card.tsx";
-import { useCallback, useEffect, useState } from "react";
 import { Data01Specification } from "../components/data-01-specification.tsx";
 import { MedicalStaffActions } from "../components/medical-staff-actions.tsx";
 import { MedicalStaffStatusMessages } from "../components/medical-staff-status-messages.tsx";

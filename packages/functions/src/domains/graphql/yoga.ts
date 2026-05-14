@@ -1,6 +1,9 @@
-import { createYoga } from "graphql-yoga";
-import { createGraphqlContext, type GraphqlAuthorizerContext } from "@functions/domains/graphql/context.ts";
+import {
+  createGraphqlContext,
+  type GraphqlAuthorizerContext,
+} from "@functions/domains/graphql/context.ts";
 import { schema } from "@functions/domains/graphql/schema/index.ts";
+import { createYoga } from "graphql-yoga";
 
 interface GraphqlServerContext {
   authorizer: GraphqlAuthorizerContext | null;

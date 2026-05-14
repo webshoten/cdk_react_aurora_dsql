@@ -32,5 +32,4 @@ export function publishSharedSesParameters(
     stringValue: input.fromEmailArn,
   });
   fromEmailArnParam.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
-
 }

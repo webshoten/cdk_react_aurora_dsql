@@ -59,4 +59,3 @@ export class SharedUsEast1LookupConstruct extends Construct implements SharedUsE
     );
   }
 }
-

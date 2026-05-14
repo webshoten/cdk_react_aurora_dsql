@@ -1,6 +1,6 @@
 import { createImageBucket } from "@infra/lib/constructs/app/storage/image-bucket";
 import { IMAGE_PREFIX } from "@infra/lib/constructs/app/storage/image-prefix";
-import * as s3 from "aws-cdk-lib/aws-s3";
+import type * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
 export interface StorageConstructProps {

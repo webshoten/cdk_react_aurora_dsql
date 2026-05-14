@@ -85,9 +85,7 @@
         "images_image_path_unique": {
           "name": "images_image_path_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "image_path"
-          ]
+          "columns": ["image_path"]
         }
       },
       "policies": {},

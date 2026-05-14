@@ -68,7 +68,11 @@ export function DebugPage() {
         <CardDescription>認証トークンと claim を確認するページです。</CardDescription>
       </CardHeader>
       <CardContent>
-        <button className="rounded-md bg-primary px-4 py-2 text-primary-foreground" onClick={logout} type="button">
+        <button
+          className="rounded-md bg-primary px-4 py-2 text-primary-foreground"
+          onClick={logout}
+          type="button"
+        >
           Logout
         </button>
 
@@ -86,12 +90,16 @@ export function DebugPage() {
               Copy
             </button>
           </div>
-          <pre className="overflow-x-auto rounded-md border border-border p-3 text-xs">{idToken ?? "(none)"}</pre>
+          <pre className="overflow-x-auto rounded-md border border-border p-3 text-xs">
+            {idToken ?? "(none)"}
+          </pre>
         </div>
 
         <div className="mt-4 space-y-2">
           <p className="text-sm font-medium">Claims</p>
-          <pre className="overflow-x-auto rounded-md border border-border p-3 text-xs">{JSON.stringify(claims, null, 2)}</pre>
+          <pre className="overflow-x-auto rounded-md border border-border p-3 text-xs">
+            {JSON.stringify(claims, null, 2)}
+          </pre>
         </div>
 
         <div className="mt-6">
@@ -104,10 +112,29 @@ export function DebugPage() {
               event.currentTarget.reset();
             }}
           >
-            <input className="rounded border border-border px-2 py-1 text-sm" name="username" placeholder="username" required />
-            <input className="rounded border border-border px-2 py-1 text-sm" name="email" placeholder="email" required type="email" />
-            <input className="rounded border border-border px-2 py-1 text-sm" name="password" placeholder="password" required />
-            <button className="rounded bg-primary px-3 py-1 text-sm text-primary-foreground" type="submit">
+            <input
+              className="rounded border border-border px-2 py-1 text-sm"
+              name="username"
+              placeholder="username"
+              required
+            />
+            <input
+              className="rounded border border-border px-2 py-1 text-sm"
+              name="email"
+              placeholder="email"
+              required
+              type="email"
+            />
+            <input
+              className="rounded border border-border px-2 py-1 text-sm"
+              name="password"
+              placeholder="password"
+              required
+            />
+            <button
+              className="rounded bg-primary px-3 py-1 text-sm text-primary-foreground"
+              type="submit"
+            >
               Create
             </button>
           </form>
@@ -128,27 +155,35 @@ export function DebugPage() {
                 </tr>
               </thead>
               <tbody>
-                {(usersResult.data?.users ?? []).map((user: { uid: string; email: string; userType: string; createdAt: string; username: string }) => (
-                  <tr className="border-t border-border" key={user.username}>
-                    <td className="px-2 py-1">{user.username}</td>
-                    <td className="px-2 py-1">{user.email}</td>
-                    <td className="px-2 py-1">{user.uid}</td>
-                    <td className="px-2 py-1">{user.userType}</td>
-                    <td className="px-2 py-1">{user.createdAt}</td>
-                    <td className="px-2 py-1">
-                      <button
-                        className="rounded bg-secondary px-2 py-1"
-                        onClick={async () => {
-                          const temp = await handleResetPassword(user.username);
-                          if (temp) window.alert(`temporary password: ${temp}`);
-                        }}
-                        type="button"
-                      >
-                        Reset Password
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {(usersResult.data?.users ?? []).map(
+                  (user: {
+                    uid: string;
+                    email: string;
+                    userType: string;
+                    createdAt: string;
+                    username: string;
+                  }) => (
+                    <tr className="border-t border-border" key={user.username}>
+                      <td className="px-2 py-1">{user.username}</td>
+                      <td className="px-2 py-1">{user.email}</td>
+                      <td className="px-2 py-1">{user.uid}</td>
+                      <td className="px-2 py-1">{user.userType}</td>
+                      <td className="px-2 py-1">{user.createdAt}</td>
+                      <td className="px-2 py-1">
+                        <button
+                          className="rounded bg-secondary px-2 py-1"
+                          onClick={async () => {
+                            const temp = await handleResetPassword(user.username);
+                            if (temp) window.alert(`temporary password: ${temp}`);
+                          }}
+                          type="button"
+                        >
+                          Reset Password
+                        </button>
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>

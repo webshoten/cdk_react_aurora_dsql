@@ -1,5 +1,5 @@
+import { type IotStateView, realtimeService } from "@functions/domains/realtime/service.ts";
 import type { GraphqlContext } from "@functions/shared/context/graphql-context.ts";
-import { realtimeService, type IotStateView } from "@functions/domains/realtime/service.ts";
 
 /*
  * # Realtime Resolver

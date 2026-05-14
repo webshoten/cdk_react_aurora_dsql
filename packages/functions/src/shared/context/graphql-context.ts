@@ -1,5 +1,5 @@
-import { createDsqlClientFromEnv } from "@pf/core";
-import { S3Client } from "@aws-sdk/client-s3";
+import type { S3Client } from "@aws-sdk/client-s3";
+import type { createDsqlClientFromEnv } from "@pf/core";
 
 export interface GraphqlAuthorizerContext {
   groups: string[];

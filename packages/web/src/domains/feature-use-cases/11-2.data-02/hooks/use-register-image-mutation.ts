@@ -8,7 +8,12 @@ import { useTypedMutation } from "@pf/graphql-schema/urql";
  */
 export function useRegisterImageMutation() {
   return useTypedMutation(
-    (variables: { contentType: string; fileName: string; imagePath: string; sizeBytes: number }) => ({
+    (variables: {
+      contentType: string;
+      fileName: string;
+      imagePath: string;
+      sizeBytes: number;
+    }) => ({
       registerImage: {
         __args: {
           contentType: variables.contentType,

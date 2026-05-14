@@ -35,9 +35,13 @@ export function MedicalStaffStatusMessages(props: MedicalStaffStatusMessagesProp
   return (
     <>
       {configError && <pre className="text-sm text-red-600">{configError}</pre>}
-      {!configError && queryError && <pre className="text-sm text-red-600">{queryError.message}</pre>}
+      {!configError && queryError && (
+        <pre className="text-sm text-red-600">{queryError.message}</pre>
+      )}
       {!configError && addError && <pre className="text-sm text-red-600">{addError.message}</pre>}
-      {!configError && clearError && <pre className="text-sm text-red-600">{clearError.message}</pre>}
+      {!configError && clearError && (
+        <pre className="text-sm text-red-600">{clearError.message}</pre>
+      )}
       {!configError && addAppliedCount !== null && (
         <p className="text-sm text-muted-foreground">
           last add appliedCount: <code>{addAppliedCount}</code>

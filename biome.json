@@ -31,7 +31,8 @@
       "tsconfig.base.json",
       "!!**/node_modules",
       "!!**/cdk.out",
-      "!!**/dist"
+      "!!**/dist",
+      "!!packages/graphql-schema/genql"
     ],
     "ignoreUnknown": true
   }

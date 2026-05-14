@@ -1,6 +1,6 @@
 import { DsqlSigner } from "@aws-sdk/dsql-signer";
-import { Client } from "pg";
 import type { DbClient } from "@core/shared/db/types.ts";
+import { Client } from "pg";
 
 export interface DsqlClientConfig {
   database: string;

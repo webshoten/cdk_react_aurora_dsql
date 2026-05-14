@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { Client } from "pg";
 import { createConnectedDsqlPgClient, type DsqlClientConfig } from "@core/shared/db/client.ts";
+import type { Client } from "pg";
 
 export interface MigrationRunnerOptions {
   migrationsSchema?: string;

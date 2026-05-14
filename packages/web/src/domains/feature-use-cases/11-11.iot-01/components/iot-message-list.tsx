@@ -18,7 +18,10 @@ export function IotMessageList(props: IotMessageListProps) {
   return (
     <div className="space-y-2">
       {props.messages.map((message, index) => (
-        <div className="rounded border border-border p-3 text-xs" key={`${message.receivedAt}-${index.toString()}`}>
+        <div
+          className="rounded border border-border p-3 text-xs"
+          key={`${message.receivedAt}-${index.toString()}`}
+        >
           <p>
             <span className="font-medium">receivedAt:</span> {message.receivedAt}
           </p>
@@ -33,4 +36,3 @@ export function IotMessageList(props: IotMessageListProps) {
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-import * as cognito from "aws-cdk-lib/aws-cognito";
+import type * as cognito from "aws-cdk-lib/aws-cognito";
 import * as cognitoIdentity from "aws-cdk-lib/aws-cognito-identitypool";
 import type { Construct } from "constructs";
 

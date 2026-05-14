@@ -2,6 +2,7 @@ import * as path from "node:path";
 import { GraphqlAuthorizerConstruct } from "@infra/lib/constructs/app/api/graphql-authorizer";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import type * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -16,7 +17,7 @@ export interface GraphqlApiConstructProps {
   imageBucketName: string;
   imagePrefix: string;
   iotDataEndpoint: string;
-  iotStateTableName: string;
+  iotStateTable: dynamodb.ITable;
   sharedEnv: string;
   stage: string;
   userPoolId: string;
@@ -82,7 +83,7 @@ export class GraphqlApiConstruct extends Construct {
         IMAGE_BUCKET: props.imageBucketName,
         IMAGE_PREFIX: props.imagePrefix,
         IOT_DATA_ENDPOINT: props.iotDataEndpoint,
-        IOT_STATE_TABLE_NAME: props.iotStateTableName,
+        IOT_STATE_TABLE_NAME: props.iotStateTable.tableName,
         NODE_OPTIONS: "--enable-source-maps",
         PRESIGNED_URL_EXPIRES_SECONDS: "300",
         SHARED_ENV: props.sharedEnv,
@@ -104,6 +105,7 @@ export class GraphqlApiConstruct extends Construct {
         resources: [`arn:aws:s3:::${props.imageBucketName}/${props.imagePrefix}*`],
       }),
     );
+    props.iotStateTable.grantReadData(graphqlFn);
 
     graphqlFn.addToRolePolicy(
       new iam.PolicyStatement({

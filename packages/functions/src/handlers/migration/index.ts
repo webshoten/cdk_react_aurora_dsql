@@ -1,11 +1,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { Readable } from "node:stream";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { requireEnv } from "@functions/shared/env.ts";
 import { resolveMigrationConfigFromEnv, runDsqlMigrationAndSeed } from "@pf/core";
 import type { Handler } from "aws-lambda";
 import { unzipSync } from "fflate";
-import { requireEnv } from "@functions/shared/env.ts";
 
 interface MigrationInvokeEvent {
   migration?: {

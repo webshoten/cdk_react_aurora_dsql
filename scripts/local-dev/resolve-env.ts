@@ -18,6 +18,7 @@ logResolved(opts);
 const stackName = `pf-${opts.sharedEnv}-${opts.stage}-db`;
 const apiStackName = `pf-${opts.sharedEnv}-${opts.stage}-api`;
 const authStackName = `pf-${opts.sharedEnv}-${opts.stage}-auth`;
+const realtimeStackName = `pf-${opts.sharedEnv}-${opts.stage}-realtime`;
 const storageStackName = `pf-${opts.sharedEnv}-${opts.stage}-storage`;
 const webStackName = `pf-${opts.sharedEnv}-${opts.stage}-web`;
 const outputsPath = path.resolve(process.cwd(), "cdk-outputs.json");
@@ -26,7 +27,10 @@ if (!fs.existsSync(outputsPath)) {
   throw new Error("cdk-outputs.json が見つかりません。先に cdk deploy を実行してください。");
 }
 
-const outputs = JSON.parse(fs.readFileSync(outputsPath, "utf8")) as Record<string, Record<string, string>>;
+const outputs = JSON.parse(fs.readFileSync(outputsPath, "utf8")) as Record<
+  string,
+  Record<string, string>
+>;
 const stackOutputs = outputs[stackName];
 if (!stackOutputs) {
   throw new Error(`${outputsPath} に ${stackName} の出力がありません。`);
@@ -38,6 +42,10 @@ if (!apiStackOutputs) {
 const authStackOutputs = outputs[authStackName];
 if (!authStackOutputs) {
   throw new Error(`${outputsPath} に ${authStackName} の出力がありません。`);
+}
+const realtimeStackOutputs = outputs[realtimeStackName];
+if (!realtimeStackOutputs) {
+  throw new Error(`${outputsPath} に ${realtimeStackName} の出力がありません。`);
 }
 const storageStackOutputs = outputs[storageStackName];
 if (!storageStackOutputs) {
@@ -53,6 +61,8 @@ const clusterArn = stackOutputs.DsqlClusterArn;
 const apiUrl = apiStackOutputs.ApiUrl;
 const userPoolId = authStackOutputs.UserPoolId;
 const userPoolClientId = authStackOutputs.UserPoolClientId;
+const cognitoRegion = authStackOutputs.CognitoRegion;
+const iotStateTableName = realtimeStackOutputs.RealtimeIotStateTableName;
 const imageBucket = storageStackOutputs.ImageBucketName;
 const imagePrefix = storageStackOutputs.ImagePrefix;
 const iotEndpoint = webStackOutputs.WebIotEndpoint;
@@ -67,11 +77,19 @@ if (!apiUrl) {
 if (!userPoolId || !userPoolClientId) {
   throw new Error(`${authStackName} の UserPoolId / UserPoolClientId を解決できませんでした。`);
 }
+if (!cognitoRegion) {
+  throw new Error(`${authStackName} の CognitoRegion を解決できませんでした。`);
+}
+if (!iotStateTableName) {
+  throw new Error(`${realtimeStackName} の RealtimeIotStateTableName を解決できませんでした。`);
+}
 if (!imageBucket || !imagePrefix) {
   throw new Error(`${storageStackName} の ImageBucketName / ImagePrefix を解決できませんでした。`);
 }
 if (!iotEndpoint || !iotAuthorizerName) {
-  throw new Error(`${webStackName} の WebIotEndpoint / WebIotAuthorizerName を解決できませんでした。`);
+  throw new Error(
+    `${webStackName} の WebIotEndpoint / WebIotAuthorizerName を解決できませんでした。`,
+  );
 }
 
 const envFilePath = path.resolve(process.cwd(), ".vscode/.local-dev.env");
@@ -82,6 +100,11 @@ fs.writeFileSync(
     `AWS_PROFILE=${opts.profile}`,
     `DSQL_ENDPOINT=${endpoint}`,
     `DSQL_CLUSTER_ARN=${clusterArn}`,
+    `COGNITO_REGION=${cognitoRegion}`,
+    `USER_POOL_ID=${userPoolId}`,
+    `USER_POOL_CLIENT_ID=${userPoolClientId}`,
+    `IOT_DATA_ENDPOINT=${iotEndpoint}`,
+    `IOT_STATE_TABLE_NAME=${iotStateTableName}`,
     `SHARED_ENV=${opts.sharedEnv}`,
     `STAGE=${opts.stage}`,
     `IMAGE_BUCKET=${imageBucket}`,
@@ -97,8 +120,8 @@ fs.mkdirSync(path.dirname(webConfigPath), { recursive: true });
 fs.writeFileSync(
   webConfigPath,
   `window.__CONFIG__=${JSON.stringify({
-    apiUrl: "http://localhost:4000",//ローカル起動はローカルfunctionsサーバーに向ける
-    cognitoRegion: "ap-northeast-1",
+    apiUrl: "http://localhost:4000", //ローカル起動はローカルfunctionsサーバーに向ける
+    cognitoRegion,
     iotEndpoint,
     iotAuthorizerName,
     sharedEnv: opts.sharedEnv,

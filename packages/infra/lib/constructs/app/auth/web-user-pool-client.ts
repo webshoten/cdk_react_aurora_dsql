@@ -1,4 +1,4 @@
-import * as cognito from "aws-cdk-lib/aws-cognito";
+import type * as cognito from "aws-cdk-lib/aws-cognito";
 import type { Construct } from "constructs";
 
 export interface CreateWebUserPoolClientInput {

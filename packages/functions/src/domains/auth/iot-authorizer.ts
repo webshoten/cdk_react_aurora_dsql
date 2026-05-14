@@ -1,5 +1,5 @@
-import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { requireEnv } from "@functions/shared/env.ts";
+import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 export type IotCustomAuthorizerEvent = {
   protocolData?: {

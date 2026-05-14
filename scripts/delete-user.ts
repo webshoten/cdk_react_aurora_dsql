@@ -1,5 +1,5 @@
-import { Command } from "commander";
 import { createDsqlClientFromEnv, deleteUserRecordByUsername } from "@pf/core";
+import { Command } from "commander";
 import { logSuccess } from "./lib/log.ts";
 import { logResolved, type RawOptions, resolveOptions } from "./lib/options.ts";
 import {

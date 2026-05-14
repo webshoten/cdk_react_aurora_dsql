@@ -31,7 +31,10 @@ export function AuthMfaConfirmForm(props: AuthMfaConfirmFormProps) {
         required
         value={mfaCode}
       />
-      <button className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground" type="submit">
+      <button
+        className="rounded bg-primary px-4 py-2 text-sm text-primary-foreground"
+        type="submit"
+      >
         Confirm MFA
       </button>
       <button

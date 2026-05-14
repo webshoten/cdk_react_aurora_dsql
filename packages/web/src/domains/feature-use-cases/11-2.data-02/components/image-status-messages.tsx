@@ -35,7 +35,9 @@ export function ImageStatusMessages(props: ImageStatusMessagesProps) {
   return (
     <>
       {configError && <pre className="text-sm text-red-600">{configError}</pre>}
-      {!configError && queryError && <pre className="text-sm text-red-600">{queryError.message}</pre>}
+      {!configError && queryError && (
+        <pre className="text-sm text-red-600">{queryError.message}</pre>
+      )}
       {!configError && createUrlError && (
         <pre className="text-sm text-red-600">{createUrlError.message}</pre>
       )}

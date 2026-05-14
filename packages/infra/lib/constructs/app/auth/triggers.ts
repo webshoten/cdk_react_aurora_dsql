@@ -55,8 +55,14 @@ export class AuthTriggerConstruct extends Construct {
       timeout: cdk.Duration.seconds(5),
     });
 
-    props.userPool.addTrigger(cognito.UserPoolOperation.PRE_AUTHENTICATION, preAuthenticationTrigger);
-    props.userPool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION, preTokenGenerationTrigger);
+    props.userPool.addTrigger(
+      cognito.UserPoolOperation.PRE_AUTHENTICATION,
+      preAuthenticationTrigger,
+    );
+    props.userPool.addTrigger(
+      cognito.UserPoolOperation.PRE_TOKEN_GENERATION,
+      preTokenGenerationTrigger,
+    );
     props.userPool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, customMessageTrigger);
   }
 }

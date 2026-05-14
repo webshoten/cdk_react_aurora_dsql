@@ -36,7 +36,9 @@ export function registerUsersSchema(builder: AppSchemaBuilder): void {
     fields: (t) => ({
       userId: t.exposeString("userId", { description: "認証ユーザーの一意ID（sub）。" }),
       username: t.exposeString("username", { description: "認証ユーザーのユーザー名。" }),
-      groups: t.exposeStringList("groups", { description: "認証ユーザーに付与されたグループ一覧。" }),
+      groups: t.exposeStringList("groups", {
+        description: "認証ユーザーに付与されたグループ一覧。",
+      }),
       institutionCode: t.exposeString("institutionCode", {
         description: "認証ユーザーの所属機関コード。未設定時は null。",
         nullable: true,

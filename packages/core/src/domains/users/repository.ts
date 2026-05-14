@@ -1,7 +1,7 @@
-import { asc, eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
 import { users } from "@core/shared/db/schema.ts";
 import type { DbClient } from "@core/shared/db/types.ts";
+import { asc, eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
 
 /*
  * # users repository

@@ -28,22 +28,31 @@ export function Auth01Page() {
           <ul className="list-disc pl-6">
             <li>`/graphql` は Lambda Authorizer 経由で受ける</li>
             <li>未認証は API Gateway で拒否する</li>
-            <li>resolver へ渡す認証情報は `userId / username / groups / institutionCode?` に限定する</li>
+            <li>
+              resolver へ渡す認証情報は `userId / username / groups / institutionCode?` に限定する
+            </li>
             <li>認証確認 Query は `currentUser` に統一する</li>
           </ul>
         </section>
 
         <section>
-          <p className="font-medium">トークン拡張・認証制御ポイント: 要件追加に備えた拡張点を先に固定する</p>
+          <p className="font-medium">
+            トークン拡張・認証制御ポイント: 要件追加に備えた拡張点を先に固定する
+          </p>
           <ul className="list-disc pl-6">
-            <li>UserPool Trigger として `preAuthentication / preTokenGeneration / customMessage` を接続する</li>
+            <li>
+              UserPool Trigger として `preAuthentication / preTokenGeneration / customMessage`
+              を接続する
+            </li>
             <li>`clientId -&gt; clientName` マップは SSM Parameter Store で管理する</li>
             <li>custom attributes は `custom:institution_id / custom:mfa_preference` を使う</li>
           </ul>
         </section>
 
         <section>
-          <p className="font-medium">フロント認証導線: ログインからMFA確認までを一貫した方式で処理する</p>
+          <p className="font-medium">
+            フロント認証導線: ログインからMFA確認までを一貫した方式で処理する
+          </p>
           <ul className="list-disc pl-6">
             <li>Amplify Auth の `signIn -&gt; nextStep -&gt; confirmSignIn` で実装する</li>
             <li>runtime 設定は `config.js (window.__CONFIG__)` から解決する</li>

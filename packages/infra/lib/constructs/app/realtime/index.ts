@@ -1,6 +1,7 @@
 import { RealtimeCustomAuthorizerConstruct } from "@infra/lib/constructs/app/realtime/custom-authorizer";
 import { RealtimeStateTableConstruct } from "@infra/lib/constructs/app/realtime/state-table";
 import { RealtimeTopicRuleSubscriberConstruct } from "@infra/lib/constructs/app/realtime/topic-rule-subscriber";
+import type * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 
 export interface RealtimeConstructProps {
@@ -19,6 +20,7 @@ export interface RealtimeConstructProps {
  */
 export class RealtimeConstruct extends Construct {
   public readonly customAuthorizerName: string;
+  public readonly iotStateTable: dynamodb.ITable;
   public readonly iotStateTableName: string;
   public readonly subscriberFunctionName: string;
   public readonly eventTopicRuleName: string;
@@ -38,6 +40,7 @@ export class RealtimeConstruct extends Construct {
     });
 
     this.customAuthorizerName = customAuthorizer.authorizer.authorizerName ?? "";
+    this.iotStateTable = stateTable.table;
     this.iotStateTableName = stateTable.table.tableName;
     this.subscriberFunctionName = subscriber.subscriberFunction.functionName;
     this.eventTopicRuleName = subscriber.topicRule.ruleName ?? "";

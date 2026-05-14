@@ -1,4 +1,5 @@
 import { RealtimeConstruct } from "@infra/lib/constructs/app/realtime";
+import type * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as cdk from "aws-cdk-lib/core";
 import type { Construct } from "constructs";
 
@@ -22,6 +23,7 @@ export interface RealtimeStackProps extends cdk.StackProps {
  */
 export class RealtimeStack extends cdk.Stack {
   public readonly realtimeCustomAuthorizerName: string;
+  public readonly realtimeIotStateTable: dynamodb.ITable;
   public readonly realtimeIotStateTableName: string;
   public readonly realtimeEventSubscriberFunctionName: string;
   public readonly realtimeEventTopicRuleName: string;
@@ -38,6 +40,7 @@ export class RealtimeStack extends cdk.Stack {
     });
 
     this.realtimeCustomAuthorizerName = realtime.customAuthorizerName;
+    this.realtimeIotStateTable = realtime.iotStateTable;
     this.realtimeIotStateTableName = realtime.iotStateTableName;
     this.realtimeEventSubscriberFunctionName = realtime.subscriberFunctionName;
     this.realtimeEventTopicRuleName = realtime.eventTopicRuleName;
