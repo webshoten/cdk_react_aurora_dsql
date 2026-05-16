@@ -34,8 +34,10 @@ export function Iot01Page() {
   });
   const [{ data: publishData, fetching: isPublishing, error: publishError }, publishOnStartRoom] =
     usePublishOnStartRoomMutation();
-  const [{ data: iotStatesData, fetching: isIotStatesFetching, error: iotStatesError }, reexecuteIotStatesQuery] =
-    useIotStatesByRoomQuery(queryRoomId, Boolean(configError) || authState !== "authenticated");
+  const [
+    { data: iotStatesData, fetching: isIotStatesFetching, error: iotStatesError },
+    reexecuteIotStatesQuery,
+  ] = useIotStatesByRoomQuery(queryRoomId, Boolean(configError) || authState !== "authenticated");
 
   const canSubscribe = useMemo(() => {
     if (!iotConfig) return false;
@@ -62,7 +64,6 @@ export function Iot01Page() {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-
         <div className="rounded border border-border p-4 text-xs">
           <p>sharedEnv: {iotConfig?.sharedEnv ?? "(config未設定)"}</p>
           <p>stage: {iotConfig?.stage ?? "(config未設定)"}</p>

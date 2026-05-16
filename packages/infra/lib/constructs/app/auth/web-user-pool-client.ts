@@ -13,7 +13,7 @@ export interface CreateWebUserPoolClientInput {
  * AuthConstruct から Web UserPoolClient 生成責務を分離する。
  */
 export function createWebUserPoolClient(
-  scope: Construct,
+  _scope: Construct,
   id: string,
   input: CreateWebUserPoolClientInput,
 ): cognito.UserPoolClient {

@@ -80,36 +80,32 @@ export function AppLayout() {
                         </div>
                       )}
                     </>
+                  ) : item.to ? (
+                    <NavLink
+                      className={({ isActive }) =>
+                        cn(
+                          buttonVariants({
+                            className: "w-full justify-start",
+                            variant: isActive ? "default" : "ghost",
+                          }),
+                        )
+                      }
+                      to={item.to}
+                    >
+                      {item.label}
+                    </NavLink>
                   ) : (
-                    <>
-                      {item.to ? (
-                        <NavLink
-                          className={({ isActive }) =>
-                            cn(
-                              buttonVariants({
-                                className: "w-full justify-start",
-                                variant: isActive ? "default" : "ghost",
-                              }),
-                            )
-                          }
-                          to={item.to}
-                        >
-                          {item.label}
-                        </NavLink>
-                      ) : (
-                        <span
-                          className={cn(
-                            buttonVariants({
-                              className:
-                                "w-full cursor-default justify-start opacity-60 pointer-events-none",
-                              variant: "ghost",
-                            }),
-                          )}
-                        >
-                          {item.label}
-                        </span>
+                    <span
+                      className={cn(
+                        buttonVariants({
+                          className:
+                            "w-full cursor-default justify-start opacity-60 pointer-events-none",
+                          variant: "ghost",
+                        }),
                       )}
-                    </>
+                    >
+                      {item.label}
+                    </span>
                   )}
                 </div>
               ))}

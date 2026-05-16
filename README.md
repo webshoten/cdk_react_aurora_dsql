@@ -166,3 +166,16 @@ pnpm dev:web          # http://localhost:5173
 - 起動前に `local-dev:resolve-env` が走り、AWS 環境値を `.vscode/.local-dev.env` に解決する
 - 1つの起動構成で `@pf/functions` と `@pf/web` を並列起動できる
 - 固定値（`DSQL_DATABASE` / `DSQL_DB_USER` / `DSQL_PORT` / `AWS_REGION` / `PORT`）は launch 側で渡す
+
+## QA 実行ルール
+
+- コード変更後は `pnpm qa` 系を実行し、機械実行結果で成否を判断する
+- 基本実行
+  - `pnpm qa:static`
+  - `pnpm qa:base`
+- 変更対象に応じて追加実行
+  - `packages/web` 変更時: `pnpm qa:frontend`
+  - `packages/functions` または `packages/core` 変更時: `pnpm qa:backend`
+  - `packages/infra` 変更時: `CDK_SHARED_ENV=<env> pnpm qa:infra`
+  - 認証/認可/秘密情報/IAM/ネットワーク変更時: `pnpm qa:security`
+  - 複数領域や統合確認時: `pnpm qa:full`

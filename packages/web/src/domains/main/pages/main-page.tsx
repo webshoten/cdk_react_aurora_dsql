@@ -1,13 +1,23 @@
+import { Card, CardContent, CardHeader } from "@/shared/ui/card.tsx";
+import { MainLinkMap } from "../components/main-link-map.tsx";
+
 /*
  * # トップページ（プレースホルダ）
  *
  * ## 目的
- * "/" ルートに割り当てる空ページ。サイドバー（AppLayout）だけ表示してメイン領域は空のままにする。
+ * "/" ルートに割り当てるトップページ。debug と同じカード枠でリンクマップを表示する。
  *
  * ## NOTE
- * - 中身が必要になったらここに描画する。現状は意図的に null。
+ * - リンク一覧の表示責務は components へ分離する。
  * - 他 domain と異なり route.tsx を持たず、router.tsx から直接 MainPage を参照している。
  */
 export function MainPage() {
-  return null;
+  return (
+    <Card>
+      <CardHeader />
+      <CardContent>
+        <MainLinkMap />
+      </CardContent>
+    </Card>
+  );
 }

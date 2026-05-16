@@ -7,3 +7,10 @@ startup_timeout_sec = 300
 FASTMCP_LOG_LEVEL = "ERROR"
 AWS_PROFILE = "default"
 AWS_REGION = "ap-northeast-1"
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["@playwright/mcp@latest", "--extension"]
+
+[mcp_servers.playwright.env]
+PLAYWRIGHT_MCP_EXTENSION_TOKEN = "${PLAYWRIGHT_MCP_EXTENSION_TOKEN}"

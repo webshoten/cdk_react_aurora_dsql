@@ -12,3 +12,4 @@ cdk-outputs.json
 .migration-artifact.zip
 .migration-runner-output.json
 .migration-sql.zip
+.playwright-mcp/

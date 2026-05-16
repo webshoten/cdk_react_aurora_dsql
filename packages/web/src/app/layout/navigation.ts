@@ -31,6 +31,10 @@ export const OVERVIEW_NAV_ITEMS: OverviewNavItem[] = [
   { label: "9.ai" },
   { label: "10.local-dev" },
   { label: "11.feature-use-cases" },
+  { label: "14.requirement", to: "/overview/14.requirement" },
+  { label: "15.design", to: "/overview/15.design" },
+  { label: "16.implementation", to: "/overview/16.implementation" },
+  { label: "17.verification", to: "/overview/17.verification" },
 ];
 
 /*

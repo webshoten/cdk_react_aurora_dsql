@@ -21,6 +21,7 @@
 - IoT Core 固有機能の最終確認は AWS 実経路（IoT Core + CloudWatch logs）で実施する
 - DB は Aurora DSQL 実環境を参照し、接続設定はローカル `.env.local` で管理する
 - CDK 変更時は deploy/destroy 実行中確認を必須ルールとして運用する
+- ローカル `web` の DOM 観測は Playwright MCP（拡張ブリッジ方式）経由で AI クライアントから行う（詳細: `docs/overview/9.ai/9-1.playwright-mcp/overview.md`）
 
 ## 構成
 
@@ -41,3 +42,4 @@
 - 2026-04-26: `setup` は `README.md` と重複するため章から削除し、`debug/db` に集約
 - 2026-05-10: ローカル GraphQL は疑似 authorizer で `idToken` 検証し、`context.auth` を構成する方針を追加
 - 2026-05-10: IoT ローカルデバッグ手段は未定とし、現状は AWS IoT Core 経由の AWS Lambda 実行を前提に CloudWatch Logs でデバッグする方針へ更新
+- 2026-05-15: AI による web ローカル DOM 観測手段として Playwright MCP を採用（詳細: `docs/overview/9.ai`）

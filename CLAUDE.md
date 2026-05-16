@@ -4,7 +4,7 @@
 このファイルは、このリポジトリで作業するコーディングエージェント向けの必須手順を定義します。
 
 ## 作業開始時の必須手順
-1. 実装前に `docs/overview/8.coding-rules/overview.md` を必ず全文読む。
+1. 実装前に `docs/overview/14.requirement/overview.md` / `docs/overview/15.design/overview.md` / `docs/overview/16.implementation/overview.md` / `docs/overview/17.verification/overview.md` を確認する。
 2. 今回のタスクで守るルールを短く要約して宣言する。
 3. 1 と 2 が終わるまで編集を開始しない。
 
@@ -13,8 +13,11 @@
 1. フェーズを次に進めるには、必ずユーザーの明示承認を得る。
 2. 明示承認がない限り、現在フェーズで停止する。
 3. 「進める」「お願いします」など解釈が分かれる表現は次フェーズ承認として扱わず、確認してから進む。
-4. 実装判断の詳細ルール（責務分離、停止条件、禁止事項、配置方針など）は `docs/overview/8.coding-rules/overview.md` を正本とし、必ず従う。
-5. CLAUDE.md と coding-rules の内容が競合して見える場合は、独断で解釈せずユーザーに確認する。
+3.1 軽微な調査・確認（コード変更なし、情報確認のみ）はフェーズ進行（要件確認 / 設計 / 実装 / 検証）の対象外とする。
+3.2 軽微な調査・確認では、実施開始の承認を得た後に調査して結果報告する。
+3.3 軽微な調査・確認中にコード変更が必要になった時点で、通常のフェーズ進行ルールへ切り替える。
+4. フェーズ別の詳細ルールは `docs/overview/14.requirement/overview.md` / `docs/overview/15.design/overview.md` / `docs/overview/16.implementation/overview.md` / `docs/overview/17.verification/overview.md` を正本とし、必ず従う。
+5. CLAUDE.md と各 overview 正本の内容が競合して見える場合は、独断で解釈せずユーザーに確認する。
 6. Codex と Claude の両方を利用する前提で、`AGENTS.md` と `CLAUDE.md` の内容は常に同期して維持する。
 7. 片方だけ更新する場合は、同一タスクで必ずもう片方も更新する。
 8. コード変更後は、変更対象に応じて `qa:*` を実行し、結果を報告する。
@@ -26,9 +29,13 @@
    - 認証/認可/秘密情報/IAM/ネットワーク変更: `pnpm qa:security` を追加実行する
    - 複数領域変更や統合確認: `pnpm qa:full` を実行する
 
+## コミュニケーションルール
+- ユーザーの質問・依頼の意図が抽象的な場合は、推測で進めず、質問して意図を明確化してから進める。
+- 意図が複数解釈できる表現は、解釈を固定せず確認を取る。
+
 ## 編集前チェック（宣言必須）
 1. 変更対象ファイル
-2. 適用する coding-rules 項目
+2. 適用する overview 項目
 3. その配置・実装方針が妥当な理由
 
 ## 編集後チェック（報告必須）
@@ -39,7 +46,7 @@
 ## 優先順位
 1. ユーザーの明示指示
 2. この `CLAUDE.md`
-3. `docs/overview/8.coding-rules/overview.md`
+3. `docs/overview/14.requirement/overview.md` / `docs/overview/15.design/overview.md` / `docs/overview/16.implementation/overview.md` / `docs/overview/17.verification/overview.md`
 4. 変更対象モジュールの既存慣習
 
 ## 運用メモ
