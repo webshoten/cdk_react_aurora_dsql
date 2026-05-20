@@ -2,6 +2,11 @@ import { Link } from "react-router-dom";
 
 const MAIN_LINK_ITEMS = [
   {
+    title: "AWSアーキテクチャサンプル",
+    path: "/overview/1.architecture",
+    description: "1.architecture",
+  },
+  {
     title: "データ表示サンプル",
     path: "/feature-use-cases/11-1.data-01",
     description: "11-1.data-01",

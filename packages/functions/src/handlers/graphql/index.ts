@@ -49,10 +49,10 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
  * Lambda Authorizer の返却値（requestContext.authorizer.lambda）から必要項目のみを抽出する。
  */
 function readLambdaAuthorizerContext(event: APIGatewayProxyEventV2): {
-  groups?: string;
+  groups: string[];
   institutionCode?: string;
-  userId?: string;
-  username?: string;
+  userId: string;
+  username: string;
 } | null {
   const requestContext = event.requestContext as unknown as { authorizer?: unknown };
   const authorizer = requestContext.authorizer;
@@ -62,10 +62,25 @@ function readLambdaAuthorizerContext(event: APIGatewayProxyEventV2): {
   if (!lambda || typeof lambda !== "object") return null;
 
   const raw = lambda as Record<string, unknown>;
+  const userId = typeof raw.userId === "string" ? raw.userId : "";
+  const username = typeof raw.username === "string" ? raw.username : "";
+  if (!userId || !username) return null;
+
+  const groupsRaw = typeof raw.groups === "string" ? raw.groups : "";
+  const groups = groupsRaw
+    .split(",")
+    .map((group) => group.trim())
+    .filter((group) => group.length > 0);
+
+  const institutionCode =
+    typeof raw.institutionCode === "string" && raw.institutionCode.length > 0
+      ? raw.institutionCode
+      : undefined;
+
   return {
-    userId: typeof raw.userId === "string" ? raw.userId : undefined,
-    username: typeof raw.username === "string" ? raw.username : undefined,
-    groups: typeof raw.groups === "string" ? raw.groups : undefined,
-    institutionCode: typeof raw.institutionCode === "string" ? raw.institutionCode : undefined,
+    userId,
+    username,
+    groups,
+    institutionCode,
   };
 }

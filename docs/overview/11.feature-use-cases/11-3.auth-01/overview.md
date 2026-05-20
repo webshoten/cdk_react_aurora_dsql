@@ -16,50 +16,93 @@
 
 ### Infra
 
-- Auth は `AuthStack` 配下の Construct として配置している
-- Cognito は `UserPool` / `Web Client` / `IdentityPool` 構成としている
-- Web Client の `ExplicitAuthFlows` は `ALLOW_USER_SRP_AUTH` / `ALLOW_USER_PASSWORD_AUTH` / `ALLOW_REFRESH_TOKEN_AUTH` を有効化する
-- UserPool は自己サインアップを有効のままとし、11-3 では設定変更しない構成としている
-- IdentityPool は `authenticated only`（未認証ゲストロールなし）構成としている
-- IdentityPool の UserPool client 紐付けは Web 用のみとしている（function/test は対象外）
-- `/graphql` は Lambda Authorizer 経由としている（未認証は API Gateway で拒否）
-- UserPool trigger は `preAuthentication` / `preTokenGeneration` / `customMessage` を接続前提としている
-  - `preAuthentication`: サインイン確定前にログイン許可/拒否を判定する
-  - `preTokenGeneration`: トークン発行直前に custom claim の追加・抑制を行う
-  - `customMessage`: Cognito が送信する確認コード通知の件名・本文を整形する
-- `clientId -> clientName` マップは SSM Parameter Store で管理する前提としている
-- UserPool custom attributes は `UserPool.customAttributes` で定義する前提としている
-- 対象 ID は `custom:institution_id` / `custom:mfa_preference` とする
+- AuthStack 配下の認証基盤
+  - 基本構成
+    - Cognito は `UserPool` / `Web Client` / `IdentityPool` で構成する
+    - `/graphql` は Lambda Authorizer 経由とし、未認証は API Gateway で拒否する
+  - Web Client 設定
+    - `ExplicitAuthFlows` は次を有効化する
+      - `ALLOW_USER_SRP_AUTH`
+        - SRP（Secure Remote Password）方式でサインインするためのフロー
+        - 平文パスワードを直接送らない方式のログインを許可する
+      - `ALLOW_USER_PASSWORD_AUTH`
+        - `username + password` を使う直接認証フロー
+        - 管理用スクリプトや一部クライアントで必要になるため許可する
+      - `ALLOW_REFRESH_TOKEN_AUTH`
+        - `refresh token` を使って再ログインなしでトークンを再発行するフロー
+        - セッション維持に必要なため許可する
+    - IdentityPool との紐付け対象は Web client のみ（function/test は対象外）とする
+  - UserPool / IdentityPool 方針
+    - UserPool の自己サインアップは有効のまま運用する
+    - IdentityPool は `authenticated only`（未認証ゲストロールなし）で運用する
+  - Trigger 構成
+    - `preAuthentication`
+      - 役割
+        - サインイン確定前にログイン可否を判定する
+      - 内容
+        - `clientId -> clientName` 判定に基づくクライアント別制御の拡張ポイントとして保持する
+    - `preTokenGeneration`
+      - 役割
+        - トークン発行直前に claim を追加・抑制する
+      - 内容
+        - `custom:institution_id` / `custom:mfa_preference` の claim 反映ポイントとして利用する
+    - `customMessage`
+      - 役割
+        - Cognito が送る確認コード通知（メール/SMS）の件名・本文を制御する
+      - 内容
+        - 通知文面の統一フォーマットを適用する拡張ポイントとして保持する
+  - 拡張設定
+    - `clientId -> clientName` マップは SSM Parameter Store で管理する
+    - custom attributes は CDK の `UserPool.customAttributes` で定義する
+    - 対象 custom attribute は `custom:institution_id` / `custom:mfa_preference` とする
 
 ### Backend
 
-- Authorizer context は最小で `userId`, `username`, `groups`, `institutionCode?` を扱う
-- GraphQL Authorizer は `idToken` を前提に認証する
-- JWT はローカル decode のみで信頼しない
-- `aws-jwt-verify`（`CognitoJwtVerifier`）で署名検証を必須化する
-- 検証失敗時は `isAuthorized=false` を返す
-- GraphQL は `currentUser` Query で認証済みコンテキストを確認する構成としている
-- `me` Query は採用せず、認証済みユーザー確認の Query 名は `currentUser` に統一する
-- Authorizer context は API Gateway の `requestContext.authorizer` を server context 経由で resolver に渡す
+- GraphQL Authorizer 認証
+  - 認証方式
+    - `idToken` を前提に認証する
+    - `aws-jwt-verify`（`CognitoJwtVerifier`）で署名検証を必須化する
+  - 検証失敗時の挙動
+    - 検証失敗時は `isAuthorized=false` を返す
+- Authorizer context
+  - 役割
+    - API で必要な最小認証情報を resolver に渡す
+  - 内容
+    - `userId`, `username`, `groups(string[])`, `institutionCode?` を扱う
+    - API Gateway の `requestContext.authorizer.lambda` を server context 経由で resolver に渡す
+- 認証確認 Query
+  - 役割
+    - 認証済みコンテキストの疎通確認を行う
+  - 内容
+    - Query 名は `currentUser` に統一する
+    - `me` Query は採用しない
 
 ### Frontend
 
-- `auth-provider` と `urql-provider` を分離する構成としている
-- `Authorization` ヘッダーは `Bearer <idToken>` を自動付与する構成としている
-- runtime 設定は `packages/web/public/config.js` の `window.__CONFIG__` から解決する構成としている
-- 認証に必要な設定キーは `cognitoRegion` / `userPoolId` / `userPoolClientId` としている
-- local-dev では `local-dev:resolve-env` 実行時に `packages/web/public/config.js` を再生成する構成としている
-- アプリ全体を認証ガード配下に置き、未認証時はログイン導線へ遷移させる構成としている
-- 認証導線の実装手段は Amplify Auth API（`signIn` / `confirmSignIn` / `nextStep`）を利用し、UI は独自フォームコンポーネントで構成する
-- Amplify の token storage は `CookieStorage` を利用する
-- サインアップ UI は提供しない構成としている
-- ログイン画面は `/login` に分離する構成としている
-- `/login` は `LoginPage` が `authState` を見て、状態ごとの小さいフォームコンポーネントへ表示を委譲する
-- `AuthSignInForm` は username/password 入力と submit 通知のみを担当する
-- `AuthMfaConfirmForm` は MFA 確認コード入力、確定、再送通知のみを担当する
-- `11-3.auth-01` ではログインとユーザー作成の仕様をまとめて扱う構成としている
-- `11-3.auth-01` は説明専用とし、試験実行ボタンやデバッグ操作は配置しない
-- デバッグ機能は `main` と同列の `/debug` ルートに集約する
+- Provider 構成
+  - `auth-provider` と `urql-provider` を分離する
+  - `Authorization` ヘッダーは `Bearer <idToken>` を自動付与する
+- Runtime 設定
+  - 設定値は `packages/web/public/config.js` の `window.__CONFIG__` から解決する
+  - 認証に必要な設定キーは `cognitoRegion` / `userPoolId` / `userPoolClientId` とする
+  - local-dev では `local-dev:resolve-env` 実行時に `packages/web/public/config.js` を再生成する
+- 認証ガード
+  - アプリ全体を認証ガード配下に置く
+  - 未認証時はログイン導線へ遷移させる
+- ログイン導線
+  - 認証導線は Amplify Auth API（`signIn` / `confirmSignIn` / `nextStep`）で実装する
+  - UI は独自フォームコンポーネントで構成する
+  - Amplify の token storage は `CookieStorage` を利用する
+  - サインアップ UI は提供しない
+- 画面分離
+  - ログイン画面は `/login` に分離する
+  - `/login` は `LoginPage` が `authState` を見て、状態ごとのフォームコンポーネントへ表示を委譲する
+  - `AuthSignInForm` は username/password 入力と submit 通知のみを担当する
+  - `AuthMfaConfirmForm` は MFA 確認コード入力、確定、再送通知のみを担当する
+- 仕様説明ページとデバッグ導線
+  - `11-3.auth-01` はログインとユーザー作成の仕様説明を集約する
+  - `11-3.auth-01` は説明専用とし、試験実行ボタンやデバッグ操作は配置しない
+  - デバッグ機能は `main` と同列の `/debug` ルートに集約する
 
 ## 画面責務
 

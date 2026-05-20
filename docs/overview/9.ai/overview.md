@@ -3,7 +3,7 @@
 ## 対象
 
 - MCP（Model Context Protocol）
-- Skill（Codex skill）
+- Skill（Codex / Claude 共通運用）
 
 ## 現状
 
@@ -15,6 +15,7 @@
 ## 構成
 
 - `9-1.playwright-mcp`: ブラウザ操作 MCP（AI から web の DOM・Console・操作を扱う）
+- `9-2.architecture-drawio`: draw.io 図生成 Skill（.drawio を正本にして svg を docs/tsx で再利用する）
 
 ## 導入済みMCP
 
@@ -23,17 +24,23 @@
 - `Playwright MCP`（`@playwright/mcp`）
   - 目的: ローカル起動した web（`packages/web`）の DOM・Console・操作を Claude Code / Codex から扱えるようにする
 
-## 導入済みSkill（2026-04-26時点）
+## 導入済みSkill
 
 - `react-best-practices`
   - 目的: React 実装時の設計/実装判断を標準化する
   - 取得元: `vercel-labs/agent-skills`
+- `architecture-drawio`
+  - 目的: 自然言語から `.drawio` を生成・更新し、`svg` を docs/tsx で再利用する
+  - 配置先:
+    - Codex（repo）: `.agents/skills/architecture-drawio/SKILL.md`
+    - Codex（global）: `~/.codex/skills/architecture-drawio/SKILL.md`
+    - Claude: `~/.claude/skills/architecture-drawio/SKILL.md`
 
 ## ハーネス
 
 - `Process Guardrails`（運用ガードレール）: AI 実装の進め方を手順として固定し、運用のばらつきを抑える
   - `AGENTS.md` / `CLAUDE.md` を作業時の手順ハーネスとして利用する
-  - `docs/overview/8.coding-rules/overview.md` を実装判断の正本として準拠する
+  - `docs/overview/14.requirement/overview.md` / `docs/overview/15.design/overview.md` / `docs/overview/16.implementation/overview.md` / `docs/overview/17.verification/overview.md` をフェーズ別正本として準拠する
   - AI 実装支援は `Codex` / `Claude` を前提にプロンプト・手順を記述する
   - 実装前に、対象タスクで使う MCP / Skill を明示する
   - 公式ドキュメントと矛盾する場合は、公式情報を優先する
@@ -50,6 +57,8 @@
     - `pnpm qa:full`: 全観点の統合検証を実行する
 
 ## 決定ログ
+
+- 2026-05-16: `architecture-drawio` Skill を導入（`.drawio` 正本 + `svg` 再利用方針を追加）
 
 - 2026-04-26: `9.ai` 章を追加（MCP / Skill の管理方針を明文化）
 - 2026-04-26: 利用MCPを `awslabs-aws-iac-mcp-server` として明記
