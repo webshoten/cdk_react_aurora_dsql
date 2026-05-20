@@ -5,9 +5,9 @@ import { Auth02Page } from "./pages/auth-02-page.tsx";
  * # 11-4.auth-02 ルート定義
  *
  * ## 目的
- * 認証状態遷移と auth-02 検証仕様ページを /feature-use-cases 配下へ組み込む。
+ * 認証状態遷移と auth-02 検証仕様ページを /overview/11.feature-use-cases 配下へ組み込む。
  */
 export const auth02Route: RouteObject = {
-  path: "11-4.auth-02",
+  path: "overview/11.feature-use-cases/11-4.auth-02",
   element: <Auth02Page />,
 };

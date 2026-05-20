@@ -8,17 +8,17 @@ const MAIN_LINK_ITEMS = [
   },
   {
     title: "データ表示サンプル",
-    path: "/feature-use-cases/11-1.data-01",
+    path: "/overview/11.feature-use-cases/11-1.data-01",
     description: "11-1.data-01",
   },
   {
     title: "データ&画像表示サンプル",
-    path: "/feature-use-cases/11-2.data-02",
+    path: "/overview/11.feature-use-cases/11-2.data-02",
     description: "11-2.data-02",
   },
   {
     title: "AWS IoTによるMQTT通信サンプル",
-    path: "/feature-use-cases/11-11.iot-01",
+    path: "/overview/11.feature-use-cases/11-11.iot-01",
     description: "11-11.iot-01",
   },
 ] as const;

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { FEATURE_USE_CASES_NAV_ITEMS, OVERVIEW_NAV_ITEMS } from "@/app/layout/navigation.ts";
+import {
+  FEATURE_USE_CASES_NAV_ITEMS,
+  INFRA_RESOURCES_NAV_ITEMS,
+  OVERVIEW_NAV_ITEMS,
+} from "@/app/layout/navigation.ts";
 import { cn } from "@/shared/lib/utils.ts";
 import { buttonVariants } from "@/shared/ui/button.tsx";
 
@@ -17,6 +21,7 @@ import { buttonVariants } from "@/shared/ui/button.tsx";
  */
 export function AppLayout() {
   const [isFeatureUseCasesOpen, setIsFeatureUseCasesOpen] = useState(true);
+  const [isInfraResourcesOpen, setIsInfraResourcesOpen] = useState(true);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -29,21 +34,100 @@ export function AppLayout() {
             <div className="mt-4 space-y-2">
               {OVERVIEW_NAV_ITEMS.map((item) => (
                 <div className="space-y-1" key={item.label}>
-                  {item.label === "11.feature-use-cases" ? (
+                  {item.label === "2.infra-resources" ? (
                     <>
-                      <button
-                        className={cn(
-                          buttonVariants({
-                            className: "w-full justify-between",
-                            variant: "ghost",
-                          }),
-                        )}
-                        onClick={() => setIsFeatureUseCasesOpen((prev) => !prev)}
-                        type="button"
-                      >
-                        <span>{item.label}</span>
-                        <span className="text-xs">{isFeatureUseCasesOpen ? "▼" : "▶"}</span>
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <NavLink
+                          className={({ isActive }) =>
+                            cn(
+                              buttonVariants({
+                                className: "min-w-0 flex-1 justify-start",
+                                variant: isActive ? "default" : "ghost",
+                              }),
+                            )
+                          }
+                          to={item.to ?? "/overview/2.infra-resources"}
+                        >
+                          {item.label}
+                        </NavLink>
+                        <button
+                          className={cn(
+                            buttonVariants({
+                              className: "h-9 w-9 shrink-0 px-0",
+                              variant: "ghost",
+                            }),
+                          )}
+                          onClick={() => setIsInfraResourcesOpen((prev) => !prev)}
+                          type="button"
+                        >
+                          <span className="text-xs">{isInfraResourcesOpen ? "▼" : "▶"}</span>
+                        </button>
+                      </div>
+                      {isInfraResourcesOpen && (
+                        <div className="pl-2">
+                          {INFRA_RESOURCES_NAV_ITEMS.map((infraItem) =>
+                            infraItem.to ? (
+                              <NavLink
+                                className={({ isActive }) =>
+                                  cn(
+                                    buttonVariants({
+                                      className: "w-full justify-start",
+                                      variant: isActive ? "default" : "ghost",
+                                    }),
+                                  )
+                                }
+                                key={infraItem.label}
+                                to={infraItem.to}
+                              >
+                                {infraItem.label}
+                              </NavLink>
+                            ) : (
+                              <span
+                                className={cn(
+                                  buttonVariants({
+                                    className:
+                                      "w-full cursor-default justify-start opacity-60 pointer-events-none",
+                                    variant: "ghost",
+                                  }),
+                                )}
+                                key={infraItem.label}
+                              >
+                                {infraItem.label}
+                              </span>
+                            ),
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : item.label === "11.feature-use-cases" ? (
+                    <>
+                      <div className="flex items-center gap-1">
+                        <NavLink
+                          className={({ isActive }) =>
+                            cn(
+                              buttonVariants({
+                                className: "min-w-0 flex-1 justify-start",
+                                variant: isActive ? "default" : "ghost",
+                              }),
+                            )
+                          }
+                          to={item.to ?? "/overview/11.feature-use-cases"}
+                        >
+                          {item.label}
+                        </NavLink>
+                        <button
+                          className={cn(
+                            buttonVariants({
+                              className: "h-9 w-9 shrink-0 px-0",
+                              variant: "ghost",
+                            }),
+                          )}
+                          onClick={() => setIsFeatureUseCasesOpen((prev) => !prev)}
+                          type="button"
+                        >
+                          <span className="text-xs">{isFeatureUseCasesOpen ? "▼" : "▶"}</span>
+                        </button>
+                      </div>
                       {isFeatureUseCasesOpen && (
                         <div className="pl-2">
                           {FEATURE_USE_CASES_NAV_ITEMS.map((featureItem) =>
