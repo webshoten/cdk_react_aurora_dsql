@@ -40,6 +40,7 @@ cdk_pf/
   - pnpm 9.15.9
 - AWS CLI / CDK ブートストラップ済み (`cdk bootstrap`)
 - Docker（NodejsFunction バンドル時）
+  - draw.io 図の `drawio -> svg` 変換でも利用する
 
 ## セットアップ
 

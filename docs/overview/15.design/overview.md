@@ -59,3 +59,15 @@
   - `TODO` / `YYYY-MM-DD` のプレースホルダを残さない。
   - 実装手順・移行手順・作業分解などのタスクは `plan/` 配下の別 `*.md` に分離する。
   - 経緯を記載する場合は本文へ混在させず、該当項目の子リストに「補足」として簡潔に記載する。
+
+## 図表管理（drawio）
+- 正本と配置
+  - 図の正本は `.drawio` とする。
+  - 配布・参照用は `.svg` を同一ディレクトリに配置する。
+- 更新手順（Docker 前提）
+  - `.drawio` を更新したら `.svg` を再生成し、両方を同一タスクで更新する。
+  - 変換は Docker を利用して実行する（ローカルの draw.io desktop CLI 依存にしない）。
+  - 例: `docker run --rm -v "$PWD:/data" -w /data rlespinasse/drawio-export <path/to/file.drawio> --format svg`
+- 運用ルール
+  - 図を `md` / `tsx` で参照する場合は `.svg` を参照する。
+  - `.drawio` のみ変更して `.svg` を更新しない状態を残さない。

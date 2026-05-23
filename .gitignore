@@ -13,3 +13,4 @@ cdk-outputs.json
 .migration-runner-output.json
 .migration-sql.zip
 .playwright-mcp/
+docs/overview/1.architecture/export/

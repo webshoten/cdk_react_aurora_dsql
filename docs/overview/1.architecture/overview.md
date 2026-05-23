@@ -2,6 +2,7 @@
 
 ![AWSインフラ構成](./aws-infra-clean.svg)
 ![AWSローカル実行構成（launch.json: local-dev: web+functions）](./aws-local-dev.svg)
+![stack構成図（依存関係/順序ガイド）](./stack-composition.svg)
 
 - ローカル実行時の IoT 接続は、`Frontend Local (Vite)`（ブラウザ）から `IoT Core` へ `MQTT over WSS` で直接接続する。
 - 認証は `Custom Authorizer` を利用し、Cognito のトークン前提で接続する。
