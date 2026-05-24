@@ -7,6 +7,7 @@ interface IotSubscribeControlsProps {
   roomId: string;
   status: string;
   statusMessage: string;
+  subscribeTopicLabel: string;
 }
 
 /*
@@ -51,6 +52,7 @@ export function IotSubscribeControls(props: IotSubscribeControlsProps) {
         状態: {props.status}
         {props.statusMessage ? ` / ${props.statusMessage}` : ""}
       </p>
+      <p className="text-xs text-muted-foreground">該当 topic: {props.subscribeTopicLabel}</p>
     </div>
   );
 }

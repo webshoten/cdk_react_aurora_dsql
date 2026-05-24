@@ -76,4 +76,5 @@ export const INFRA_RESOURCES_NAV_ITEMS: InfraResourcesNavItem[] = [
   { label: "2-6.web-stack", to: "/overview/2.infra-resources/2-6.web-stack" },
   { label: "2-7.auth-stack", to: "/overview/2.infra-resources/2-7.auth-stack" },
   { label: "2-8.domain", to: "/overview/2.infra-resources/2-8.domain" },
+  { label: "2-9.realtime-stack", to: "/overview/2.infra-resources/2-9.realtime-stack" },
 ];

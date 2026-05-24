@@ -6,7 +6,7 @@ import {
   OVERVIEW_NAV_ITEMS,
 } from "@/app/layout/navigation.ts";
 import { cn } from "@/shared/lib/utils.ts";
-import { buttonVariants } from "@/shared/ui/button.tsx";
+import { buttonVariants } from "@/shared/ui/button-variants.ts";
 
 /*
  * # サイドバー付き共通レイアウト

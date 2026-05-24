@@ -1,3 +1,4 @@
+import { buildIotEventTopic } from "@pf/mqtt-schema";
 import { useMemo, useState } from "react";
 import { resolveConfigError, resolveIotConfig } from "@/app/config/runtime-config.ts";
 import { useAuth } from "@/domains/auth/context/auth-context.tsx";
@@ -47,21 +48,25 @@ export function Iot01Page() {
     return true;
   }, [authState, institutionId, iotConfig, roomId]);
 
+  const subscribeTopicLabel = useMemo(() => {
+    const trimmedRoomId = roomId.trim();
+    const trimmedInstitutionId = institutionId.trim();
+    if (!iotConfig || !trimmedRoomId || !trimmedInstitutionId) {
+      return "(roomId / institutionId 入力後に表示)";
+    }
+    return buildIotEventTopic({
+      sharedEnv: iotConfig.sharedEnv,
+      stage: iotConfig.stage,
+      medicalInstitutionId: trimmedInstitutionId,
+      roomId: trimmedRoomId,
+    });
+  }, [institutionId, iotConfig, roomId]);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>11-11.iot-01 Realtime</CardTitle>
         <CardDescription>MQTT subscribe / unsubscribe と保存確認（GraphQL）</CardDescription>
-        <div className="rounded-md border border-border bg-muted/40 p-3 text-sm">
-          <p className="font-medium">このページで確認する仕様</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-            <li>Subscribe ボタンで接続し、Unsubscribe で解除できること</li>
-            <li>`Publish onStartRoom` 実行後に topic と publish 結果が表示されること</li>
-            <li>受信欄に MQTT メッセージが表示されること</li>
-            <li>DynamoDB 保存結果が GraphQL query で確認できること</li>
-            <li>`roomId` 未入力時は query を実行しないこと</li>
-          </ul>
-        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded border border-border p-4 text-xs">
@@ -87,6 +92,7 @@ export function Iot01Page() {
           }}
           onUnsubscribe={subscription.unsubscribe}
           roomId={roomId}
+          subscribeTopicLabel={subscribeTopicLabel}
           status={subscription.status}
           statusMessage={subscription.statusMessage}
         />

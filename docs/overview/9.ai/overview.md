@@ -47,6 +47,7 @@
   - 新規 Skill 導入時は本章に目的と取得元を追記する
 - `Quality Gate(s)`（品質ゲート）: AI 作業後の検証を `pnpm qa` に集約し、品質判定を機械実行で統一する
   - `QAの概要`: `pnpm qa` を単一入口として実行し、失敗時は完了扱いにしない。新規指摘は同一タスク内で解消し、例外時は `docs/operations/qa-issues.md` の台帳ルール（理由・チケットID・期限）に従う
+  - ドキュメントのみ変更（例: `docs/**/*.md`, `*.drawio`, `*.svg`）は `qa:base` 必須対象外とする
   - `コマンド別説明`
     - `pnpm qa:static`: 静的解析（例: semgrep）を実行する
     - `pnpm qa:base`: 常時必須の最小検証（lint/typecheck など）を実行する

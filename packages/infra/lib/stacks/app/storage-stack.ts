@@ -18,7 +18,7 @@ export interface StorageStackProps extends cdk.StackProps {
  *
  * ## 説明
  * - 現時点は image/ プレフィックス用途のみを対象にする。
- * - 将来の Firehose / 動画処理連携は本 Stack で拡張する前提。
+ * - StorageStack は画像用途に限定し、他機能の保存経路は各機能責務の Stack で管理する。
  */
 export class StorageStack extends cdk.Stack {
   public readonly imageBucketName: string;

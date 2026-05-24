@@ -21,6 +21,11 @@ const MAIN_LINK_ITEMS = [
     path: "/overview/11.feature-use-cases/11-11.iot-01",
     description: "11-11.iot-01",
   },
+  {
+    title: "Realtime Stack",
+    path: "/overview/2.infra-resources/2-9.realtime-stack",
+    description: "2-9.realtime-stack",
+  },
 ] as const;
 
 /*

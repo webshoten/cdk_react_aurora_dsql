@@ -26,7 +26,9 @@ export function ArchitecturePage() {
       <Card>
         <CardHeader>
           <CardTitle>architecture (local-dev)</CardTitle>
-          <CardDescription>AWSローカル実行構成（launch.json: local-dev: web+functions）</CardDescription>
+          <CardDescription>
+            AWSローカル実行構成（launch.json: local-dev: web+functions）
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <img

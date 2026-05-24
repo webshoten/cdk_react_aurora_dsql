@@ -23,11 +23,27 @@
 8. コード変更後は、変更対象に応じて `qa:*` を実行し、結果を報告する。
 9. QA 実行ルールは次を基本とする。
    - 常時実行: `pnpm qa:static` と `pnpm qa:base`
+   - ドキュメントのみ変更（例: `docs/**/*.md`, `*.drawio`, `*.svg`）: `pnpm qa:base` は必須対象外
    - `packages/web` のみ変更: `pnpm qa:frontend` を追加実行する
    - `packages/functions` または `packages/core` のみ変更: `pnpm qa:backend` を追加実行する
    - `packages/infra` のみ変更: `pnpm qa:infra` を追加実行する（`CDK_SHARED_ENV` 必須）
    - 認証/認可/秘密情報/IAM/ネットワーク変更: `pnpm qa:security` を追加実行する
    - 複数領域変更や統合確認: `pnpm qa:full` を実行する
+
+## コーディング原則
+出典: https://github.com/multica-ai/andrej-karpathy-skills （MIT License）。Andrej Karpathy の LLM コーディング指針から、既存ルールで未カバーの2原則を採用。
+
+### 簡潔優先（Simplicity First）
+- 要求された範囲のみ実装。投機的機能・未要求の設定可能性を足さない。
+- 単一用途コードに抽象化を作らない。
+- 起こり得ないケースのエラーハンドリングを書かない。
+- 「シニアエンジニアが過剰と言うか？」→ Yes なら簡素化する。
+
+### 外科的変更（Surgical Changes）
+- 必要な箇所のみ触る。隣接コード・コメント・整形を勝手に改善しない。
+- 壊れていないものをリファクタしない。既存スタイルを維持する。
+- 自分の変更が生んだ未使用 import/変数のみ削除。既存 dead code は消さず報告する。
+- 全変更行がユーザー要求に直接たどれること。
 
 ## コミュニケーションルール
 - ユーザーの質問・依頼の意図が抽象的な場合は、推測で進めず、質問して意図を明確化してから進める。

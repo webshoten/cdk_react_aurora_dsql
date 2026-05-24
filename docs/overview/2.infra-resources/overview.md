@@ -10,6 +10,19 @@
 
 - stack 別に `overview.md` を分割して管理する
 - `shared` 層と `app` 層の責務分離を前提に運用する
+- stack はリソース種別ではなく機能責務で分割する（vertical）
+
+## Stack 配置判定ルール
+
+- 単一機能専用のリソースは、その機能の stack に配置する
+- 複数機能で共有する基盤リソースのみ、共通 stack（shared / 横断基盤）へ配置する
+- 配置判断は「どの機能のためのリソースか」「どの機能変更と同時に見直すことが多いか」を優先する
+- 既存の stack 責務と矛盾する配置を避け、責務が変わる場合は先に責務定義を更新してから配置を変更する
+
+## iot-02 への適用方針
+
+- iot-02 で追加する IoT メッセージ保存経路（IoT Rule / Firehose / S3）は Realtime 機能責務として `2-9.realtime-stack` で管理する
+- `StorageStack` は既存方針どおり画像用途に限定する
 
 ## Stack 別設計
 
@@ -21,6 +34,7 @@
 - [2-6.web-stack](./2-6.web-stack/overview.md)
 - [2-7.auth-stack](./2-7.auth-stack/overview.md)
 - [2-8.domain](./2-8.domain/overview.md)
+- [2-9.realtime-stack](./2-9.realtime-stack/overview.md)
 
 ## 階層構造
 
